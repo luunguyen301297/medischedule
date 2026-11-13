@@ -1,0 +1,54 @@
+# Giá trị lấy từ biến môi trường (.env ở thư mục gốc). Chạy ngoài Docker: nạp .env vào IDE / shell.
+server:
+  port: ${SERVER_PORT:8085}
+
+spring:
+  application:
+    name: medischedule
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/medischedule}
+    username: ${POSTGRES_USER:medischedule}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate          # Schema do Flyway quản lý, Hibernate chỉ kiểm tra
+    properties:
+      hibernate.jdbc.time_zone: Asia/Ho_Chi_Minh
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6390}
+      password: ${REDIS_PASSWORD:}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    ttl-minutes: ${JWT_TTL_MINUTES:480}
+  cors-origins: ${CORS_ORIGINS:http://localhost:5175}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    email: ${ADMIN_EMAIL:admin@medischedule.local}
+    password: ${ADMIN_PASSWORD:}
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9010}
+    access-key: ${MINIO_ROOT_USER:medischedule}
+    secret-key: ${MINIO_ROOT_PASSWORD:}
+    bucket: ${MINIO_BUCKET:medical-files}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

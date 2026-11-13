@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Docker: infra up",
+            "detail": "Bật Postgres, Redis, MinIO (bỏ qua nếu đang chạy)",
+            "type": "shell",
+            "command": "docker compose up -d",
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": []
+        },
+        {
+            "label": "Docker: infra down",
+            "type": "shell",
+            "command": "docker compose down",
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": []
+        },
+        {
+            "label": "Backend: build",
+            "type": "shell",
+            "command": ".\\mvnw.cmd -B -DskipTests package",
+            "options": { "cwd": "${workspaceFolder}/backend" },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Web: install",
+            "type": "shell",
+            "command": "npm install",
+            "options": { "cwd": "${workspaceFolder}/web" },
+            "problemMatcher": []
+        },
+        {
+            "label": "Web: typecheck",
+            "type": "shell",
+            "command": "npm run typecheck",
+            "options": { "cwd": "${workspaceFolder}/web" },
+            "problemMatcher": ["$tsc"]
+        }
+    ]
+}

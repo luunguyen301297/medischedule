@@ -1,0 +1,25 @@
+.env
+.idea/
+# .vscode/launch.json, tasks.json dùng chung cho cả nhóm
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+*.iml
+.DS_Store
+
+# backend
+backend/target/
+
+# web
+web/node_modules/
+web/dist/
+
+# ai-service
+ai-service/.venv/
+__pycache__/
+*.pyc
+
+# mobile
+mobile/build/
+mobile/.dart_tool/

@@ -1,0 +1,48 @@
+package vn.medischedule.auth.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import vn.medischedule.auth.domain.User;
+
+import java.time.OffsetDateTime;
+
+/** Request/response của module auth. */
+public final class AuthDtos {
+
+    private AuthDtos() {}
+
+    /** login: email hoặc tên đăng nhập. */
+    public record LoginRequest(
+            @NotBlank String login,
+            @NotBlank String password) {}
+
+    /** Bệnh nhân tự đăng ký; luôn nhận vai trò PATIENT. */
+    public record RegisterRequest(
+            @NotBlank @Email String email,
+            @NotBlank @Size(min = 8, max = 72) String password,
+            @NotBlank @Size(max = 120) String fullName,
+            @Size(max = 15) String phone) {}
+
+    /** Admin tạo tài khoản nhân viên với vai trò chỉ định. */
+    public record CreateUserRequest(
+            @NotBlank @Email String email,
+            @Pattern(regexp = "^[a-zA-Z0-9._-]{3,50}$", message = "Tên đăng nhập 3–50 ký tự: chữ, số, dấu chấm, gạch") String username,
+            @NotBlank @Size(min = 8, max = 72) String password,
+            @NotBlank @Size(max = 120) String fullName,
+            @Size(max = 15) String phone,
+            @NotBlank String role) {}
+
+    public record ChangeRoleRequest(@NotBlank String role) {}
+
+    public record UserResponse(Long id, String email, String username, String fullName, String phone, String role,
+                               boolean enabled, OffsetDateTime lastLoginAt, OffsetDateTime createdAt) {
+        public static UserResponse of(User u) {
+            return new UserResponse(u.getId(), u.getEmail(), u.getUsername(), u.getFullName(), u.getPhone(),
+                    u.getRole().getCode(), u.isEnabled(), u.getLastLoginAt(), u.getCreatedAt());
+        }
+    }
+
+    public record TokenResponse(String accessToken, String tokenType, long expiresIn, UserResponse user) {}
+}

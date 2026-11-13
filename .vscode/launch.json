@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "Frontend",
+            "command": "npm.cmd run dev",
+            "cwd": "${workspaceFolder}/web"
+        },
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "Backend",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\run-backend.ps1",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "Backend (Debug Java)",
+            "mainClass": "vn.medischedule.MediScheduleApplication",
+            "projectName": "medischedule-backend",
+            "cwd": "${workspaceFolder}/backend",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Run Full Stack",
+            "preLaunchTask": "Docker: infra up",
+            "configurations": [
+                "Backend",
+                "Frontend"
+            ]
+        }
+    ]
+}
