@@ -3,6 +3,7 @@
 -- Sửa nội dung trang chủ ở /admin/homepage rồi chạy lại script để cập nhật file này.
 --
 -- Chạy sau các migration V*, và chạy lại mỗi khi file này thay đổi.
+-- Không ghi đè dữ liệu người dùng đã sửa: trang chủ chỉ cập nhật khi chưa sửa ở /admin, tài khoản demo chỉ thêm khi chưa có.
 -- Chỉ nạp khi FLYWAY_LOCATIONS có classpath:db/seed (mặc định ở môi trường dev, xem application.yml).
 -- ============================================================================
 
@@ -149,7 +150,10 @@ VALUES ('homepage', '{
     }
   ]
 }'::jsonb, now())
-ON CONFLICT (content_key) DO UPDATE SET content = EXCLUDED.content, updated_at = now();
+ON CONFLICT (content_key) DO UPDATE SET content = EXCLUDED.content, updated_at = now()
+-- Chỉ ghi đè nội dung chưa từng được sửa ở /admin/homepage (updated_by trống = do migration/seed tạo).
+-- Máy đã sửa trang chủ giữ nguyên; muốn lấy bản seed mới nhất thì xóa dữ liệu: docker compose down -v
+WHERE site_content.updated_by IS NULL;
 
 -- 2. Tài khoản demo cho từng vai trò, mật khẩu: demo@123
 --    (tài khoản quản trị admin / admin@123 do backend tự tạo lúc khởi động, xem AdminInitializer)

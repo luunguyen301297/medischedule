@@ -7,7 +7,8 @@ Xuất dữ liệu hiện có trong DB dev ra file seed Flyway để người kh
 - Ghi lại backend/src/main/resources/db/seed/R__seed_dev_data.sql (phần nội dung trang chủ + tài khoản demo)
 - Không xuất tài khoản thật (email, mã băm mật khẩu cá nhân): chỉ tạo tài khoản demo theo từng vai trò
 
-Flyway chạy lại file R__ mỗi khi nội dung file đổi, nên sau khi export, backend khởi động lại sẽ nạp bản mới.
+Flyway chạy lại file R__ mỗi khi nội dung file đổi, nhưng nội dung trang chủ chỉ được ghi đè ở máy
+chưa từng sửa trang chủ trong /admin (site_content.updated_by trống). Máy đã sửa giữ nguyên nội dung của mình.
 """
 import json
 import pathlib
@@ -48,6 +49,7 @@ def build(homepage: dict) -> str:
 -- Sửa nội dung trang chủ ở /admin/homepage rồi chạy lại script để cập nhật file này.
 --
 -- Chạy sau các migration V*, và chạy lại mỗi khi file này thay đổi.
+-- Không ghi đè dữ liệu người dùng đã sửa: trang chủ chỉ cập nhật khi chưa sửa ở /admin, tài khoản demo chỉ thêm khi chưa có.
 -- Chỉ nạp khi FLYWAY_LOCATIONS có classpath:db/seed (mặc định ở môi trường dev, xem application.yml).
 -- ============================================================================
 
@@ -56,7 +58,10 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- 1. Nội dung trang chủ (đặt lịch đầu trang, giới thiệu chung, các cụm ảnh nền)
 INSERT INTO site_content (content_key, content, updated_at)
 VALUES ('homepage', {q(content)}::jsonb, now())
-ON CONFLICT (content_key) DO UPDATE SET content = EXCLUDED.content, updated_at = now();
+ON CONFLICT (content_key) DO UPDATE SET content = EXCLUDED.content, updated_at = now()
+-- Chỉ ghi đè nội dung chưa từng được sửa ở /admin/homepage (updated_by trống = do migration/seed tạo).
+-- Máy đã sửa trang chủ giữ nguyên; muốn lấy bản seed mới nhất thì xóa dữ liệu: docker compose down -v
+WHERE site_content.updated_by IS NULL;
 
 -- 2. Tài khoản demo cho từng vai trò, mật khẩu: {DEMO_PASSWORD}
 --    (tài khoản quản trị admin / admin@123 do backend tự tạo lúc khởi động, xem AdminInitializer)

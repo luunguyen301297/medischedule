@@ -55,7 +55,9 @@ set -a && . ./.env && set +a && cd backend && ./mvnw spring-boot:run
 cd web && npm install && npm run dev
 ```
 
-Lần chạy đầu, Flyway tự tạo schema và nạp dữ liệu mẫu (`db/migration`, `db/seed`); tài khoản admin được tạo theo `.env`.
+Lần chạy đầu, backend tự dựng DB, **không cần import gì**: Flyway tạo schema, nạp nội dung trang chủ và 4 tài khoản demo (`db/migration`, rồi `db/seed`), sau đó backend tạo tài khoản admin theo `.env`. Log có dòng `Successfully applied 5 migrations` và `Đã tạo tài khoản quản trị 'admin'`. Mở http://localhost:5175/login là thấy trang chủ có dữ liệu (ảnh nền tải từ internet).
+
+Seed **không ghi đè dữ liệu bạn đã sửa**. Nội dung trang chủ chỉ được cập nhật theo seed mới nếu bạn chưa từng lưu ở `/admin/homepage`; tài khoản demo chỉ thêm khi chưa có. Muốn lấy đúng bản seed mới nhất thì xóa dữ liệu (`docker compose down -v`) rồi chạy lại backend.
 
 ## Địa chỉ và tài khoản
 
@@ -74,7 +76,8 @@ Lần chạy đầu, Flyway tự tạo schema và nạp dữ liệu mẫu (`db/m
 ## Ghi chú
 
 - Quy ước code: [`CLAUDE.md`](CLAUDE.md).
-- Sửa nội dung trang chủ ở `/admin/homepage` rồi chạy `python scripts/export_seed.py` để cập nhật seed cho cả nhóm.
+- Muốn người mới clone về có nội dung trang chủ giống máy bạn: sửa ở `/admin/homepage`, chạy `python scripts/export_seed.py`, commit file seed.
 - Không sửa migration `V*` đã chạy; thay đổi schema thì tạo file mới.
 - Docker image MinIO dùng `pgsty/minio`, vì image `minio/minio` gốc đã ngừng phát hành.
-- Xóa sạch dữ liệu dev: `docker compose down -v`.
+- Xóa sạch dữ liệu dev: `docker compose down -v`. Cũng dùng khi đổi `POSTGRES_PASSWORD` sau lần chạy đầu (Postgres giữ mật khẩu cũ trong volume).
+- Đăng nhập `admin` không được: tài khoản này chỉ tạo một lần. Đổi `ADMIN_PASSWORD` sau đó sẽ không có tác dụng, cần xóa sạch dữ liệu để tạo lại.
