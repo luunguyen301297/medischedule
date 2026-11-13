@@ -1,8 +1,8 @@
 import { UploadOutlined } from '@ant-design/icons'
 import { App, Button, Input, Upload } from 'antd'
 import { useState } from 'react'
-import { filesApi } from '../api/content'
-import { errorMessage } from '../api/http'
+import { filesApi } from '@/shared/api/files'
+import { errorMessage } from '@/shared/api/http'
 
 /**
  * Ô chọn ảnh dùng trong Form.Item: dán đường dẫn hoặc tải ảnh lên (lưu MinIO), có ảnh xem trước.

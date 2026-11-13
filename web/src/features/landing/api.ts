@@ -1,4 +1,4 @@
-import { http } from './http'
+import { http } from '@/shared/api/http'
 
 export type FeatureIcon = 'calendar' | 'clock' | 'file' | 'bell' | 'heart' | 'team' | 'safety' | 'medicine'
 
@@ -150,13 +150,4 @@ export const contentApi = {
       .catch(() => DEFAULT_HOMEPAGE),
   saveHomepage: (body: HomepageContent) =>
     http.put<HomepageContent>('/admin/site-content/homepage', body).then((r) => withDefaults(r.data)),
-}
-
-export const filesApi = {
-  /** Upload ảnh lên MinIO qua backend, trả về đường dẫn công khai /api/public/files/site/... */
-  uploadImage: (file: File) => {
-    const fd = new FormData()
-    fd.append('file', file)
-    return http.post<{ url: string }>('/admin/files', fd).then((r) => r.data.url)
-  },
 }

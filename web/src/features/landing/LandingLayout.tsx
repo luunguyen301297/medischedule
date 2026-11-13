@@ -2,10 +2,11 @@ import { CheckCircleFilled, ClockCircleOutlined, EnvironmentOutlined, PhoneOutli
 import { useQuery } from '@tanstack/react-query'
 import { Button } from 'antd'
 import { useEffect, type ReactNode } from 'react'
-import { contentApi, DEFAULT_HOMEPAGE } from '../api/content'
-import BookingWidget from './BookingWidget'
-import FeatureIcon from './FeatureIcon'
-import Reveal from './Reveal'
+import { contentApi, DEFAULT_HOMEPAGE } from './api'
+import BookingWidget from './components/BookingWidget'
+import FeatureIcon from './components/FeatureIcon'
+import Reveal from '@/shared/ui/Reveal'
+import './landing.css'
 
 function Logo({ name }: { name: string }) {
   return (
@@ -27,7 +28,7 @@ const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({
  *  3. sections — nhiều cụm thông tin kèm ảnh nền
  * Mỗi cụm trượt vào khi cuộn tới (components/Reveal).
  */
-export default function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+export default function LandingLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   const { data = DEFAULT_HOMEPAGE } = useQuery({ queryKey: ['homepage'], queryFn: contentApi.homepage, staleTime: 60_000 })
   const { booking, intro, sections } = data
   const shown = sections.filter((s) => s.active && s.title)

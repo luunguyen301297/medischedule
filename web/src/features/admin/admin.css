@@ -1,0 +1,23 @@
+/* Khu quản trị (/admin). Dùng biến --ms-* từ shared/theme. */
+
+/* ================= Khu quản trị ================= */
+.admin-shell { height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+.admin-side { border-right: 1px solid var(--ms-border); display: flex; flex-direction: column; padding: 20px 12px; gap: 16px; }
+.admin-side .brand-logo { padding: 0 8px; font-size: 18px; }
+.admin-side .brand-mark { background: var(--ms-primary); color: #fff; width: 34px; height: 34px; }
+.admin-side .ant-menu { border-inline-end: 0 !important; }
+.admin-user { margin-top: auto; border-top: 1px solid var(--ms-border); padding: 14px 8px 0; display: grid; gap: 8px; font-size: 14px; }
+.admin-user b { font-weight: 600; }
+.admin-main { overflow: auto; min-width: 0; }
+.admin-page { padding: 28px 36px 48px; max-width: 1280px; }
+.admin-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 5px; }
+.admin-head h1 { font-size: 24px; margin: 0 0 4px; font-weight: 700; }
+.admin-head p { margin: 0; color: var(--ms-ink-soft); font-size: 14.5px; }
+.admin-toolbar { display: flex; gap: 12px; margin-bottom: 5px; }
+
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.settings-section { border: 1px solid var(--ms-border); border-radius: 12px; padding: 20px 24px 8px; margin-bottom: 20px; }
+.settings-section h2 { font-size: 17px; margin: 0 0 4px; font-weight: 600; }
+.settings-section > p { margin: 0 0 16px; color: var(--ms-ink-soft); font-size: 14px; }
+.list-row { display: grid; gap: 12px; align-items: start; border-top: 1px dashed var(--ms-border); padding-top: 16px; margin-top: 4px; }
+.list-row:first-child { border-top: 0; padding-top: 0; margin-top: 0; }

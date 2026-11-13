@@ -2,9 +2,9 @@ import { LayoutOutlined, LogoutOutlined, TeamOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Menu, Spin } from 'antd'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { authApi } from '../../api/auth'
-import { tokenStore } from '../../api/http'
-import { ROLE_LABEL } from '../../api/users'
+import { authApi, ROLE_LABEL } from '@/features/auth'
+import { tokenStore } from '@/shared/api/http'
+import '../admin.css'
 
 const MENU = [
   { key: '/admin/staff', icon: <TeamOutlined />, label: 'Tài khoản nhân viên' },

@@ -2,10 +2,9 @@ import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, ExportOutlined, Plu
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { App, Button, Form, Input, Radio, Select, Space, Spin, Switch, Tabs } from 'antd'
 import { useEffect } from 'react'
-import { contentApi, LIMITS, type HomepageContent, type ImageSection } from '../../api/content'
-import { errorMessage } from '../../api/http'
-import { FEATURE_ICONS } from '../../components/FeatureIcon'
-import ImageField from '../../components/ImageField'
+import { contentApi, FEATURE_ICONS, LIMITS, type HomepageContent, type ImageSection } from '@/features/landing'
+import { errorMessage } from '@/shared/api/http'
+import ImageField from '@/shared/ui/ImageField'
 
 const iconOptions = Object.entries(FEATURE_ICONS).map(([value, { label, node }]) => ({
   value,

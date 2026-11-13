@@ -1,52 +1,4 @@
-/* Màu lấy từ biến --ms-* do src/theme.ts đẩy vào :root. Không viết mã màu cứng ở đây. */
-
-* { box-sizing: border-box; }
-html, body, #root { margin: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: var(--ms-font); color: var(--ms-ink); background: var(--ms-surface); }
-
-/* Giao diện phẳng: bỏ đổ bóng ở mọi nơi, kể cả component Ant Design */
-*, *::before, *::after { box-shadow: none !important; }
-
-/* Ô được trình duyệt tự điền: giữ nền trắng thay vì nền xanh nhạt */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--ms-ink);
-  transition: background-color 9999s ease-out 0s;
-}
-/* Chữ xem trước khi trình duyệt gợi ý tự điền: dùng đúng phông, cỡ chữ của ô
-   (mặc định trình duyệt vẽ nhỏ hơn rồi mới to lên khi chọn xong). 15px = fontSize, 17px = ô size="large" */
-input:-webkit-autofill::first-line { font-family: var(--ms-font); font-size: 15px; }
-.ant-input-lg:-webkit-autofill::first-line,
-.ant-input-affix-wrapper-lg input:-webkit-autofill::first-line { font-size: 17px; }
-
-:focus-visible { outline: 2px solid var(--ms-primary); outline-offset: 2px; }
-
-/* ================= Thanh cuộn mảnh dùng chung (trang, bảng, modal, dropdown...) ================= */
-* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ms-ink) 22%, transparent) transparent; }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background-color: color-mix(in srgb, var(--ms-ink) 22%, transparent);
-  border-radius: 999px;
-  border: 2px solid transparent;     /* chừa viền để thanh trông mảnh hơn */
-  background-clip: content-box;
-}
-::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--ms-primary) 70%, transparent); }
-::-webkit-scrollbar-corner { background: transparent; }
-
-/* ================= Hiệu ứng trượt khi cuộn (components/Reveal) ================= */
-.reveal { opacity: 0; transition: opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity, transform; }
-.reveal-left { transform: translateX(-80px); }
-.reveal-right { transform: translateX(80px); }
-.reveal-up { transform: translateY(48px); }
-.reveal.is-shown { opacity: 1; transform: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
-}
+/* Trang giới thiệu: đặt lịch, đăng nhập / đăng ký, các cụm ảnh nền. Dùng biến --ms-* từ shared/theme. */
 
 /* ================= Trang giới thiệu + đăng nhập / đăng ký ================= */
 /* clip (không phải hidden): cắt phần trượt ngang mà không biến .landing thành vùng cuộn riêng → chỉ một thanh cuộn */
@@ -62,9 +14,6 @@ input:-webkit-autofill::first-line { font-family: var(--ms-font); font-size: 15p
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--ms-border);
 }
-/* Logo dùng chung: biểu tượng chữ thập + tên, cách nhau 10px */
-.brand-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; white-space: nowrap; }
-.brand-mark { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; }
 
 .site-nav .brand-logo { font-size: 18px; color: var(--ms-ink); }
 .site-nav .brand-mark { width: 34px; height: 34px; background: var(--ms-primary); color: #fff; }
@@ -222,7 +171,6 @@ input:-webkit-autofill::first-line { font-family: var(--ms-font); font-size: 15p
 .auth-panel .ant-form-item-label { padding-bottom: 4px; }
 .auth-panel .ant-form-item-label > label { font-weight: 600; font-size: 14px; }
 .auth-panel .ant-btn-primary { height: 48px; border-radius: 12px; font-size: 16px; }
-.auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 
 /* ---------- 3. Các cụm thông tin kèm ảnh nền: thẻ trắng nổi trên ảnh ---------- */
 .img-section {
@@ -262,24 +210,3 @@ input:-webkit-autofill::first-line { font-family: var(--ms-font); font-size: 15p
 .foot-grid .brand-mark { background: var(--ms-primary); color: #fff; }
 .foot-grid .anticon { color: var(--ms-primary); margin-right: 6px; }
 
-/* ================= Khu quản trị ================= */
-.admin-shell { height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
-.admin-side { border-right: 1px solid var(--ms-border); display: flex; flex-direction: column; padding: 20px 12px; gap: 16px; }
-.admin-side .brand-logo { padding: 0 8px; font-size: 18px; }
-.admin-side .brand-mark { background: var(--ms-primary); color: #fff; width: 34px; height: 34px; }
-.admin-side .ant-menu { border-inline-end: 0 !important; }
-.admin-user { margin-top: auto; border-top: 1px solid var(--ms-border); padding: 14px 8px 0; display: grid; gap: 8px; font-size: 14px; }
-.admin-user b { font-weight: 600; }
-.admin-main { overflow: auto; min-width: 0; }
-.admin-page { padding: 28px 36px 48px; max-width: 1280px; }
-.admin-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 5px; }
-.admin-head h1 { font-size: 24px; margin: 0 0 4px; font-weight: 700; }
-.admin-head p { margin: 0; color: var(--ms-ink-soft); font-size: 14.5px; }
-.admin-toolbar { display: flex; gap: 12px; margin-bottom: 5px; }
-
-.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
-.settings-section { border: 1px solid var(--ms-border); border-radius: 12px; padding: 20px 24px 8px; margin-bottom: 20px; }
-.settings-section h2 { font-size: 17px; margin: 0 0 4px; font-weight: 600; }
-.settings-section > p { margin: 0 0 16px; color: var(--ms-ink-soft); font-size: 14px; }
-.list-row { display: grid; gap: 12px; align-items: start; border-top: 1px dashed var(--ms-border); padding-top: 16px; margin-top: 4px; }
-.list-row:first-child { border-top: 0; padding-top: 0; margin-top: 0; }

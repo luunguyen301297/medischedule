@@ -1,4 +1,4 @@
-import { http } from './http'
+import { http } from '@/shared/api/http'
 
 export type Role = 'ADMIN' | 'DOCTOR' | 'RECEPTIONIST' | 'PHARMACIST' | 'PATIENT'
 

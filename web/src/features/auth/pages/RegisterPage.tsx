@@ -2,9 +2,9 @@ import { LockOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '@ant-de
 import { App, Button, Form, Input } from 'antd'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { authApi, type RegisterRequest } from '../api/auth'
-import { errorCode, errorMessage, fieldErrors, tokenStore } from '../api/http'
-import AuthLayout from '../components/AuthLayout'
+import { authApi, type RegisterRequest } from '../api'
+import { errorCode, errorMessage, fieldErrors, tokenStore } from '@/shared/api/http'
+import { LandingLayout } from '@/features/landing'
 
 type FormValues = RegisterRequest & { confirm: string }
 
@@ -37,7 +37,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Tạo tài khoản" subtitle="Dành cho bệnh nhân. Chỉ mất chưa tới một phút.">
+    <LandingLayout title="Tạo tài khoản" subtitle="Dành cho bệnh nhân. Chỉ mất chưa tới một phút.">
       <Form form={form} layout="vertical" size="large" onFinish={onFinish} requiredMark={false}>
         <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, whitespace: true, message: 'Nhập họ và tên' }, { max: 120 }]}>
           <Input prefix={<UserOutlined />} placeholder="Nguyễn Văn A" autoComplete="name" />
@@ -91,6 +91,6 @@ export default function RegisterPage() {
       <div className="auth-switch">
         Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
       </div>
-    </AuthLayout>
+    </LandingLayout>
   )
 }

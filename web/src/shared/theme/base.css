@@ -1,0 +1,57 @@
+/* Nền tảng dùng chung cho mọi trang: reset, biến màu (--ms-* do theme.ts đẩy vào), thanh cuộn, hiệu ứng Reveal, logo.
+   CSS riêng từng khu nằm cạnh feature: features/landing/landing.css, features/admin/admin.css. */
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--ms-font); color: var(--ms-ink); background: var(--ms-surface); }
+
+/* Giao diện phẳng: bỏ đổ bóng ở mọi nơi, kể cả component Ant Design */
+*, *::before, *::after { box-shadow: none !important; }
+
+/* Ô được trình duyệt tự điền: giữ nền trắng thay vì nền xanh nhạt */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ms-ink);
+  transition: background-color 9999s ease-out 0s;
+}
+/* Chữ xem trước khi trình duyệt gợi ý tự điền: dùng đúng phông, cỡ chữ của ô
+   (mặc định trình duyệt vẽ nhỏ hơn rồi mới to lên khi chọn xong). 15px = fontSize, 17px = ô size="large" */
+input:-webkit-autofill::first-line { font-family: var(--ms-font); font-size: 15px; }
+.ant-input-lg:-webkit-autofill::first-line,
+.ant-input-affix-wrapper-lg input:-webkit-autofill::first-line { font-size: 17px; }
+
+:focus-visible { outline: 2px solid var(--ms-primary); outline-offset: 2px; }
+
+/* ================= Thanh cuộn mảnh dùng chung (trang, bảng, modal, dropdown...) ================= */
+* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--ms-ink) 22%, transparent) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--ms-ink) 22%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;     /* chừa viền để thanh trông mảnh hơn */
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--ms-primary) 70%, transparent); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* ================= Hiệu ứng trượt khi cuộn (components/Reveal) ================= */
+.reveal { opacity: 0; transition: opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity, transform; }
+.reveal-left { transform: translateX(-80px); }
+.reveal-right { transform: translateX(80px); }
+.reveal-up { transform: translateY(48px); }
+.reveal.is-shown { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* Logo dùng chung: biểu tượng chữ thập + tên, cách nhau 10px */
+.brand-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; white-space: nowrap; }
+.brand-mark { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; }
+
+/* Lưới 2 cột cho form (đăng ký, tạo tài khoản nhân viên) */
+.auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }

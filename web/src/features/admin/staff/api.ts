@@ -1,5 +1,5 @@
-import type { Role, UserResponse } from './auth'
-import { http } from './http'
+import type { Role, UserResponse } from '@/features/auth'
+import { http } from '@/shared/api/http'
 
 export interface Page<T> {
   content: T[]
@@ -13,14 +13,6 @@ export interface CreateUserRequest {
   phone?: string
   role: Role
   password: string
-}
-
-export const ROLE_LABEL: Record<Role, string> = {
-  ADMIN: 'Quản trị viên',
-  DOCTOR: 'Bác sĩ',
-  RECEPTIONIST: 'Lễ tân',
-  PHARMACIST: 'Dược sĩ',
-  PATIENT: 'Bệnh nhân',
 }
 
 export const STAFF_ROLES: Role[] = ['DOCTOR', 'RECEPTIONIST', 'PHARMACIST', 'ADMIN']

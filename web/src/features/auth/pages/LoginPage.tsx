@@ -2,9 +2,9 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { App, Button, Form, Input } from 'antd'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { authApi } from '../api/auth'
-import { errorMessage, tokenStore } from '../api/http'
-import AuthLayout from '../components/AuthLayout'
+import { authApi } from '../api'
+import { errorMessage, tokenStore } from '@/shared/api/http'
+import { LandingLayout } from '@/features/landing'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -25,7 +25,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout title="Đăng nhập" subtitle="Chào mừng trở lại. Đăng nhập để đặt lịch và theo dõi lượt khám.">
+    <LandingLayout title="Đăng nhập" subtitle="Chào mừng trở lại. Đăng nhập để đặt lịch và theo dõi lượt khám.">
       <Form layout="vertical" size="large" onFinish={onFinish} requiredMark={false}>
         <Form.Item
           name="login"
@@ -44,6 +44,6 @@ export default function LoginPage() {
       <div className="auth-switch">
         Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
       </div>
-    </AuthLayout>
+    </LandingLayout>
   )
 }

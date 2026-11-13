@@ -3,9 +3,9 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { App, Button, Form, Input, Modal, Radio, Select, Switch, Table, Tag, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useState } from 'react'
-import { authApi, type Role, type UserResponse } from '../../api/auth'
-import { errorCode, errorMessage, fieldErrors } from '../../api/http'
-import { ROLE_LABEL, STAFF_ROLES, usersApi, type CreateUserRequest } from '../../api/users'
+import { authApi, ROLE_LABEL, type Role, type UserResponse } from '@/features/auth'
+import { errorCode, errorMessage, fieldErrors } from '@/shared/api/http'
+import { STAFF_ROLES, usersApi, type CreateUserRequest } from './api'
 
 const ROLE_COLOR: Record<Role, string> = {
   ADMIN: 'geekblue',

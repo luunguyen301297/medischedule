@@ -2,9 +2,8 @@ import { SettingOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Descriptions, Space, Spin } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { authApi } from '../api/auth'
-import { tokenStore } from '../api/http'
-import { ROLE_LABEL } from '../api/users'
+import { authApi, ROLE_LABEL } from '@/features/auth'
+import { tokenStore } from '@/shared/api/http'
 
 /** Trang tạm sau đăng nhập: hiện người dùng hiện tại. Các khu vực theo vai trò thêm sau. */
 export default function HomePage() {

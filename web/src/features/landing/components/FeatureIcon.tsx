@@ -9,7 +9,7 @@ import {
   TeamOutlined,
 } from '@ant-design/icons'
 import type { ReactNode } from 'react'
-import type { FeatureIcon as IconKey } from '../api/content'
+import type { FeatureIcon as IconKey } from '../api'
 
 export const FEATURE_ICONS: Record<IconKey, { label: string; node: ReactNode }> = {
   calendar: { label: 'Lịch hẹn', node: <CalendarOutlined /> },
