@@ -8,7 +8,7 @@ import { errorMessage } from '../api/http'
  * Ô chọn ảnh dùng trong Form.Item: dán đường dẫn hoặc tải ảnh lên (lưu MinIO), có ảnh xem trước.
  * Form.Item tự truyền value / onChange.
  */
-export default function ImageField({ value, onChange }: { value?: string; onChange?: (v: string) => void }) {
+export default function ImageField({ id, value, onChange }: { id?: string; value?: string; onChange?: (v: string) => void }) {
   const { message } = App.useApp()
   const [uploading, setUploading] = useState(false)
 
@@ -28,8 +28,8 @@ export default function ImageField({ value, onChange }: { value?: string; onChan
   return (
     <div style={{ display: 'grid', gap: 8 }}>
       <div style={{ display: 'flex', gap: 8 }}>
-        <Input value={value} onChange={(e) => onChange?.(e.target.value)} placeholder="Dán đường dẫn ảnh hoặc bấm Tải ảnh lên" allowClear />
-        <Upload accept="image/jpeg,image/png,image/webp" showUploadList={false} beforeUpload={upload}>
+        <Input id={id} value={value} onChange={(e) => onChange?.(e.target.value)} placeholder="Dán đường dẫn ảnh hoặc bấm Tải ảnh lên" allowClear />
+        <Upload id={id ? `${id}_file` : undefined} name="file" accept="image/jpeg,image/png,image/webp" showUploadList={false} beforeUpload={upload}>
           <Button icon={<UploadOutlined />} loading={uploading}>Tải ảnh lên</Button>
         </Upload>
       </div>

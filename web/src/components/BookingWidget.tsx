@@ -26,7 +26,7 @@ interface BookingForm {
 const WEEKDAY = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
 /** Dải 7 ngày tới để chọn nhanh. */
-function DateStrip({ value, onChange }: { value?: string; onChange?: (v: string) => void }) {
+function DateStrip({ id, value, onChange }: { id?: string; value?: string; onChange?: (v: string) => void }) {
   const days = Array.from({ length: 7 }, (_, i) => dayjs().add(i, 'day'))
   return (
     <div className="date-strip" role="radiogroup" aria-label="Ngày khám">
@@ -35,6 +35,7 @@ function DateStrip({ value, onChange }: { value?: string; onChange?: (v: string)
         return (
           <button
             key={v}
+            id={i === 0 ? id : undefined}
             type="button"
             role="radio"
             aria-checked={value === v}
@@ -52,11 +53,12 @@ function DateStrip({ value, onChange }: { value?: string; onChange?: (v: string)
 }
 
 /** Một nút chọn chuyên khoa; bấm mở hộp thoại danh sách, chọn xong tự đóng. */
-function SpecialtyPicker({ options, value, onChange }: { options: string[]; value?: string; onChange?: (v: string) => void }) {
+function SpecialtyPicker({ id, options, value, onChange }: { id?: string; options: string[]; value?: string; onChange?: (v: string) => void }) {
   const [open, setOpen] = useState(false)
   return (
     <>
       <button
+        id={id}
         type="button"
         className={`spec-trigger ${value ? 'has-value' : ''}`}
         aria-haspopup="dialog"
@@ -95,12 +97,13 @@ function SpecialtyPicker({ options, value, onChange }: { options: string[]; valu
 }
 
 /** Ba ô buổi khám kèm khung giờ. */
-function SessionTiles({ value, onChange }: { value?: Session; onChange?: (v: Session) => void }) {
+function SessionTiles({ id, value, onChange }: { id?: string; value?: Session; onChange?: (v: Session) => void }) {
   return (
     <div className="session-tiles" role="radiogroup" aria-label="Buổi khám">
-      {SESSIONS.map((s) => (
+      {SESSIONS.map((s, i) => (
         <button
           key={s.value}
+          id={i === 0 ? id : undefined}
           type="button"
           role="radio"
           aria-checked={value === s.value}
@@ -152,6 +155,7 @@ export default function BookingWidget({ specialties, note }: { specialties: stri
       ) : (
         <Form
           form={form}
+          name="booking"
           layout="vertical"
           requiredMark={false}
           onFinish={submit}

@@ -204,8 +204,15 @@ export default function HomepageSettingsPage() {
                   <Form.Item name={[f.name, 'imageUrl']} label="Ảnh nền" rules={[{ required: true, message: 'Chọn ảnh nền' }]}>
                     <ImageField />
                   </Form.Item>
-                  <Form.Item name={[f.name, 'align']} label="Vị trí khung chữ">
-                    <Radio.Group optionType="button" options={[{ value: 'left', label: 'Bên trái' }, { value: 'right', label: 'Bên phải' }]} />
+                  <Form.Item name={[f.name, 'align']} label="Vị trí khung chữ" htmlFor={`section_${f.key}_align_left`}>
+                    <Radio.Group
+                      name={`section_${f.key}_align`}
+                      optionType="button"
+                      options={[
+                        { value: 'left', label: 'Bên trái', id: `section_${f.key}_align_left` },
+                        { value: 'right', label: 'Bên phải', id: `section_${f.key}_align_right` },
+                      ]}
+                    />
                   </Form.Item>
                 </div>
                 <div>

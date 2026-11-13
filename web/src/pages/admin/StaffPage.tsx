@@ -114,6 +114,7 @@ export default function StaffPage() {
           <Tag color={ROLE_COLOR[r]}>{ROLE_LABEL[r]}</Tag>
         ) : (
           <Select
+            id={`row-role-${u.id}`}
             size="small"
             value={r}
             style={{ width: 160 }}
@@ -154,12 +155,14 @@ export default function StaffPage() {
 
       <div className="admin-toolbar">
         <Input.Search
+          id="staff-search"
           allowClear
           placeholder="Tìm theo họ tên, email, tên đăng nhập"
           style={{ width: 360 }}
           onSearch={(v) => { setQ(v.trim()); setPage(0) }}
         />
         <Select
+          id="staff-role-filter"
           allowClear
           placeholder="Tất cả vai trò"
           style={{ width: 200 }}
@@ -179,7 +182,7 @@ export default function StaffPage() {
           current: page + 1,
           pageSize: size,
           total: data?.page.totalElements ?? 0,
-          showSizeChanger: true,
+          showSizeChanger: false,
           showTotal: (t) => `${t} tài khoản`,
           onChange: (p, s) => { setPage(p - 1); setSize(s) },
         }}
@@ -198,13 +201,19 @@ export default function StaffPage() {
       >
         <Form
           form={form}
+          name="staff"
           layout="vertical"
           requiredMark={false}
           onFinish={(v) => create.mutate({ ...v, username: v.username || undefined, phone: v.phone || undefined })}
           style={{ marginTop: 16 }}
         >
-          <Form.Item name="role" label="Vai trò" rules={[{ required: true }]}>
-            <Radio.Group optionType="button" buttonStyle="solid" options={STAFF_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))} />
+          <Form.Item name="role" label="Vai trò" htmlFor="staff_role_0" rules={[{ required: true }]}>
+            <Radio.Group
+              name="role"
+              optionType="button"
+              buttonStyle="solid"
+              options={STAFF_ROLES.map((r, i) => ({ value: r, label: ROLE_LABEL[r], id: `staff_role_${i}` }))}
+            />
           </Form.Item>
           <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, whitespace: true, message: 'Nhập họ và tên' }, { max: 120 }]}>
             <Input placeholder="BS. Nguyễn Văn A" />
