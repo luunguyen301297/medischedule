@@ -21,7 +21,9 @@ spring:
       max-request-size: 6MB
   flyway:
     enabled: true
-    locations: classpath:db/migration
+    # db/migration: schema + dữ liệu bắt buộc (vai trò). db/seed: dữ liệu dev dùng chung (nội dung trang chủ, tài khoản demo).
+    # Môi trường thật: đặt FLYWAY_LOCATIONS=classpath:db/migration để không nạp dữ liệu demo.
+    locations: ${FLYWAY_LOCATIONS:classpath:db/migration,classpath:db/seed}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
