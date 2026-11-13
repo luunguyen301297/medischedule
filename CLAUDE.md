@@ -16,7 +16,6 @@ Hệ thống đặt lịch và quản lý phòng khám. Trả lời bằng tiế
 ## Lệnh
 
 - Hạ tầng: `docker compose up -d` (Postgres :5435, Redis :6390, MinIO :9010 / console :9011)
-- Backend trong Docker: `docker compose --profile app up -d --build backend` (API :8085)
 - Backend trên máy (cần JDK 21): `powershell -File scripts\run-backend.ps1` (nạp `.env` rồi `mvnw spring-boot:run`)
 - Web: `npm run dev` trong `web/` (:5175, proxy `/api` → :8085); kiểm kiểu: `npm run typecheck`
 - VS Code: Run and Debug → **Run Full Stack**

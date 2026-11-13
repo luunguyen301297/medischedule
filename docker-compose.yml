@@ -1,6 +1,5 @@
-# Hạ tầng dev: Postgres, MinIO, Redis.
-#   docker compose up -d                    -> chỉ chạy hạ tầng
-#   docker compose --profile app up -d      -> chạy thêm backend trong Docker (không cần cài JDK)
+# Hạ tầng dev: Postgres, Redis, MinIO. Backend và web chạy trực tiếp trên máy (xem README).
+#   docker compose up -d
 # Cổng tránh trùng với Postgres 5432 / Redis 6379 sẵn có trên máy.
 name: medischedule
 
@@ -67,26 +66,6 @@ services:
       mc mb --ignore-existing local/${MINIO_BUCKET} &&
       echo 'bucket ready'
       "
-
-  backend:
-    profiles: ["app"]
-    build: ./backend
-    env_file: .env
-    environment:
-      SERVER_PORT: 8080
-      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      MINIO_ENDPOINT: http://minio:9000
-    ports:
-      - "${BACKEND_PORT}:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
 
 volumes:
   pg-data:
