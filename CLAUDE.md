@@ -2,6 +2,14 @@
 
 Hệ thống đặt lịch và quản lý phòng khám. Trả lời bằng tiếng Việt.
 
+Stack (backend Spring Boot 3 + Spring Data JPA (Hibernate) + PostgreSQL 16; frontend React 18 + Ant Design 5; mobile
+Flutter; service `ai-service` Python FastAPI). Bảng stack đầy đủ: [`PROJECT/stack-and-commands.md`](.claude/PROJECT/stack-and-commands.md).
+
+Stack pack đang dùng (bẫy và lệnh riêng của công cụ — đọc khi code/test tầng tương ứng): backend
+`.claude/stack-packs/backend-spring-boot-flyway.md`, frontend `.claude/stack-packs/frontend-react-antd-react-query.md`,
+mobile `.claude/stack-packs/mobile-flutter.md`, service ai-service `.claude/stack-packs/backend-fastapi-sqlalchemy.md`
+(thư mục `ai-service`).
+
 ## Cấu trúc
 
 | Thư mục | Nội dung |
@@ -13,6 +21,8 @@ Hệ thống đặt lịch và quản lý phòng khám. Trả lời bằng tiế
 | `infra/` | Script khởi tạo Postgres |
 | `docs/` | Link use case, thiết kế CSDL |
 
+Luồng request, module boundary, settings: [`.claude/PROJECT/architecture.md`](.claude/PROJECT/architecture.md).
+
 ## Lệnh
 
 - Hạ tầng: `docker compose up -d` (Postgres :5435, Redis :6390, MinIO :9010 / console :9011)
@@ -21,6 +31,11 @@ Hệ thống đặt lịch và quản lý phòng khám. Trả lời bằng tiế
 - VS Code: Run and Debug → **Run Full Stack**
 - Swagger: http://localhost:8085/swagger-ui.html
 - Cập nhật dữ liệu seed sau khi sửa nội dung trang chủ: `python scripts/export_seed.py`
+
+Lệnh đầy đủ cho agent (chạy từ gốc repo bằng Bash: test, test tích hợp trên DB `qa_<task>`, migration tới version cụ
+thể, port): [`.claude/PROJECT/stack-and-commands.md`](.claude/PROJECT/stack-and-commands.md) § Lệnh. Spring Boot không
+tự đọc `.env` và Flyway chạy lúc khởi động — mọi lần chạy backend/test là một lần áp migration lên DB mà `DB_URL` trỏ
+tới (xem [HARD-STOPS](.claude/HARD-STOPS.md) "An toàn môi trường").
 
 ## Quy ước backend
 
@@ -52,3 +67,56 @@ features/   mỗi khu tự chứa api + type + trang + css, khớp module backen
 - Màu chỉ khai báo ở `shared/theme/theme.ts`; CSS dùng `var(--ms-*)`, không viết mã màu cứng. Không box-shadow, một màu xanh chủ đạo.
 - CSS riêng của khu đặt cạnh feature và import trong layout/trang của khu đó.
 - Control tự viết dùng trong `Form.Item` phải nhận `id` / `value` / `onChange` và gắn `id` vào phần tử nhập thật (label trỏ đúng).
+
+Hai mục quy ước trên là nguồn sự thật. Khung quy ước chung của quy trình (error handling, thứ tự làm feature, vùng rủi
+ro cao): [`.claude/PROJECT/conventions.md`](.claude/PROJECT/conventions.md); quy ước UI agent đọc khi làm giao diện
+(tóm tắt từ mục trên): `.claude/skills/ui-ux-pro-max/references/project-ux-spec.md` § "Quy ước UI mặc định".
+
+## Làm task
+
+Task thay đổi code sản phẩm (feature, bug, refactor, perf, upgrade, hotfix): gọi skill **`route-task`** trước tiên để
+chọn flow, chọn mô hình (Solo / Phiên task / Điều hành), và xin user xác nhận. Câu hỏi, đọc/tìm code, đo đạc, chỉnh `.claude/` hoặc
+memory thì làm thẳng.
+
+Ba quy tắc cốt lõi (chi tiết và bảng dừng ở [HARD-STOPS.md](.claude/HARD-STOPS.md)):
+
+1. Skill trước xong (DONE) thì skill sau mới bắt đầu; không gộp bước.
+2. Sau BA/SA được duyệt thì pipeline tự chạy. Chỉ dừng hỏi user khi cần làm rõ nghiệp vụ, có blocking issue thật, hoặc
+   kịch bản test không đạt checklist. TL REVISION / CR REQUEST CHANGES / QA FAILED tự lặp lại, không hỏi.
+3. Không implement khi flow cần Tech Lead duyệt mà chưa có.
+
+Các task đang chạy hiện ở đầu mỗi turn (`[HANDOFF]`), mỗi task một file `docs/HANDOFF.<task>.local.md`
+(không git-tracked). Lịch sử task đã đóng: `docs/HANDOFF.history.md`. Các file khác (`WORKFLOW.md`, `HARD-STOPS.md`,
+`ORCHESTRATION.md`, `PROJECT/*.md`) chỉ đọc khi cần.
+
+## Quick refs
+
+| Topic                                    | File                                                                                       |
+|------------------------------------------|--------------------------------------------------------------------------------------------|
+| Hard stops                               | [`.claude/HARD-STOPS.md`](.claude/HARD-STOPS.md)                                           |
+| Solo / Phiên task / Điều hành, HANDOFF   | [`.claude/ORCHESTRATION.md`](.claude/ORCHESTRATION.md)                                     |
+| Workflow                                 | [`.claude/WORKFLOW.md`](.claude/WORKFLOW.md)                                               |
+| Stack & commands                         | [`.claude/PROJECT/stack-and-commands.md`](.claude/PROJECT/stack-and-commands.md)           |
+| Stack packs (bẫy/lệnh theo stack)        | [`.claude/stack-packs/README.md`](.claude/stack-packs/README.md)                           |
+| Architecture                             | [`.claude/PROJECT/architecture.md`](.claude/PROJECT/architecture.md)                       |
+| Auth                                     | [`.claude/PROJECT/auth.md`](.claude/PROJECT/auth.md)                                       |
+| Conventions                              | [`.claude/PROJECT/conventions.md`](.claude/PROJECT/conventions.md)                         |
+| Testing                                  | [`.claude/PROJECT/testing.md`](.claude/PROJECT/testing.md)                                 |
+| Frontend state                           | [`.claude/PROJECT/frontend-state.md`](.claude/PROJECT/frontend-state.md)                   |
+| Knowledge base (L2/L3 semantic)          | `docs/knowledge/medischedule/README.md` (tạo khi có domain đầu tiên)                       |
+| KDD spec                                 | [`docs/knowledge/rules/knowledge_building.md`](docs/knowledge/rules/knowledge_building.md) |
+| Communication style                      | [`.claude/COMSTYLE.md`](.claude/COMSTYLE.md)                                               |
+| Environment (OS, shell, paths, encoding) | [`.claude/PROJECT/environment.md`](.claude/PROJECT/environment.md)                         |
+| Coding guidelines                        | [`.claude/CODING-GUIDELINES.md`](.claude/CODING-GUIDELINES.md) (§1–§6, engineering skills) |
+| Bài học (git, Windows, phiên song song)  | [`.claude/LESSONS.md`](.claude/LESSONS.md)                                                 |
+| Skills                                   | [`.claude/skills/README.md`](.claude/skills/README.md)                                     |
+| Hub                                      | [`.claude/README.md`](.claude/README.md)                                                   |
+
+## Communication
+
+Default BLUF. Prefix tags `[DOCS]` `[CODE]` `[TEST]` `[REVIEW]` — xem [`.claude/COMSTYLE.md`](.claude/COMSTYLE.md).
+
+## Tìm code
+
+Định vị symbol/caller trước, rồi Read đúng khúc cần: dùng Grep/Glob/Read. Các file khác trong `.claude/` chỉ trỏ về mục
+này, không nhắc tên công cụ.

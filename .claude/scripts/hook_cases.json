@@ -1,0 +1,427 @@
+{
+  "_comment": [
+    "Bảng ca cho `python -I -B .claude/scripts/test_hooks.py --project` của MediSchedule (Java Spring Boot 3 + Flyway + Maven,",
+    "web React/Vite ở `web/`). Sinh từ hook_cases.example.json (đổi tên ví dụ sang vn/medischedule, DB `medischedule`) + ca `MS:`",
+    "dùng đúng lệnh ở `.claude/PROJECT/stack-and-commands.md`. Định dạng ca: xem hook_cases.example.json / scripts/README.md.",
+    "Giai đoạn 1 (chưa có profile test): biến DB test = DB_URL, đặt SAU bước nạp .env. Lên giai đoạn 2 (profile test đọc",
+    "TEST_DB_URL không default) thì đưa TEST_DB_URL lên đầu GUARD_MIGRATION_DB_URL_VAR và sửa ca 'giai đoạn' tương ứng.",
+    "Không lệnh nào được chạy thật. Ca có `dotenv` dùng .env giả của ca, không đọc .env thật của repo."
+  ],
+  "cases": [
+    {
+      "bash": "cd backend && ./mvnw flyway:migrate",
+      "expect": "block"
+    },
+    {
+      "bash": ".\\mvnw.cmd -q flyway:clean",
+      "expect": "block"
+    },
+    {
+      "bash": "flyway -url=jdbc:postgresql://db.example:5432/app migrate",
+      "expect": "block",
+      "contains": "db.example"
+    },
+    {
+      "bash": "./mvnw flyway:migrate -Dflyway.url=jdbc:postgresql://db.example:5432/app",
+      "expect": "block"
+    },
+    {
+      "bash": "./gradlew flywayMigrate",
+      "expect": "block"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://localhost:5432/qa_t1 ./mvnw flyway:migrate",
+      "expect": "allow"
+    },
+    {
+      "bash": "DB_URL=$(python .claude/scripts/qa_db.py url t1) ./mvnw flyway:migrate",
+      "expect": "allow"
+    },
+    {
+      "bash": "./mvnw flyway:info",
+      "expect": "allow"
+    },
+    {
+      "bash": "grep -rn 'flyway:migrate' docs",
+      "expect": "allow"
+    },
+    {
+      "bash": "echo flyway migrate",
+      "expect": "allow"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "expect": "allow",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "INTEGRATION_TEST_COMMAND (giai đoạn 1): nạp .env TRƯỚC rồi export DB_URL=$(qa_db.py url) -> cho qua"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "expect": "allow",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "name": "INTEGRATION_TEST_COMMAND, .env trỏ DB dev cùng host localhost -> cho qua (đích là qa_t1)"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export TEST_DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "expect": "warn",
+      "contains": "db.example",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "giai đoạn 1: TEST_DB_URL=… khi app chưa đọc biến đó -> test chạy theo DB_URL (DB dev) -> CẢNH BÁO"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export TEST_DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "expect": "allow",
+      "env": {
+        "GUARD_MIGRATION_DB_URL_VAR": "TEST_DB_URL,FLYWAY_URL,DB_URL,SPRING_DATASOURCE_URL"
+      },
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "giai đoạn 2 (profile test đọc TEST_DB_URL, biến đứng đầu GUARD_MIGRATION_DB_URL_VAR): TEST_DB_URL=$(qa_db.py url) -> cho qua"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://db.example:5432/app ./mvnw -q test",
+      "expect": "warn",
+      "contains": "db.example"
+    },
+    {
+      "bash": "./mvnw -q test-compile",
+      "expect": "allow"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://db.example:5432/app ./mvnw spring-boot:run",
+      "expect": "warn",
+      "contains": "CẢNH BÁO"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://localhost:5432/app ./mvnw spring-boot:run",
+      "expect": "allow"
+    },
+    {
+      "bash": "$env:DB_URL = 'jdbc:postgresql://localhost:5432/app'; & .\\mvnw.cmd spring-boot:run",
+      "shell": "powershell",
+      "expect": "allow"
+    },
+    {
+      "bash": "npm --prefix web run dev",
+      "expect": "allow"
+    },
+    {
+      "test_cmd": "cd backend && ./mvnw -q test -Dtest=BookingServiceTest",
+      "expect": "test"
+    },
+    {
+      "test_cmd": ".\\mvnw.cmd verify",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "./mvnw -q test -Dtest=FooTest | tail -40",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "TEST_DB_URL=$(python .claude/scripts/qa_db.py url t1) ./mvnw -q test",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "DB_URL=$(python .claude/scripts/qa_db.py url t1) ./mvnw -q test",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "cd backend && TEST_DB_URL=\"$(python ../.claude/scripts/qa_db.py url t1)\" SPRING_PROFILES_ACTIVE='test local' ./mvnw -q verify",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "& .\\mvnw.cmd test",
+      "shell": "powershell",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "cd backend; & .\\mvnw.cmd -q test 2>&1 | Select-Object -Last 40",
+      "shell": "powershell",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "bash -c 'set -a; . ./.env; ./mvnw -q test'",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "./mvnw -B -DskipTests package",
+      "expect": "not-test"
+    },
+    {
+      "test_cmd": "./mvnw -q test-compile",
+      "expect": "not-test"
+    },
+    {
+      "test_cmd": "grep -rn 'mvnw test' docs",
+      "expect": "not-test"
+    },
+    {
+      "test_cmd": "FOO=\"a b\" pytest -q",
+      "expect": "test",
+      "name": "tách tiền tố gán có nháy + khoảng trắng (runner pytest)",
+      "env": {
+        "HANDOFF_TEST_CMD_REGEX": "",
+        "HANDOFF_TEST_RUNNER_REGEX": "(?:\\S*[/\\\\])?pytest(?:\\.exe)?(?:\\s|$)"
+      }
+    },
+    {
+      "test_cmd": "A=1 B=$(echo x y) npm test",
+      "expect": "test",
+      "name": "tách nhiều tiền tố gán, giá trị $(…) có khoảng trắng (runner npm)",
+      "env": {
+        "HANDOFF_TEST_CMD_REGEX": "",
+        "HANDOFF_TEST_RUNNER_REGEX": "(?:npm|pnpm|yarn)\\s+(?:run\\s+)?test\\b"
+      }
+    },
+    {
+      "path": "backend/src/main/java/vn/medischedule/booking/OrderService.java",
+      "expect": "product"
+    },
+    {
+      "path": "backend/src/main/resources/db/migration/V5__booking.sql",
+      "expect": "product"
+    },
+    {
+      "path": "backend/src/test/java/vn/medischedule/booking/BookingServiceTest.java",
+      "expect": "test"
+    },
+    {
+      "path": "web/src/features/booking/BookingPage.test.tsx",
+      "expect": "test"
+    },
+    {
+      "path": "docs/design/booking-tech-design.md",
+      "expect": "other"
+    },
+    {
+      "edit": "backend/src/main/java/vn/medischedule/booking/web/BookingController.java",
+      "expect": "remind",
+      "contains": "BookingController.java"
+    },
+    {
+      "edit": "web/src/features/booking/api.ts",
+      "expect": "silent"
+    },
+    {
+      "edit": "docs/_ref/capabilities.md",
+      "expect": "block"
+    },
+    {
+      "edit": "docs/notes.md",
+      "expect": "allow"
+    },
+    {
+      "bash": "powershell -NoProfile -File scripts/run-backend.ps1",
+      "expect": "warn",
+      "contains": "db.example",
+      "env": {
+        "DB_URL": "jdbc:postgresql://db.example:5432/medischedule"
+      },
+      "name": "startup: wrapper run-backend.ps1 khi DB_URL trỏ máy khác -> CẢNH BÁO",
+      "dotenv": "POSTGRES_PORT=5435"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; cd backend && ./mvnw spring-boot:run)",
+      "expect": "warn",
+      "contains": "db.example",
+      "env": {
+        "DB_URL": "jdbc:postgresql://localhost:5435/medischedule"
+      },
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "P1: môi trường DB_URL=localhost nhưng lệnh tự nạp .env trỏ máy khác -> CẢNH BÁO theo .env"
+    },
+    {
+      "bash": "export DB_URL=$(python .claude/scripts/qa_db.py url t1); (set -a; . ./.env; set +a; cd backend && ./mvnw -q test)",
+      "expect": "warn",
+      "contains": "db.example",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "P2: export DB_URL=$(qa_db.py url) TRƯỚC bước nạp .env -> .env đè lại -> CẢNH BÁO"
+    },
+    {
+      "bash": "powershell -NoProfile -File scripts/run-backend.ps1",
+      "expect": "warn",
+      "contains": "db.example",
+      "env": {
+        "DB_URL": "jdbc:postgresql://localhost:5435/medischedule"
+      },
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "P3: wrapper run-backend.ps1 tự nạp .env (môi trường DB_URL=localhost) -> CẢNH BÁO theo .env"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "expect": "warn",
+      "contains": "medischedule",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "name": "test-db: .env trỏ DB dev cùng host localhost (Docker local), lệnh test không đặt DB qa -> CẢNH BÁO theo tên DB"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://localhost:5435/medischedule ./mvnw -q verify",
+      "expect": "warn",
+      "contains": "medischedule",
+      "name": "test-db: mvnw verify lên localhost/medischedule -> CẢNH BÁO (host localhost không đủ)"
+    },
+    {
+      "bash": "Get-Content .env | Where-Object { $_ -match '^\\s*([A-Za-z_]\\w*)\\s*=(.*)$' } | ForEach-Object { Set-Item \"env:$($Matches[1])\" $Matches[2].Trim().Trim('\"') }; $env:DB_URL = (python .claude/scripts/qa_db.py url t1); & .\\backend\\mvnw.cmd -f backend/pom.xml -q test \"-Dtest=BookingServiceIntegrationTest\"",
+      "shell": "powershell",
+      "expect": "allow",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "INTEGRATION_TEST_COMMAND (PowerShell): nạp .env rồi $env:DB_URL = (qa_db.py url) -> cho qua"
+    },
+    {
+      "bash": "$env:DB_URL = (python .claude/scripts/qa_db.py url t1); Get-Content .env | Where-Object { $_ -match '^\\s*([A-Za-z_]\\w*)\\s*=(.*)$' } | ForEach-Object { Set-Item \"env:$($Matches[1])\" $Matches[2].Trim().Trim('\"') }; & .\\backend\\mvnw.cmd -q test",
+      "shell": "powershell",
+      "expect": "warn",
+      "contains": "db.example",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "name": "PowerShell: $env:DB_URL đặt TRƯỚC khi nạp .env -> .env đè lại -> CẢNH BÁO"
+    },
+    {
+      "name": "MS: INTEGRATION_TEST_COMMAND (.env trỏ DB dev localhost:5435/medischedule) -> cho qua (đích qa_t1)",
+      "bash": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: TEST_COMMAND unit nạp .env (DB dev, không đặt qa_*) -> CẢNH BÁO test-db theo tên DB",
+      "bash": "(set -a; . ./.env; set +a; cd backend && ./mvnw -q test -Dtest=BookingServiceTest)",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "expect": "warn",
+      "contains": "medischedule"
+    },
+    {
+      "name": "MS: chạy backend (BACKEND_RUN_COMMAND) lên DB dev localhost -> cho qua",
+      "bash": "(set -a; . ./.env; set +a; cd backend && ./mvnw spring-boot:run)",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: chạy backend khi .env trỏ máy khác -> CẢNH BÁO startup",
+      "bash": "(set -a; . ./.env; set +a; cd backend && ./mvnw spring-boot:run)",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "expect": "warn",
+      "contains": "db.example"
+    },
+    {
+      "name": "MS: MIGRATION_COMMAND (SPRING_FLYWAY_TARGET) lên DB dev localhost -> cho qua",
+      "bash": "(set -a; . ./.env; set +a; cd backend && SPRING_FLYWAY_TARGET=5 ./mvnw spring-boot:run)",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: MIGRATION_COMMAND khi .env trỏ máy khác -> CẢNH BÁO",
+      "bash": "(set -a; . ./.env; set +a; cd backend && SPRING_FLYWAY_TARGET=5 ./mvnw spring-boot:run)",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "expect": "warn",
+      "contains": "db.example"
+    },
+    {
+      "name": "MS: wrapper run-backend.ps1 (PowerShell, đặt target trước wrapper) .env localhost -> cho qua",
+      "bash": "$env:SPRING_FLYWAY_TARGET = '5'; powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\run-backend.ps1",
+      "shell": "powershell",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: wrapper run-backend.ps1 khi .env trỏ máy khác -> CẢNH BÁO theo .env",
+      "bash": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts\\run-backend.ps1",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/medischedule",
+      "expect": "warn",
+      "contains": "db.example"
+    },
+    {
+      "name": "MS: typecheck web",
+      "bash": "npm --prefix web run typecheck",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: compile backend",
+      "bash": "(cd backend && ./mvnw -q -DskipTests compile)",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: export seed",
+      "bash": "python scripts/export_seed.py",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: hạ tầng Docker",
+      "bash": "docker compose up -d",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: đọc migration bằng grep không bị chặn",
+      "bash": "grep -rn 'flyway' backend/src/main/resources/application.yml",
+      "expect": "allow"
+    },
+    {
+      "name": "MS: flyway:migrate qua maven lên DB dev -> CHẶN",
+      "bash": "cd backend && ./mvnw flyway:migrate",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/medischedule",
+      "expect": "block"
+    },
+    {
+      "name": "MS: TEST_COMMAND tính là đã chạy test",
+      "test_cmd": "(set -a; . ./.env; set +a; cd backend && ./mvnw -q test -Dtest=BookingServiceTest)",
+      "expect": "test"
+    },
+    {
+      "name": "MS: INTEGRATION_TEST_COMMAND tính là đã chạy test",
+      "test_cmd": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=BookingServiceIntegrationTest)",
+      "expect": "test"
+    },
+    {
+      "name": "MS: typecheck web không phải test",
+      "test_cmd": "npm --prefix web run typecheck",
+      "expect": "not-test"
+    },
+    {
+      "name": "MS: compile backend không phải test",
+      "test_cmd": "(cd backend && ./mvnw -q -DskipTests compile)",
+      "expect": "not-test"
+    },
+    {
+      "name": "MS: seed dev là code sản phẩm",
+      "path": "backend/src/main/resources/db/seed/R__seed_dev_data.sql",
+      "expect": "product"
+    },
+    {
+      "name": "MS: application.yml là code sản phẩm",
+      "path": "backend/src/main/resources/application.yml",
+      "expect": "product"
+    },
+    {
+      "name": "MS: theme web là code sản phẩm",
+      "path": "web/src/shared/theme/theme.ts",
+      "expect": "product"
+    },
+    {
+      "name": "MS: ai-service chưa khởi tạo, chưa cấu hình hook",
+      "path": "ai-service/app/main.py",
+      "expect": "other"
+    },
+    {
+      "name": "MS: mobile chưa khởi tạo, chưa cấu hình hook",
+      "path": "mobile/lib/main.dart",
+      "expect": "other"
+    },
+    {
+      "name": "MS: script dev ngoài backend/web",
+      "path": "scripts/export_seed.py",
+      "expect": "other"
+    },
+    {
+      "name": "MS: sửa controller thật -> nhắc cập nhật tài liệu API",
+      "edit": "backend/src/main/java/vn/medischedule/auth/web/AuthController.java",
+      "expect": "remind",
+      "contains": "AuthController.java"
+    },
+    {
+      "name": "MS: sửa service -> không nhắc tài liệu API",
+      "edit": "backend/src/main/java/vn/medischedule/auth/service/AuthService.java",
+      "expect": "silent"
+    }
+  ]
+}

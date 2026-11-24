@@ -1,0 +1,103 @@
+{
+  "env": {
+    "GUARD_MIGRATION_CMD_REGEX": "\\bflyway(?:\\b[:\\s][^|;&]*?\\b(migrate|clean|baseline|repair|undo)\\b|(Migrate|Clean|Baseline|Repair|Undo)\\b)",
+    "GUARD_MIGRATION_DRYRUN_REGEX": "",
+    "GUARD_MIGRATION_DB_URL_VAR": "FLYWAY_URL,DB_URL,SPRING_DATASOURCE_URL",
+    "GUARD_STARTUP_CMD_REGEX": "\\bmvnw?(?:\\.cmd)?\\b[^|;&]*(?:\\bspring-boot:run\\b|\\s(?:test|verify)(?=[\\s)'\"]|$))|\\bgradlew?(?:\\.bat)?\\b[^|;&]*(?:\\bbootRun\\b|\\s(?:test|check)(?=[\\s)'\"]|$))|\\bjava\\b[^|;&]*\\s-jar\\s|\\brun-backend\\.(?:ps1|sh)\\b",
+    "GUARD_TEST_CMD_REGEX": "\\bmvnw?(?:\\.cmd)?\\b[^|;&]*\\s(?:test|verify)(?=[\\s)'\"]|$)|\\bgradlew?(?:\\.bat)?\\b[^|;&]*\\s(?:test|check)(?=[\\s)'\"]|$)",
+    "GUARD_ENV_WRAPPER_REGEX": "\\brun-backend\\.(?:ps1|sh)\\b",
+    "HANDOFF_CODE_PATHS": "backend/src/,web/src/",
+    "HANDOFF_BACKEND_SEGS": "backend/src/main/,backend/src/test/",
+    "HANDOFF_TEST_CMD_REGEX": "\\b(?:bash|sh|cmd|powershell|pwsh|timeout)(?:\\.exe)?\\s[^|\\n]*?(?:\\S*[/\\\\])?(?:mvnw?|gradlew?)(?:\\.cmd|\\.bat)?\\s+(?:\\S+\\s+)*?(?:test|verify|check)(?=[\\s'\"]|$)",
+    "HANDOFF_TEST_RUNNER_REGEX": "(?:&\\s+)?(?:\\S*[/\\\\])?(?:mvnw?(?:\\.cmd)?|gradlew?(?:\\.bat)?)\\s+(?:\\S+\\s+)*?(?:test|verify|check)(?:\\s|$)",
+    "HANDOFF_TEST_LABEL": "JUnit (mvnw test)",
+    "HANDOFF_TEST_PREFILTER": "mvn,gradle",
+    "HANDOFF_TEST_SELECT_HINT": "test cùng package của file đã sửa, trên DB qa_<task>: (set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url <task>)\"; cd backend && ./mvnw -q test -Dtest=<Lớp>Test,<Lớp>IntegrationTest)",
+    "HANDOFF_SCOPE_EXAMPLE": "backend/src/main/java/vn/medischedule/booking/**,web/src/features/booking/",
+    "HANDOFF_MIGRATION_DIR": "backend/src/main/resources/db/migration/",
+    "EDIT_FORMAT_CHECK_CMD": "",
+    "EDIT_API_SEG": "*Controller.java",
+    "QA_DB_URL_DRIVER": "jdbc:postgresql",
+    "ROUTER_REGISTRY_FILE": "backend/src/main/java",
+    "API_MODULES_DIR": "backend/src/main/java/vn/medischedule",
+    "FE_SRC_DIR": "web/src"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I \"$CLAUDE_PROJECT_DIR/.claude/scripts/context_guard.py\" bash",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I \"$CLAUDE_PROJECT_DIR/.claude/scripts/edit_hooks.py\" pre",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I \"$CLAUDE_PROJECT_DIR/.claude/scripts/context_guard.py\" write",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I \"$CLAUDE_PROJECT_DIR/.claude/scripts/edit_hooks.py\" post",
+            "timeout": 40
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); p=\"${HANDOFF_TEST_PREFILTER-pytest}\"; hit=; [ -z \"$p\" ] && hit=1; IFS=,; for w in $p; do case \"$input\" in *\"$w\"*) hit=1;; esac; done; if [ -n \"$hit\" ]; then printf '%s' \"$input\" | python -I \"$CLAUDE_PROJECT_DIR/.claude/scripts/handoff.py\" mark; fi",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/scripts/handoff-context.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -I \"$CLAUDE_PROJECT_DIR/.claude/scripts/handoff.py\" stopcheck",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

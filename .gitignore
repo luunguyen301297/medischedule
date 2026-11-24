@@ -23,3 +23,9 @@ __pycache__/
 # mobile
 mobile/build/
 mobile/.dart_tool/
+
+# Claude Code: file trạng thái cục bộ (không commit)
+.claude/.marks/
+.claude/worktrees/
+.claude/settings.local.json
+docs/HANDOFF.*.local.md

@@ -1,0 +1,20 @@
+## Rule Pack theo path (bắt buộc kết luận từng dòng áp dụng)
+
+> Bảng dưới là **luật chung, không gắn stack**. Glob path là placeholder theo cấu trúc thật của dự án
+> (`backend/src/main/java/vn/medischedule/**/service/*.java`, `backend/src/main/java/vn/medischedule/**/web/*.java`, `backend/src/main/resources/db/migration`, `web` — bảng ở
+> `.claude/PROJECT/stack-and-commands.md`). Bổ sung dòng mới mỗi khi một lỗi lọt review gây sự cố — mỗi dòng nên ghi rõ
+> "thiếu → hậu quả gì → mức nào".
+>
+> **Luật riêng stack** (ORM, schema lib, framework FE…) nằm ở mục "Rule Pack bổ sung" trong stack pack ứng với stack
+> của dự án (`.claude/stack-packs/backend-spring-boot-flyway.md`, `.claude/stack-packs/frontend-react-antd-react-query.md`, `.claude/stack-packs/mobile-flutter.md`) — áp chung với bảng này, cũng bắt buộc kết luận từng dòng.
+
+| Path chạm vào                                  | Check bắt buộc                                                                                                                                                                                                                                                                                                       |
+|------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `backend/src/main/java/vn/medischedule/**/service/*.java`                       | **Dữ liệu lồng trong response** phải được nạp đủ trước khi serialize — nạp lười ngoài phạm vi phiên DB → 500, luôn là **Critical**. Đối xứng `is_active`/soft-delete với service anh em (lệch → 409 vĩnh viễn). N+1 (đếm số query thật). Transaction boundary. Khoá hàng ở đường đọc-rồi-ghi. Rollback toàn phiên trong hàm phụ / `except` best-effort thay vì savepoint → **Major**. |
+| `backend/src/main/resources/db/migration/*`                          | đường lui đúng (downgrade, hoặc migration đảo ngược với công cụ không có undo); data migration cho row cũ; index cho cột mới dùng trong WHERE/JOIN; chuỗi revision/version liên tục, không trùng toàn repo; không sửa migration đã lên nhánh gốc                                                                                                                                                                                                |
+| `backend/src/main/java/vn/medischedule/**/web/*.java`                           | permission dependency của dự án (xem `.claude/PROJECT/auth.md`) + permission code; validation schema (DTO record + Jakarta Bean Validation) ở boundary                                                                                                                                                                                    |
+| `web/**` (file component)         | phụ thuộc của effect/memo — **chỉ flag khi thiếu gây stale value THẬT**, phải chỉ ra render path; prefix CSS đúng scope; label/i18n đúng state                                                                                                                                                                        |
+| Vùng FE có script kiểm bổ sung (nếu có)        | Chạy script đó (lệnh ghi ở `.claude/PROJECT/conventions.md`). Đỏ mới so với mốc ⇒ **Critical** nếu lỗi xảy ra lúc render — crash màn hình.                                                                                                                                                                             |
+| Công thức xuất hiện cả BE lẫn FE               | twin-formula drift: chỉ một bên có test ghim → **Major**                                                                                                                                                                                                                                                             |
+
+Rule Pack là **sàn, không phải trần** — vẫn phải đọc diff tìm lỗi ngoài bảng.

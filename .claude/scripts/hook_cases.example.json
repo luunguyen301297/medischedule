@@ -1,0 +1,287 @@
+{
+  "_comment": [
+    "Bảng ca cho `python -I -B .claude/scripts/test_hooks.py --project` — chép thành hook_cases.json rồi sửa theo dự án.",
+    "Mỗi ca có đúng một khoá chủ thể + `expect` (+ tuỳ chọn `name`, `contains` = chuỗi phải có trong output, `env` = biến đè riêng ca):",
+    "  bash     : lệnh đưa cho context_guard.py bash (cwd = gốc dự án)  -> expect block | allow | warn",
+    "  edit     : đường dẫn (tương đối) đưa cho edit_hooks.py trong project tạm -> expect remind | silent (post) hoặc block | allow (pre)",
+    "  test_cmd : lệnh shell; handoff có tính là đã chạy test không -> expect test | not-test",
+    "  path     : đường dẫn từ gốc repo -> expect product (HANDOFF_CODE_PATHS) | test (HANDOFF_TEST_PATH_REGEX) | other",
+    "  dotenv   : (tuỳ chọn, ca bash) nội dung .env riêng của ca — hook chạy trong thư mục tạm chỉ có file đó.",
+    "Không lệnh nào được chạy thật. Ví dụ dưới đây cho Java Spring Boot + Flyway + Maven (env mẫu: scripts/README.md).",
+    "Biến URL DB test theo giai đoạn (scripts/README.md § Java): chưa có profile test -> lệnh test tích hợp export DB_URL=$(qa_db.py url …)",
+    "SAU bước nạp .env; đã dựng profile test đọc TEST_DB_URL không default -> export TEST_DB_URL=… và đưa TEST_DB_URL lên ĐẦU",
+    "GUARD_MIGRATION_DB_URL_VAR trong settings.json (khi đó sửa ca 'giai đoạn' dưới: bỏ env đè, ca TEST_DB_URL thành allow).",
+    "Ca P1–P3: lệnh tự nạp .env (hoặc wrapper) -> .env thắng biến môi trường và phép gán đứng trước bộ nạp."
+  ],
+  "cases": [
+    {
+      "bash": "cd backend && ./mvnw flyway:migrate",
+      "expect": "block"
+    },
+    {
+      "bash": ".\\mvnw.cmd -q flyway:clean",
+      "expect": "block"
+    },
+    {
+      "bash": "flyway -url=jdbc:postgresql://db.example:5432/app migrate",
+      "expect": "block",
+      "contains": "db.example"
+    },
+    {
+      "bash": "./mvnw flyway:migrate -Dflyway.url=jdbc:postgresql://db.example:5432/app",
+      "expect": "block"
+    },
+    {
+      "bash": "./gradlew flywayMigrate",
+      "expect": "block"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://localhost:5432/qa_t1 ./mvnw flyway:migrate",
+      "expect": "allow"
+    },
+    {
+      "bash": "DB_URL=$(python .claude/scripts/qa_db.py url t1) ./mvnw flyway:migrate",
+      "expect": "allow"
+    },
+    {
+      "bash": "./mvnw flyway:info",
+      "expect": "allow"
+    },
+    {
+      "bash": "grep -rn 'flyway:migrate' docs",
+      "expect": "allow"
+    },
+    {
+      "bash": "echo flyway migrate",
+      "expect": "allow"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=OrderServiceIntegrationTest)",
+      "expect": "allow",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "INTEGRATION_TEST_COMMAND (giai đoạn 1): nạp .env TRƯỚC rồi export DB_URL=$(qa_db.py url) -> cho qua"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=OrderServiceIntegrationTest)",
+      "expect": "allow",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/app_dev",
+      "name": "INTEGRATION_TEST_COMMAND, .env trỏ DB dev cùng host localhost -> cho qua (đích là qa_t1)"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export TEST_DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=OrderServiceIntegrationTest)",
+      "expect": "warn",
+      "contains": "db.example",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "giai đoạn 1: TEST_DB_URL=… khi app chưa đọc biến đó -> test chạy theo DB_URL (DB dev) -> CẢNH BÁO"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; export TEST_DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=OrderServiceIntegrationTest)",
+      "expect": "allow",
+      "env": {
+        "GUARD_MIGRATION_DB_URL_VAR": "TEST_DB_URL,FLYWAY_URL,DB_URL,SPRING_DATASOURCE_URL"
+      },
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "giai đoạn 2 (profile test đọc TEST_DB_URL, biến đứng đầu GUARD_MIGRATION_DB_URL_VAR): TEST_DB_URL=$(qa_db.py url) -> cho qua"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://db.example:5432/app ./mvnw -q test",
+      "expect": "warn",
+      "contains": "db.example"
+    },
+    {
+      "bash": "./mvnw -q test-compile",
+      "expect": "allow"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://db.example:5432/app ./mvnw spring-boot:run",
+      "expect": "warn",
+      "contains": "CẢNH BÁO"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://localhost:5432/app ./mvnw spring-boot:run",
+      "expect": "allow"
+    },
+    {
+      "bash": "$env:DB_URL = 'jdbc:postgresql://localhost:5432/app'; & .\\mvnw.cmd spring-boot:run",
+      "shell": "powershell",
+      "expect": "allow"
+    },
+    {
+      "bash": "npm --prefix web run dev",
+      "expect": "allow"
+    },
+    {
+      "test_cmd": "cd backend && ./mvnw -q test -Dtest=OrderServiceTest",
+      "expect": "test"
+    },
+    {
+      "test_cmd": ".\\mvnw.cmd verify",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "./mvnw -q test -Dtest=FooTest | tail -40",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "TEST_DB_URL=$(python .claude/scripts/qa_db.py url t1) ./mvnw -q test",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "DB_URL=$(python .claude/scripts/qa_db.py url t1) ./mvnw -q test",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "(set -a; . ./.env; set +a; export DB_URL=\"$(python .claude/scripts/qa_db.py url t1)\"; cd backend && ./mvnw -q test -Dtest=OrderServiceIntegrationTest)",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "cd backend && TEST_DB_URL=\"$(python ../.claude/scripts/qa_db.py url t1)\" SPRING_PROFILES_ACTIVE='test local' ./mvnw -q verify",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "& .\\mvnw.cmd test",
+      "shell": "powershell",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "cd backend; & .\\mvnw.cmd -q test 2>&1 | Select-Object -Last 40",
+      "shell": "powershell",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "bash -c 'set -a; . ./.env; ./mvnw -q test'",
+      "expect": "test"
+    },
+    {
+      "test_cmd": "./mvnw -B -DskipTests package",
+      "expect": "not-test"
+    },
+    {
+      "test_cmd": "./mvnw -q test-compile",
+      "expect": "not-test"
+    },
+    {
+      "test_cmd": "grep -rn 'mvnw test' docs",
+      "expect": "not-test"
+    },
+    {
+      "test_cmd": "FOO=\"a b\" pytest -q",
+      "expect": "test",
+      "name": "tách tiền tố gán có nháy + khoảng trắng (runner pytest)",
+      "env": {
+        "HANDOFF_TEST_CMD_REGEX": "",
+        "HANDOFF_TEST_RUNNER_REGEX": "(?:\\S*[/\\\\])?pytest(?:\\.exe)?(?:\\s|$)"
+      }
+    },
+    {
+      "test_cmd": "A=1 B=$(echo x y) npm test",
+      "expect": "test",
+      "name": "tách nhiều tiền tố gán, giá trị $(…) có khoảng trắng (runner npm)",
+      "env": {
+        "HANDOFF_TEST_CMD_REGEX": "",
+        "HANDOFF_TEST_RUNNER_REGEX": "(?:npm|pnpm|yarn)\\s+(?:run\\s+)?test\\b"
+      }
+    },
+    {
+      "path": "backend/src/main/java/com/acme/order/OrderService.java",
+      "expect": "product"
+    },
+    {
+      "path": "backend/src/main/resources/db/migration/V5__order.sql",
+      "expect": "product"
+    },
+    {
+      "path": "backend/src/test/java/com/acme/order/OrderServiceTest.java",
+      "expect": "test"
+    },
+    {
+      "path": "web/src/features/order/OrderPage.test.tsx",
+      "expect": "test"
+    },
+    {
+      "path": "docs/design/order-tech-design.md",
+      "expect": "other"
+    },
+    {
+      "edit": "backend/src/main/java/com/acme/order/web/OrderController.java",
+      "expect": "remind",
+      "contains": "OrderController.java"
+    },
+    {
+      "edit": "web/src/features/order/api.ts",
+      "expect": "silent"
+    },
+    {
+      "edit": "docs/_ref/capabilities.md",
+      "expect": "block"
+    },
+    {
+      "edit": "docs/notes.md",
+      "expect": "allow"
+    },
+    {
+      "bash": "powershell -NoProfile -File scripts/run-backend.ps1",
+      "expect": "warn",
+      "contains": "db.example",
+      "env": {
+        "DB_URL": "jdbc:postgresql://db.example:5432/app_dev"
+      },
+      "name": "startup: wrapper run-backend.ps1 khi DB_URL trỏ máy khác -> CẢNH BÁO"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; cd backend && ./mvnw spring-boot:run)",
+      "expect": "warn",
+      "contains": "db.example",
+      "env": {
+        "DB_URL": "jdbc:postgresql://localhost:5435/app_dev"
+      },
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "P1: môi trường DB_URL=localhost nhưng lệnh tự nạp .env trỏ máy khác -> CẢNH BÁO theo .env"
+    },
+    {
+      "bash": "export DB_URL=$(python .claude/scripts/qa_db.py url t1); (set -a; . ./.env; set +a; cd backend && ./mvnw -q test)",
+      "expect": "warn",
+      "contains": "db.example",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "P2: export DB_URL=$(qa_db.py url) TRƯỚC bước nạp .env -> .env đè lại -> CẢNH BÁO"
+    },
+    {
+      "bash": "powershell -NoProfile -File scripts/run-backend.ps1",
+      "expect": "warn",
+      "contains": "db.example",
+      "env": {
+        "DB_URL": "jdbc:postgresql://localhost:5435/app_dev"
+      },
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "P3: wrapper run-backend.ps1 tự nạp .env (môi trường DB_URL=localhost) -> CẢNH BÁO theo .env"
+    },
+    {
+      "bash": "(set -a; . ./.env; set +a; cd backend && ./mvnw -q test -Dtest=OrderServiceIntegrationTest)",
+      "expect": "warn",
+      "contains": "app_dev",
+      "dotenv": "DB_URL=jdbc:postgresql://localhost:5435/app_dev",
+      "name": "test-db: .env trỏ DB dev cùng host localhost (Docker local), lệnh test không đặt DB qa -> CẢNH BÁO theo tên DB"
+    },
+    {
+      "bash": "DB_URL=jdbc:postgresql://localhost:5435/app_dev ./mvnw -q verify",
+      "expect": "warn",
+      "contains": "app_dev",
+      "name": "test-db: mvnw verify lên localhost/app_dev -> CẢNH BÁO (host localhost không đủ)"
+    },
+    {
+      "bash": "Get-Content .env | Where-Object { $_ -match '^\\s*([A-Za-z_]\\w*)\\s*=(.*)$' } | ForEach-Object { Set-Item \"env:$($Matches[1])\" $Matches[2].Trim().Trim('\"') }; $env:DB_URL = (python .claude/scripts/qa_db.py url t1); & .\\backend\\mvnw.cmd -f backend/pom.xml -q test \"-Dtest=OrderServiceIntegrationTest\"",
+      "shell": "powershell",
+      "expect": "allow",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "INTEGRATION_TEST_COMMAND (PowerShell): nạp .env rồi $env:DB_URL = (qa_db.py url) -> cho qua"
+    },
+    {
+      "bash": "$env:DB_URL = (python .claude/scripts/qa_db.py url t1); Get-Content .env | Where-Object { $_ -match '^\\s*([A-Za-z_]\\w*)\\s*=(.*)$' } | ForEach-Object { Set-Item \"env:$($Matches[1])\" $Matches[2].Trim().Trim('\"') }; & .\\backend\\mvnw.cmd -q test",
+      "shell": "powershell",
+      "expect": "warn",
+      "contains": "db.example",
+      "dotenv": "DB_URL=jdbc:postgresql://db.example:5432/app_dev",
+      "name": "PowerShell: $env:DB_URL đặt TRƯỚC khi nạp .env -> .env đè lại -> CẢNH BÁO"
+    }
+  ]
+}
