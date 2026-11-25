@@ -9,7 +9,8 @@ export default function AdminRoutes() {
     <Routes>
       <Route element={<AdminLayout />}>
         <Route index element={<Navigate to="staff" replace />} />
-        <Route path="staff" element={<StaffPage />} />
+        <Route path="staff" element={<StaffPage key="staff" group="staff" />} />
+        <Route path="patients" element={<StaffPage key="patient" group="patient" />} />
         <Route path="homepage" element={<HomepageSettingsPage />} />
       </Route>
     </Routes>

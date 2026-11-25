@@ -1,13 +1,14 @@
-import { LayoutOutlined, LogoutOutlined, TeamOutlined } from '@ant-design/icons'
+import { LayoutOutlined, LogoutOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Menu, Spin } from 'antd'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { authApi, ROLE_LABEL } from '@/features/auth'
+import { authApi } from '@/features/auth'
 import { tokenStore } from '@/shared/api/http'
 import '../admin.css'
 
 const MENU = [
   { key: '/admin/staff', icon: <TeamOutlined />, label: 'Tài khoản nhân viên' },
+  { key: '/admin/patients', icon: <UserOutlined />, label: 'Tài khoản bệnh nhân' },
   { key: '/admin/homepage', icon: <LayoutOutlined />, label: 'Thiết lập trang chủ' },
 ]
 
@@ -44,7 +45,8 @@ export default function AdminLayout() {
         <div className="admin-user">
           <div>
             <b>{me.fullName}</b>
-            <div>{ROLE_LABEL[me.role]}</div>
+            {/* Khu này chỉ ADMIN vào được nên không cần hiện vai trò */}
+            <div className="admin-user-sub">{me.username ?? me.email}</div>
           </div>
           <Button icon={<LogoutOutlined />} onClick={logout} block>
             Đăng xuất
