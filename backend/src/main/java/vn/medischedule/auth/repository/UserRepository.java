@@ -21,11 +21,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findByRole_Code(String roleCode, Pageable pageable);
 
-    /** Lọc theo vai trò (tùy chọn) và từ khóa trong họ tên / email / tên đăng nhập. q đã ở dạng '%từ khóa%' chữ thường. */
+    /**
+     * Lọc theo vai trò (tùy chọn), loại trừ một vai trò (tùy chọn) và từ khóa trong họ tên / email / tên đăng nhập.
+     * q đã ở dạng '%từ khóa%' chữ thường.
+     */
     @Query("""
             select u from User u
             where (:role is null or u.role.code = :role)
+              and (:notRole is null or u.role.code <> :notRole)
               and (:q is null or lower(u.fullName) like :q or lower(u.email) like :q or lower(coalesce(u.username, '')) like :q)
             """)
-    Page<User> search(@Param("role") String role, @Param("q") String q, Pageable pageable);
+    Page<User> search(@Param("role") String role, @Param("notRole") String notRole, @Param("q") String q, Pageable pageable);
 }

@@ -32,18 +32,25 @@ import vn.medischedule.common.exception.ApiException;
 @RequiredArgsConstructor
 public class AdminUserController {
 
+    private static final String PATIENT = "PATIENT";
+
     private final UserRepository users;
     private final AuthService authService;
 
+    /** group: "staff" = mọi vai trò trừ PATIENT, "patient" = chỉ PATIENT; bỏ trống = tất cả. */
     @GetMapping
     public Page<UserResponse> list(@RequestParam(required = false) String role,
+                                   @RequestParam(required = false) String group,
                                    @RequestParam(required = false) String q,
                                    @RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "20") int size) {
         var pageable = PageRequest.of(page, Math.min(size, 100), Sort.by("id").descending());
         String keyword = q == null || q.isBlank() ? null : "%" + q.trim().toLowerCase() + "%";
         String roleCode = role == null || role.isBlank() ? null : role;
-        return users.search(roleCode, keyword, pageable).map(UserResponse::of);
+        String notRole = null;
+        if ("patient".equals(group)) roleCode = PATIENT;
+        else if ("staff".equals(group)) notRole = PATIENT;
+        return users.search(roleCode, notRole, keyword, pageable).map(UserResponse::of);
     }
 
     @PostMapping
@@ -56,7 +63,12 @@ public class AdminUserController {
     @Transactional
     public UserResponse changeRole(@PathVariable Long id, @Valid @RequestBody ChangeRoleRequest req) {
         User u = find(id);
-        u.setRole(authService.role(req.role()));
+        var newRole = authService.role(req.role());
+        // Nhân viên và bệnh nhân là hai loại tài khoản tách biệt, không chuyển qua lại
+        if (PATIENT.equals(u.getRole().getCode()) != PATIENT.equals(newRole.getCode())) {
+            throw ApiException.badRequest("ROLE_GROUP_CHANGE", "Không thể chuyển tài khoản giữa nhân viên và bệnh nhân");
+        }
+        u.setRole(newRole);
         return UserResponse.of(u);
     }
 

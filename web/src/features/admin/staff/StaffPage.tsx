@@ -1,11 +1,11 @@
 import { CopyOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { App, Button, Form, Input, Modal, Radio, Select, Switch, Table, Tag, Typography } from 'antd'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { App, Button, Form, Input, Modal, Radio, Select, Spin, Switch, Table, Tag, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { authApi, ROLE_LABEL, type Role, type UserResponse } from '@/features/auth'
 import { errorCode, errorMessage, fieldErrors } from '@/shared/api/http'
-import { STAFF_ROLES, usersApi, type CreateUserRequest } from './api'
+import { STAFF_ROLES, usersApi, type CreateUserRequest, type UserGroup } from './api'
 
 const ROLE_COLOR: Record<Role, string> = {
   ADMIN: 'geekblue',
@@ -23,24 +23,51 @@ function randomPassword() {
   return Array.from(buf, (n) => chars[n % chars.length]).join('')
 }
 
+const PAGE_SIZE = 20
+
 const fmtTime = (iso: string | null) => (iso ? new Date(iso).toLocaleString('vi-VN') : 'Chưa đăng nhập')
 
-export default function StaffPage() {
+const TEXT: Record<UserGroup, { title: string; desc: string }> = {
+  staff: {
+    title: 'Tài khoản nhân viên',
+    desc: 'Tạo tài khoản cho bác sĩ, lễ tân, dược sĩ, quản trị viên; đổi vai trò hoặc khóa tài khoản.',
+  },
+  patient: {
+    title: 'Tài khoản bệnh nhân',
+    desc: 'Bệnh nhân tự đăng ký. Tra cứu, khóa hoặc mở khóa tài khoản.',
+  },
+}
+
+/** Danh sách tài khoản theo nhóm: nhân viên (/admin/staff) hoặc bệnh nhân (/admin/patients). */
+export default function StaffPage({ group }: { group: UserGroup }) {
+  const isStaff = group === 'staff'
   const { message, modal } = App.useApp()
   const qc = useQueryClient()
   const [role, setRole] = useState<Role | undefined>()
   const [q, setQ] = useState('')
-  const [page, setPage] = useState(0)
-  const [size, setSize] = useState(20)
   const [creating, setCreating] = useState(false)
   const [form] = Form.useForm<CreateUserRequest>()
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: authApi.me })
-  const { data, isFetching, refetch } = useQuery({
-    queryKey: ['admin-users', role, q, page, size],
-    queryFn: () => usersApi.list({ role, q: q || undefined, page, size }),
+  const { data, isFetching, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useInfiniteQuery({
+    queryKey: ['admin-users', group, role, q],
+    queryFn: ({ pageParam }) => usersApi.list({ group, role, q: q || undefined, page: pageParam, size: PAGE_SIZE }),
+    initialPageParam: 0,
+    getNextPageParam: (last) => (last.page.number + 1 < last.page.totalPages ? last.page.number + 1 : undefined),
     placeholderData: keepPreviousData,
   })
+
+  const rows = data?.pages.flatMap((p) => p.content) ?? []
+
+  // Cuộn tới cuối bảng thì tải trang kế tiếp
+  const sentinel = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = sentinel.current
+    if (!el || !hasNextPage) return
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting && !isFetching) fetchNextPage() }, { rootMargin: '200px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [hasNextPage, isFetching, fetchNextPage])
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['admin-users'] })
 
@@ -110,7 +137,7 @@ export default function StaffPage() {
       dataIndex: 'role',
       width: 190,
       render: (r: Role, u) =>
-        u.id === me?.id ? (
+        !isStaff || u.id === me?.id ? (
           <Tag color={ROLE_COLOR[r]}>{ROLE_LABEL[r]}</Tag>
         ) : (
           <Select
@@ -120,14 +147,15 @@ export default function StaffPage() {
             style={{ width: 160 }}
             disabled={changeRole.isPending}
             onChange={(v) => changeRole.mutate({ id: u.id, role: v })}
-            options={(Object.keys(ROLE_LABEL) as Role[]).map((k) => ({ value: k, label: ROLE_LABEL[k] }))}
+            options={STAFF_ROLES.map((k) => ({ value: k, label: ROLE_LABEL[k] }))}
           />
         ),
     },
     {
       title: 'Hoạt động',
       dataIndex: 'enabled',
-      width: 110,
+      width: 140,
+      onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
       render: (v: boolean, u) => (
         <Switch
           checked={v}
@@ -145,12 +173,14 @@ export default function StaffPage() {
     <div className="admin-page">
       <div className="admin-head">
         <div>
-          <h1>Tài khoản nhân viên</h1>
-          <p>Tạo tài khoản cho bác sĩ, lễ tân, dược sĩ, quản trị viên; đổi vai trò hoặc khóa tài khoản.</p>
+          <h1>{TEXT[group].title}</h1>
+          <p>{TEXT[group].desc}</p>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-          Tạo tài khoản
-        </Button>
+        {isStaff && (
+          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+            Tạo tài khoản
+          </Button>
+        )}
       </div>
 
       <div className="admin-toolbar">
@@ -158,35 +188,34 @@ export default function StaffPage() {
           id="staff-search"
           allowClear
           placeholder="Tìm theo họ tên, email, tên đăng nhập"
-          style={{ width: 360 }}
-          onSearch={(v) => { setQ(v.trim()); setPage(0) }}
+          style={{ width: 360, maxWidth: '100%' }}
+          onSearch={(v) => setQ(v.trim())}
         />
-        <Select
-          id="staff-role-filter"
-          allowClear
-          placeholder="Tất cả vai trò"
-          style={{ width: 200 }}
-          value={role}
-          onChange={(v) => { setRole(v); setPage(0) }}
-          options={(Object.keys(ROLE_LABEL) as Role[]).map((k) => ({ value: k, label: ROLE_LABEL[k] }))}
-        />
+        {isStaff && (
+          <Select
+            id="staff-role-filter"
+            allowClear
+            placeholder="Tất cả vai trò"
+            style={{ width: 200 }}
+            value={role}
+            onChange={(v) => setRole(v)}
+            options={STAFF_ROLES.map((k) => ({ value: k, label: ROLE_LABEL[k] }))}
+          />
+        )}
         <Button icon={<ReloadOutlined />} onClick={() => refetch()}>Tải lại</Button>
       </div>
 
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={data?.content}
-        loading={isFetching}
-        pagination={{
-          current: page + 1,
-          pageSize: size,
-          total: data?.page.totalElements ?? 0,
-          showSizeChanger: false,
-          showTotal: (t) => `${t} tài khoản`,
-          onChange: (p, s) => { setPage(p - 1); setSize(s) },
-        }}
+        dataSource={rows}
+        loading={isFetching && !isFetchingNextPage}
+        pagination={false}
+        scroll={{ x: 'max-content' }}
       />
+      <div ref={sentinel} className="admin-list-end">
+        {isFetchingNextPage ? <Spin size="small" /> : data && `${rows.length} / ${data.pages[0].page.totalElements} tài khoản`}
+      </div>
 
       <Modal
         title="Tạo tài khoản nhân viên"
