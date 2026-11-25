@@ -9,7 +9,7 @@ Cùng họ với [`domain-context.md`](domain-context.md) (bối cảnh domain �
 
 ## 0. Tìm code
 
-Theo CLAUDE.md §Tìm code (nguồn duy nhất: công cụ index nếu repo có, không thì Grep/Glob) và CODING-GUIDELINES §6.
+Theo AGENTS.md §Tìm code (nguồn duy nhất: công cụ index nếu repo có, không thì Grep/Glob) và CODING-GUIDELINES §6.
 
 ---
 

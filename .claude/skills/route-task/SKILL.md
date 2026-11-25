@@ -1,6 +1,6 @@
 ---
 name: route-task
-description: Dùng khi user giao việc thay đổi code sản phẩm (feature, sửa bug, đổi behavior, refactor, tối ưu hiệu năng, nâng dependency, hotfix) và trước khi làm bất kỳ bước nào, để chọn flow, chọn mô hình Solo, Phiên task hoặc Điều hành, khai báo và xin user xác nhận. Không dùng cho câu hỏi, đọc/tìm code, đo đạc hay chỉnh CLAUDE.md, .claude/, memory.
+description: Dùng khi user giao việc thay đổi code sản phẩm (feature, sửa bug, đổi behavior, refactor, tối ưu hiệu năng, nâng dependency, hotfix) và trước khi làm bất kỳ bước nào, để chọn flow, chọn mô hình Solo, Phiên task hoặc Điều hành, khai báo và xin user xác nhận. Không dùng cho câu hỏi, đọc/tìm code, đo đạc hay chỉnh AGENTS.md, CLAUDE.md, .claude/, memory.
 ---
 
 # Chọn flow cho task
@@ -22,7 +22,7 @@ description: Dùng khi user giao việc thay đổi code sản phẩm (feature, 
 Khớp nhiều hơn một flow hoặc không rõ → hỏi user, không đoán.
 
 **Mặc định là đường NGẮN NHẤT đủ an toàn** (WORKFLOW §3.7). Thứ tự thử: Solo/Flow B → **C-nhỏ** → C → Full. Chỉ đi lên
-bậc trên khi có một trong: đổi schema / API contract / quyền; > 5 file (ước lượng sau khi định vị symbol chính theo CLAUDE.md §Tìm
+bậc trên khi có một trong: đổi schema / API contract / quyền; > 5 file (ước lượng sau khi định vị symbol chính theo AGENTS.md §Tìm
 code, và chọn test theo diff: chọn thủ công theo package/module bị sửa); nghiệp vụ chưa rõ tới mức cần hỏi user. Chọn C hoặc Full thì phải ghi **một dòng "vì sao không
 C-nhỏ"** trong câu khai báo — không có lý do cụ thể thì chọn C-nhỏ. Xu hướng tự nhiên là đẩy mọi việc lên Flow C dù
 C-nhỏ đủ; "an toàn" không phải lý do. Việc nhỏ mà user vẫn xin Full thì làm theo user (mục "Full Pipeline over Reuse").

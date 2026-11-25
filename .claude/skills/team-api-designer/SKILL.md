@@ -42,7 +42,7 @@ thành các giao ước API (API Contracts) rõ ràng, tường minh và chuẩn
    user nếu invoke thủ công).
    **Load KB:** Nếu `HANDOFF.domain` set → đọc `docs/knowledge/{domain}/registry.yaml`, match capability/feature,
    load `meta.yaml` → `load_policy[new_feature]`, filter business rules theo `applies_to`. Nếu `drift.*: true` hoặc
-   `confidence.*: generated|stale` → verify symbol trong code (cách tìm: CLAUDE.md §Tìm code) trước khi tin dùng field đó (`.claude/WORKFLOW.md` §5.2).
+   `confidence.*: generated|stale` → verify symbol trong code (cách tìm: AGENTS.md §Tìm code) trước khi tin dùng field đó (`.claude/WORKFLOW.md` §5.2).
 2. **Convention Scan:** Dùng `Glob/Grep` quét thư mục backend để tìm các file routing/controller mẫu nhằm đảm bảo
    tuân thủ cấu trúc API chung của dự án.
 3. **Contract Generation:** Tạo tài liệu API Specification chi tiết tại `docs/api/[feature-name]-api-spec.md`.

@@ -43,7 +43,7 @@ từ bản thiết kế kỹ thuật thành cấu trúc database vật lý chu�
    tiếp từ user nếu invoke thủ công). Xác nhận thiết kế đã được Tech Lead duyệt (`Status: Approved`).
    **Load KB:** Nếu `HANDOFF.domain` set → đọc `docs/knowledge/{domain}/registry.yaml`, match capability/feature,
    load `meta.yaml` → `load_policy[new_feature]`, filter business rules theo `applies_to`. Nếu `drift.*: true` hoặc
-   `confidence.*: generated|stale` → verify symbol trong code (cách tìm: CLAUDE.md §Tìm code) trước khi tin dùng field đó (`.claude/WORKFLOW.md` §5.2).
+   `confidence.*: generated|stale` → verify symbol trong code (cách tìm: AGENTS.md §Tìm code) trước khi tin dùng field đó (`.claude/WORKFLOW.md` §5.2).
 2. **Current Schema Scan:** Dùng `Glob/Grep` quét thư mục chứa các Models hiện tại để đảm bảo tuân thủ
    convention (quy tắc đặt tên bảng, tên cột, kiểu dữ liệu chung).
 3. **Artifacts Generation:**

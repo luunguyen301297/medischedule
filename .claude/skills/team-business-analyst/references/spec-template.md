@@ -25,7 +25,7 @@ Mọi file spec ghi vào thư mục `docs/tasks/` phải tuân thủ cấu trúc
 ## 4. Ảnh hưởng liên Capability (Flow C — Modify và Flow G — Bug Investigation, khi domain có KB)
 
 [Từ `dependency-graph.yaml` → lấy `depended_by` của capability đang sửa, cộng blast radius code-level (tìm caller
-theo CLAUDE.md §Tìm code) nếu đã xác định symbol cụ thể. Bỏ qua mục này nếu là Full Pipeline, tính năng mới hoặc domain không có KB.]
+theo AGENTS.md §Tìm code) nếu đã xác định symbol cụ thể. Bỏ qua mục này nếu là Full Pipeline, tính năng mới hoặc domain không có KB.]
 
 - **Capability đang sửa:** [tên capability]
 - **Các capability có thể bị ảnh hưởng (capability-level, từ dependency-graph.yaml):** [danh sách kèm 1 câu lý do —

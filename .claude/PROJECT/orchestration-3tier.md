@@ -47,6 +47,6 @@ cho phiên task một tin, câu trả lời của user chép **nguyên văn**; p
 ## 5.5 Điều hành rà spec trước GATE 3
 
 Trước khi trình user duyệt spec, điều hành kiểm: AC phản ánh đúng câu trả lời của user và không mâu thuẫn nhau; giả định
-về luồng/dữ liệu khớp code thật (tìm theo CLAUDE.md §Tìm code); không vi phạm rule KB hay đảo quyết định cũ; không đụng cùng quy tắc/file
+về luồng/dữ liệu khớp code thật (tìm theo AGENTS.md §Tìm code); không vi phạm rule KB hay đảo quyết định cũ; không đụng cùng quy tắc/file
 với task khác (nếu có thì chốt thứ tự gộp); AC đo được. Có vấn đề → trả phiên task sửa. Ổn → trình user kèm tóm tắt
 và danh sách rủi ro.

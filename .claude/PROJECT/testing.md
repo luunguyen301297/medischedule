@@ -50,7 +50,7 @@ Task đầu tiên cần test (thường là task QA đầu tiên) dựng khung t
      mặc định của stack (`.claude/scripts/README.md`).
    - **Dựng xong** (cấu hình test đọc biến riêng, không default, thiếu thì dừng): đổi `TEST_DB_ENV_VAR` sang biến riêng
      ở bảng stack và ở mọi chỗ đã điền giá trị cũ. Giá trị cũ trùng tên biến của app nên **không** thay hàng loạt: tìm
-     `grep -rnw '<biến cũ>' CLAUDE.md .claude docs` rồi xét từng dòng — đổi các chỗ nói về DB **test** (giá trị
+     `grep -rnw '<biến cũ>' AGENTS.md CLAUDE.md .claude docs` rồi xét từng dòng — đổi các chỗ nói về DB **test** (giá trị
      `INTEGRATION_TEST_COMMAND`, lệnh `export VAR=…`, `$env:VAR = …`, câu văn "đặt / thiếu biến DB test" trong file
      này, `qa-process.md`, pack backend §7), giữ các chỗ nói về DB của **app**; thêm biến đó vào **đầu** `GUARD_MIGRATION_DB_URL_VAR` trong `.claude/settings.json`, sửa ca
      trong `hook_cases.json` rồi chạy `test_hooks.py --project`. Chi tiết Spring: pack backend §7.

@@ -78,4 +78,4 @@ Chi tiết: [PROJECT/stack-and-commands.md](../../PROJECT/stack-and-commands.md)
 - Feature impl order: theo `PROJECT/conventions.md` § Feature Implementation Order (kiểu `SQL versioned`: entity và
   migration đổi trong cùng commit)
 - Output artifacts: `docs/` only
-- Tìm code: theo CLAUDE.md §Tìm code.
+- Tìm code: theo AGENTS.md §Tìm code.

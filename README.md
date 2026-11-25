@@ -75,7 +75,8 @@ Seed **không ghi đè dữ liệu bạn đã sửa**. Nội dung trang chủ ch
 
 ## Ghi chú
 
-- Quy ước code: [`CLAUDE.md`](CLAUDE.md).
+- Quy ước code: [`AGENTS.md`](AGENTS.md), dùng chung cho mọi AI và người làm.
+- Bật git hook kiểm migration và bí mật, một lần mỗi bản clone: `git config core.hooksPath scripts/git-hooks`.
 - Muốn người mới clone về có nội dung trang chủ giống máy bạn: sửa ở `/admin/homepage`, chạy `python scripts/export_seed.py`, commit file seed.
 - Không sửa migration `V*` đã chạy; thay đổi schema thì tạo file mới.
 - Docker image MinIO dùng `pgsty/minio`, vì image `minio/minio` gốc đã ngừng phát hành.

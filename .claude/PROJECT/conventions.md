@@ -3,7 +3,7 @@
 > Đọc khi: implement code mới (backend hoặc frontend), cần biết error handling pattern hoặc thứ tự làm feature.
 > Bỏ qua nếu chỉ đọc/phân tích code không viết mới.
 
-Quy ước code của dự án ghi ở `CLAUDE.md` (mục "Quy ước backend", "Quy ước web") — đó là nguồn sự thật, ưu tiên hơn
+Quy ước code của dự án ghi ở `AGENTS.md` (mục "Quy ước backend", "Quy ước web") — đó là nguồn sự thật, ưu tiên hơn
 file này; file này giữ khung quy ước chung của quy trình. Lệnh, ví dụ code và bẫy riêng của công cụ: chi tiết theo
 stack: xem `.claude/stack-packs/backend-spring-boot-flyway.md` (backend) và
 `.claude/stack-packs/frontend-react-antd-react-query.md` (frontend).

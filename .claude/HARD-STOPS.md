@@ -12,7 +12,7 @@ nhắc và chạy tiếp (`handoff.py stopcheck`, Stop hook `additionalContext`)
 ## Trước khi làm task
 
 Task đổi code sản phẩm: chọn flow qua skill `route-task`, trình bày và xin xác nhận bằng `AskUserQuestion` (không in text
-rồi kết thúc turn). Câu hỏi, đọc–tìm code, đo đạc, chỉnh `CLAUDE.md` / `.claude/` / memory thì làm thẳng. Task đang chạy
+rồi kết thúc turn). Câu hỏi, đọc–tìm code, đo đạc, chỉnh `AGENTS.md` / `CLAUDE.md` / `.claude/` / memory thì làm thẳng. Task đang chạy
 hiện ở đầu mỗi turn qua hook `[HANDOFF]`; đang giữa chừng thì tiếp tục từ phase đó. Chỉ làm đúng bước hiện tại, không
 gộp, không nhảy bước (trừ khi user nói "skip [bước]").
 

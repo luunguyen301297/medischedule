@@ -1,7 +1,7 @@
 # Bài học làm việc (rút từ dự án trước)
 
 Các quy tắc dưới đây sinh ra từ sự cố thật khi nhiều phiên Claude chạy song song trên cùng một checkout.
-Áp dụng mặc định; bỏ mục nào không hợp với dự án. Quy ước của dự án (`CLAUDE.md`, `PROJECT/*.md`) ưu tiên hơn file này.
+Áp dụng mặc định; bỏ mục nào không hợp với dự án. Quy ước của dự án (`AGENTS.md`, `PROJECT/*.md`) ưu tiên hơn file này.
 
 ## Git trong checkout dùng chung
 

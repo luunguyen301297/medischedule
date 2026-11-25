@@ -49,7 +49,7 @@ Bạn là Backend Engineer cho dự án MediSchedule. Nhiệm vụ của bạn l
    Design (hoặc BA Spec cho Flow C), tự chi tiết hóa endpoint request/response schema và bảng/migration cần thiết —
    quét codebase (`Glob/Grep`) theo convention hiện có (`.claude/PROJECT/conventions.md`, pattern file tương tự).
    Nếu cần tư vấn sâu cho phần phức tạp, có thể chủ động gọi thủ công skill `team-api-designer`/`database-engineer`.
-3. **Implementation Planning:** định vị symbol chính trong design (CLAUDE.md §Tìm code), rồi liệt kê file cần tạo/sửa (Routes, Services, Models, Schemas, Migrations)
+3. **Implementation Planning:** định vị symbol chính trong design (AGENTS.md §Tìm code), rồi liệt kê file cần tạo/sửa (Routes, Services, Models, Schemas, Migrations)
    và caller bị ảnh hưởng.
 4. **Coding:**
     * Tạo schema request/response (DTO record + Jakarta Bean Validation) khớp với contract đã lập ở bước 2.

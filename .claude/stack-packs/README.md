@@ -4,7 +4,7 @@
 chỉ đúng với framework/thư viện đó (vd `MissingGreenlet` của SQLAlchemy async, chuỗi revision của Alembic, response
 schema của Pydantic bỏ field không khai báo…).
 
-Các file quy trình (`CLAUDE.md`, `WORKFLOW.md`, `HARD-STOPS.md`, `LESSONS.md`, `PROJECT/*.md`) chỉ ghi quy tắc **trung
+Các file quy trình (`AGENTS.md`, `WORKFLOW.md`, `HARD-STOPS.md`, `LESSONS.md`, `PROJECT/*.md`) chỉ ghi quy tắc **trung
 lập với stack** và dùng placeholder (`ORM`, `MIGRATION_TOOL`, `TEST_COMMAND`… viết trong cặp ngoặc nhọn kép; bảng đầy đủ ở
 [`PROJECT/stack-and-commands.md`](../PROJECT/stack-and-commands.md)). Chỗ nào cần chi tiết theo công cụ, file chung trỏ
 tới pack của tầng tương ứng (placeholder `BACKEND_PACK`, `FRONTEND_PACK`, `MOBILE_PACK`).
@@ -25,7 +25,7 @@ Pack đi kèm template (dự án xoá pack không dùng — pack đang áp dụn
 
 1. Điền bảng stack ở `PROJECT/stack-and-commands.md` (mọi placeholder chuẩn).
 2. Mỗi tầng (backend / frontend / mobile) chọn **một** pack khớp; điền đường dẫn pack vào placeholder `BACKEND_PACK`,
-   `FRONTEND_PACK`, `MOBILE_PACK` (bảng ở `stack-and-commands.md`; các placeholder này xuất hiện ở `CLAUDE.md`
+   `FRONTEND_PACK`, `MOBILE_PACK` (bảng ở `stack-and-commands.md`; các placeholder này xuất hiện ở `AGENTS.md`
    và trong skill). Tầng không có thì xoá các câu nhắc tới pack của tầng đó.
 3. Xoá các pack không dùng (agent chỉ đọc pack được liệt kê), rồi dọn tham chiếu tới chúng — lệnh grep ở README
    template, bước "Dọn tham chiếu".
@@ -47,7 +47,7 @@ sẽ điền giá trị của backend chính vào pack của service ⇒ sai. Qu
   khác" — không điền vào bảng stack của tầng chính.
 - Tầng chính và service phụ cùng stack (cùng một pack) ⇒ chép pack thành file riêng cho service (vd
   `backend-fastapi-sqlalchemy.ai-service.md`) rồi thay như trên; pack gốc giữ cho tầng chính.
-- Ghi pack của service vào cột Pack bảng "Service khác" và dòng "Stack pack" của `CLAUDE.md` (kèm thư mục service).
+- Ghi pack của service vào cột Pack bảng "Service khác" và dòng "Stack pack" của `AGENTS.md` (kèm thư mục service).
 
 ## Viết pack mới
 

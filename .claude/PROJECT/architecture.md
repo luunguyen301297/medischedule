@@ -3,7 +3,7 @@
 > Đọc khi: thiết kế feature mới, cần hiểu routing/luồng request giữa layer.
 > Bỏ qua nếu chỉ sửa 1 hàm nội bộ không ảnh hưởng luồng giữa các layer.
 
-Nguồn sự thật về cấu trúc thư mục và quy ước code: `CLAUDE.md` (mục "Cấu trúc", "Quy ước backend", "Quy ước web"). File
+Nguồn sự thật về cấu trúc thư mục và quy ước code: `AGENTS.md` (mục "Cấu trúc", "Quy ước backend", "Quy ước web"). File
 này chỉ ghi luồng request và những điểm agent hay làm sai.
 
 ## Overview
@@ -40,7 +40,7 @@ trong package `web` của từng module, Spring tự quét package `vn.medisched
 
 **Module boundary**: theo module — mỗi module một package `vn.medischedule.<module>` với `domain` (entity) /
 `repository` / `service` / `web` (controller) / `dto` (record); module mẫu `auth`. Không gọi chéo repository của module
-khác — gọi qua service của module đó (`CLAUDE.md` § Quy ước backend). Phần dùng chung ở `vn.medischedule.common`
+khác — gọi qua service của module đó (`AGENTS.md` § Quy ước backend). Phần dùng chung ở `vn.medischedule.common`
 (`config`, `exception`). Module đã có code: `auth`, `cms`, `storage`; các module khác (`booking`, `schedule`, `clinic`,
 `patient`, `emr`, `pharmacy`, `billing`, `commission`, `aftercare`, `notification`, `ai`) mới có `package-info.java` mô
 tả phạm vi.

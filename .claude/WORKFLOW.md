@@ -65,7 +65,7 @@ Flow nào không liệt kê thì đi đúng pipeline gốc. Cột "Bỏ" tính t
 | **D — Refactor** | Cải thiện cấu trúc, **không đổi behavior** (đổi behavior → Flow C) | `tl-review` | 1, 2, 4, 7, 8 | TL define scope + risk, duyệt plan (`docs/reviews/refactor-<slug>.md` nếu có action item). Sau `code-review` chỉ chạy lại suite hiện có, không viết test mới. Rename symbol → `distill` partial (chỉ traceability + `drift.symbols`) |
 | **E — Performance** | Chậm, slow query, memory leak, timeout | `dev` | 1–3, 7–9 | DB-eng/BE đo before → fix → đo after (`docs/bugs/perf-<date>-<slug>.md`). Có migration hoặc đổi index → thêm `tl-review` trước `code-review`. Xong `code-review` → `idle` |
 | **F — Upgrade** | Bump dependency, CVE | `design` | 1, 4 | Engineer lập draft breaking changes + impact (`docs/reviews/upgrade-<slug>.md`) → `tl-review` approve/reject (reject = go/no-go → `idle`, hỏi user). QA **full regression, bắt buộc**. KB `none` |
-| **G — Bug Investigation** | Có lỗi nhưng root cause chưa rõ / nhiều hướng fix | `ba` | 2 (trừ khi > 1 hướng fix), 4 (hiếm) | BA làm root cause (repro, expected vs actual) + impact: `dependency-graph.yaml` lấy `depended_by`, tìm caller trong code (CLAUDE.md §Tìm code) lấy blast radius → `docs/tasks/bug-<slug>.md`. > 1 hướng fix → `design` so trade-off (`docs/design/bug-<slug>-solution.md`). QA bắt buộc có test tái hiện đúng bug (chỉ lộ ở UI → steps thủ công). KB `none` trừ khi fix hé lộ rule chưa document |
+| **G — Bug Investigation** | Có lỗi nhưng root cause chưa rõ / nhiều hướng fix | `ba` | 2 (trừ khi > 1 hướng fix), 4 (hiếm) | BA làm root cause (repro, expected vs actual) + impact: `dependency-graph.yaml` lấy `depended_by`, tìm caller trong code (AGENTS.md §Tìm code) lấy blast radius → `docs/tasks/bug-<slug>.md`. > 1 hướng fix → `design` so trade-off (`docs/design/bug-<slug>-solution.md`). QA bắt buộc có test tái hiện đúng bug (chỉ lộ ở UI → steps thủ công). KB `none` trừ khi fix hé lộ rule chưa document |
 
 **C-nhỏ:** ≤ ~5 file, không đổi schema/contract/quyền → bỏ BA và TL riêng, ghi delta vào "Báo cáo" HANDOFF rồi `dev`; bỏ `qa-plan`, QA gộp một lượt ở `qa-run` (§3.4); chạm > 5 file hoặc cần schema → quay lại đường đầy đủ; chi tiết ở `route-task`.
 
@@ -179,9 +179,9 @@ Skill đầu tiên có code impact (BA cho Full/Modify, hoặc engineer cho Mini
 1. Đọc `docs/knowledge/{domain}/registry.yaml` → match `capability` / `feature`
 2. Load `meta.yaml` → `load_policy[intent]`
 3. Filter business rules theo `applies_to`
-4. Nếu `drift.*: true` hoặc `confidence.*: generated|stale` → verify symbol trong code (cách tìm: CLAUDE.md §Tìm code)
+4. Nếu `drift.*: true` hoặc `confidence.*: generated|stale` → verify symbol trong code (cách tìm: AGENTS.md §Tìm code)
 5. **Flow C — Modify và Flow G — Bug Investigation:** đọc `docs/knowledge/{domain}/dependency-graph.yaml` → lấy
    `depended_by` của capability đang sửa; nếu đã xác định symbol/function cụ thể → bổ sung blast radius code-level (caller
-   thật, CLAUDE.md §Tìm code) → BA ghi vào BA spec mục 4 "Cross-Capability Impact" — QA dùng để scope regression test
+   thật, AGENTS.md §Tìm code) → BA ghi vào BA spec mục 4 "Cross-Capability Impact" — QA dùng để scope regression test
 
 Ghi `domain`, `capability`, `feature` vào `docs/HANDOFF.<task>.local.md` lúc khởi tạo task.

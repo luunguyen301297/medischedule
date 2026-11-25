@@ -25,7 +25,7 @@ vị code; khi cần sửa code hoặc kiểm tra chi tiết implementation, Age
 
 - **Knowledge Base (KB)** — mô tả *nghiệp vụ*, *kiến trúc*, *luồng xử lý*, *quy tắc*, *quyết định thiết kế*, và
   *cross-capability impact* (`dependency-graph.yaml`) — trả lời "sửa cái này có thể ảnh hưởng cái gì khác"
-- **Code index** — cách tìm code của repo (CLAUDE.md §Tìm code: công cụ index code nếu repo có, không thì Grep/Glob +
+- **Code index** — cách tìm code của repo (AGENTS.md §Tìm code: công cụ index code nếu repo có, không thì Grep/Glob +
   Read); chỉ dùng để *định vị* và *explore* source code (symbol → file, call paths) — nguồn xác thực duy nhất khi cần sửa/verify code thật, kể cả khi KB đã trỏ đúng hướng
 
 **Nguyên tắc phân tách:**

@@ -1,10 +1,10 @@
 # .claude — Skill & Project Hub
 
-Reference hub cho các file trong `.claude/`. Thứ tự đọc khi bắt đầu task xem tại `../CLAUDE.md`.
+Reference hub cho các file trong `.claude/`. Thứ tự đọc khi bắt đầu task xem tại `../AGENTS.md`.
 
 ## Bootstrap
 
-Xem `../CLAUDE.md` § Làm task — đó là nguồn duy nhất cho thứ tự đọc file khi bắt đầu task. Không lặp lại
+Xem `../AGENTS.md` § Làm task — đó là nguồn duy nhất cho thứ tự đọc file khi bắt đầu task. Không lặp lại
 ở đây để tránh lệch.
 
 ## Tài liệu

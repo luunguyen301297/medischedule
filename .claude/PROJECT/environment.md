@@ -34,7 +34,7 @@ Stack").
 
 Ưu tiên theo thứ tự, từ trên xuống:
 
-1. **Công cụ index code** — nếu repo có (xem `CLAUDE.md` §Tìm code).
+1. **Công cụ index code** — nếu repo có (xem `AGENTS.md` §Tìm code).
 2. **Built-in tools: `Grep`, `Glob`, `Read`** — ưu tiên mặc định cho mọi tìm kiếm/đọc file.
 3. **Bash/PowerShell** — chỉ dùng cho thao tác shell thuần túy (git, npm, docker...), không dùng thay
    cho Grep/Glob/Read khi các tool đó đủ dùng.

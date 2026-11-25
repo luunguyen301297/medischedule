@@ -103,5 +103,5 @@ Không được bỏ qua hoàn toàn. Review khi thêm skill mới, không có C
 
 ## Skill điều hướng và subagent
 
-- `route-task` — chọn flow + mô hình Solo / Phiên task / Điều hành trước khi làm task code (gọi từ CLAUDE.md).
+- `route-task` — chọn flow + mô hình Solo / Phiên task / Điều hành trước khi làm task code (gọi từ AGENTS.md).
 - Subagent (`.claude/agents/`): `qa-writer` (QA), `code-reviewer` (chỉ đọc) — phiên task giao việc và duyệt kết quả; xem `.claude/PROJECT/qa-process.md` (QA), `.claude/WORKFLOW.md` §3.5.

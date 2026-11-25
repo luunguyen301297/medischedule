@@ -20,7 +20,7 @@ Tên component cụ thể và mapping state → component của UI library nằm
 Đã viết lại theo quy ước của MediSchedule (dự án thắng mặc định của template).
 
 **Nguồn duy nhất trong `.claude/`** của quy ước giao diện — `LESSONS.md`, `PROJECT/conventions.md`, stack pack frontend
-chỉ trỏ tới mục này. **Nguồn sự thật** là `CLAUDE.md` § "Quy ước web" và `web/src/shared/theme/theme.ts` (giữ nguyên);
+chỉ trỏ tới mục này. **Nguồn sự thật** là `AGENTS.md` § "Quy ước web" và `web/src/shared/theme/theme.ts` (giữ nguyên);
 mục này là bản tóm tắt agent đọc khi làm UI và phải khớp nguồn — quy ước đổi thì sửa nguồn trước, rồi cập nhật mục này.
 Áp dụng cho mọi màn và mọi mockup:
 

@@ -9,7 +9,7 @@ Tách từ `WORKFLOW.md` §5.1, 5.3–5.5. Đọc khi `distill`, hoặc khi BA/T
 | L2 Capability | `docs/knowledge/medischedule/capabilities/`        | `tech-lead` @ `distill` |
 | L3 Feature    | `docs/knowledge/medischedule/features/`            | `tech-lead` @ `distill` |
 | L4 Ephemeral  | `docs/tasks/`, `docs/design/`, `docs/reviews/` | BA, SA, TL, QA trong pipeline     |
-| L5 Structural | `docs/_ref/`, code (CLAUDE.md §Tìm code)       | Auto-gen — **không sửa tay**      |
+| L5 Structural | `docs/_ref/`, code (AGENTS.md §Tìm code)       | Auto-gen — **không sửa tay**      |
 
 **Dependency graph (cross-capability impact):** `docs/knowledge/medischedule/dependency-graph.yaml` — auto-generated
 bởi `scripts/gen_dependency_graph.py` từ `depends_on` (hand-curated trong capability `meta.yaml`), tính ngược thành

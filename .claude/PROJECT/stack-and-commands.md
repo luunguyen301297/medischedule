@@ -42,10 +42,10 @@
   placeholder có ký tự đầu tiên sau cặp ngoặc mở không phải khoảng trắng; bộ lọc `grep -v` chỉ so phần đường dẫn ở
   đầu dòng output (neo `^`, không vượt dấu `:`) nên dòng có `/` trong nội dung vẫn được giữ:
   ```bash
-  grep -rnE '\{\{[^ {}][^{}]*\}\}' CLAUDE.md .claude docs | grep -vE '^(\./)?\.claude/skills/(_shared/[^/:]+/|ui-ux-pro-max/data/)'
+  grep -rnE '\{\{[^ {}][^{}]*\}\}' AGENTS.md CLAUDE.md .claude docs | grep -vE '^(\./)?\.claude/skills/(_shared/[^/:]+/|ui-ux-pro-max/data/)'
   ```
 - Mọi comment hướng dẫn điền là khối comment HTML mở đầu bằng chữ TEMPLATE và dấu hai chấm (kể cả comment ví dụ trong
-  ô bảng): điền xong thì xoá; tìm còn sót bằng `grep -rn 'TEMPLATE[:]' CLAUDE.md .claude docs` (phải ra rỗng).
+  ô bảng): điền xong thì xoá; tìm còn sót bằng `grep -rn 'TEMPLATE[:]' AGENTS.md CLAUDE.md .claude docs` (phải ra rỗng).
 
 **Trạng thái tầng** (tầng không có thì xoá dòng; dự kiến mà chưa có code thì `chưa khởi tạo`):
 
@@ -139,8 +139,8 @@ trong các file vừa kể) thì dùng giá trị bảng.
 
 | Placeholder | Ý nghĩa | Nơi dùng | Giá trị dự án | Ví dụ |
 |---|---|---|---|---|
-| `{{PROJECT_NAME}}` | Tên dự án / sản phẩm | `CLAUDE.md`, skill, agent, `PROJECT/*` | MediSchedule | Acme Shop |
-| `{{DOMAIN}}` | Slug domain nghiệp vụ = tên thư mục KB `docs/knowledge/<slug>/` (cách chọn: dưới bảng) | `CLAUDE.md`, `PROJECT/kdd.md`, `_shared/domain-context.md`, spec KDD | medischedule | `acme-shop` |
+| `{{PROJECT_NAME}}` | Tên dự án / sản phẩm | `AGENTS.md`, skill, agent, `PROJECT/*` | MediSchedule | Acme Shop |
+| `{{DOMAIN}}` | Slug domain nghiệp vụ = tên thư mục KB `docs/knowledge/<slug>/` (cách chọn: dưới bảng) | `AGENTS.md`, `PROJECT/kdd.md`, `_shared/domain-context.md`, spec KDD | medischedule | `acme-shop` |
 | `{{DOMAIN_NAME}}` | Tên domain đọc được | `_shared/domain-context.md`, `_shared/project-conventions.md` | Đặt lịch và quản lý phòng khám | Bán hàng trực tuyến |
 | `{{BACKEND_DIR}}` | Thư mục code backend (tính từ gốc repo) | lệnh ở file này, `launch.json`, rule pack review, stack pack, `mobile-screen-loop` | backend | `backend` |
 | `{{FRONTEND_DIR}}` | Thư mục code frontend web | lệnh ở file này, `launch.json`, rule pack review, stack pack, `ui-ux-pro-max` | web | `frontend` |
@@ -173,7 +173,7 @@ Bảng stack chỉ có ba tầng backend / frontend / mobile.
 
 - **Service thứ 4 trở đi** (vd service AI/worker FastAPI cạnh backend Java): không nhồi vào placeholder của tầng có sẵn.
   Ghi một dòng vào bảng dưới; pack áp dụng cho service đó (vd `backend-fastapi-sqlalchemy.md`) ghi ở cột Pack và ở dòng
-  "Stack pack" của `CLAUDE.md` (kèm thư mục). Chỉ khi file chung cần lệnh của service đó mới thêm placeholder dạng
+  "Stack pack" của `AGENTS.md` (kèm thư mục). Chỉ khi file chung cần lệnh của service đó mới thêm placeholder dạng
   `SERVICE_<TÊN>_<KHOÁ>` trong ngoặc nhọn kép (vd khoá `SERVICE_AI_TEST_COMMAND`) vào bảng này và dùng ở file chung.
 - **Pack của service phụ:** pack dùng chung tên placeholder với tầng chính (`BACKEND_DIR`, `MIGRATION_DIR`,
   `TEST_DB_ENV_VAR`… trong ngoặc nhọn kép). Trong file pack của service, thay các placeholder đó bằng **giá trị của

@@ -45,14 +45,14 @@ Khi hotfix đụng business logic của domain có KB (`docs/knowledge/{domain}/
 1. Đọc `docs/knowledge/{domain}/registry.yaml` → match `capability` / `feature` từ mô tả lỗi
 2. Load feature `meta.yaml` → `load_policy[bugfix]`
 3. Filter business rules theo `applies_to`
-4. Nếu `drift.symbols: true` hoặc `confidence.symbols: generated|stale` → verify symbol trong code (cách tìm: CLAUDE.md §Tìm code) trước khi vá
+4. Nếu `drift.symbols: true` hoặc `confidence.symbols: generated|stale` → verify symbol trong code (cách tìm: AGENTS.md §Tìm code) trước khi vá
 5. **Không ghi** `docs/knowledge/` — hotfix mặc định `knowledge_impact: none`; user ghi `partial` nếu cần distill sau
 
 Entry: `docs/knowledge/{domain}/README.md`.
 
 ## Quy trình vận hành (Workflow Steps)
 
-1. **Locate & Diagnose:** Định vị code (CLAUDE.md §Tìm code: công cụ index nếu repo có, không thì `Grep/Glob`) rồi `Read`, dựa trên mô tả lỗi hoặc log lỗi từ Production
+1. **Locate & Diagnose:** Định vị code (AGENTS.md §Tìm code: công cụ index nếu repo có, không thì `Grep/Glob`) rồi `Read`, dựa trên mô tả lỗi hoặc log lỗi từ Production
    để tìm chính xác file và đoạn code gây ra sự cố.
 2. **Surgical Fix:** Dùng `Edit` để vá lỗi trực tiếp.
 3. **Local Verification:** Chạy bộ test liên quan bằng lệnh `Bash` để đảm bảo bản vá hoạt động tốt và không làm hỏng các

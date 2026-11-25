@@ -104,7 +104,7 @@ nếu cần thao tác file bằng script ngoài Edit/Write tool.
 Mọi thứ đã đọc nằm lại trong context đến hết session. Đo thực tế ở các session dài: phần lớn output Bash là
 `sed -n`/`cat` đọc code, cùng một file lớn bị đọc lại hàng chục lần.
 
-1. **Định vị trước, đọc sau.** Tìm symbol/caller bằng công cụ index code nếu repo có (CLAUDE.md §Tìm code), không thì Grep/`grep -n`, rồi mới đọc đúng khúc cần — không mở file "để xem tổng quan".
+1. **Định vị trước, đọc sau.** Tìm symbol/caller bằng công cụ index code nếu repo có (AGENTS.md §Tìm code), không thì Grep/`grep -n`, rồi mới đọc đúng khúc cần — không mở file "để xem tổng quan".
 2. **Khúc ≤ 200 dòng, ≤ 300 dòng mỗi lệnh.** Cần nhiều hơn thường là dấu hiệu chưa định vị đủ hẹp. Muốn lọc trong
    khúc lớn thì pipe: `sed -n A,Bp f | grep -n …`. Với `Read` file > 400 dòng luôn kèm `offset`/`limit`.
 3. **Không đọc lại vùng đã đọc** nếu chưa sửa nó — dùng lại những gì đã có trong context. Sau Edit chỉ đọc lại vài

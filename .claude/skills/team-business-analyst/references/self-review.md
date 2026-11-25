@@ -8,7 +8,7 @@
 | Business rule | Mọi rule đã xác định khi khai thác đều có trong AC | §5 |
 | Edge case | Dữ liệu thiếu/không hợp lệ, trạng thái không mong đợi, sai thứ tự… — chỉ case có ý nghĩa nghiệp vụ | §7 |
 | Cross-capability (Flow C, G) | `docs/knowledge/{domain}/dependency-graph.yaml` → `depended_by` của capability đang sửa → spec mục 4 (input cho QA hồi quy) | — |
-| Blast radius code-level | Khi đã biết symbol/endpoint cụ thể: tìm caller/dependent thật của symbol (CLAUDE.md §Tìm code) → vào mục 4, sub-mục "Blast radius code-level". Chưa biết symbol → ghi "chưa xác định code path cụ thể, cần SA/Dev xác nhận thêm" | — |
+| Blast radius code-level | Khi đã biết symbol/endpoint cụ thể: tìm caller/dependent thật của symbol (AGENTS.md §Tìm code) → vào mục 4, sub-mục "Blast radius code-level". Chưa biết symbol → ghi "chưa xác định code path cụ thể, cần SA/Dev xác nhận thêm" | — |
 | Điểm mơ hồ | `grep -c "\[CẦN LÀM RÕ" <spec>` phải = 0; mỗi giả định ở mục 5 ghi rõ AC liên quan và hậu quả nếu sai | — |
 | Completeness | Checklist §13: không assumption chưa xác nhận, không requirement mâu thuẫn, không lấn sang technical design | §13 |
 
