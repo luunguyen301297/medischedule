@@ -35,7 +35,7 @@ public class User {
     @Column(unique = true)
     private String username;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash")   // NULL khi tài khoản chỉ đăng nhập Google (V5)
     private String passwordHash;
 
     @Column(name = "full_name", nullable = false)
