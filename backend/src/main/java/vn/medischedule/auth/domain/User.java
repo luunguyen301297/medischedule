@@ -38,6 +38,20 @@ public class User {
     @Column(name = "password_hash")   // NULL khi tài khoản chỉ đăng nhập Google (V5)
     private String passwordHash;
 
+    /** ID tài khoản Google đã liên kết (V5). */
+    @Column(name = "google_sub", unique = true)
+    private String googleSub;
+
+    /** Hash của token trong link quên mật khẩu (không lưu token gốc). */
+    @Column(name = "reset_token_hash")
+    private String resetTokenHash;
+
+    @Column(name = "reset_expires_at")
+    private OffsetDateTime resetExpiresAt;
+
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
