@@ -22,7 +22,7 @@ mobile `.claude/stack-packs/mobile-flutter.md`, service ai-service `.claude/stac
 | `mobile/` | Flutter cho bệnh nhân (chưa khởi tạo) |
 | `ai-service/` | Python FastAPI (chưa khởi tạo) |
 | `infra/` | Script khởi tạo Postgres |
-| `docs/` | Link use case, thiết kế CSDL |
+| `docs/` | Link use case, thiết kế CSDL, bản đồ module (`docs/modules.md`) |
 
 Luồng request, module boundary, settings: [`.claude/PROJECT/architecture.md`](.claude/PROJECT/architecture.md).
 

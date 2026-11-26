@@ -42,8 +42,9 @@ trong package `web` của từng module, Spring tự quét package `vn.medisched
 `repository` / `service` / `web` (controller) / `dto` (record); module mẫu `auth`. Không gọi chéo repository của module
 khác — gọi qua service của module đó (`AGENTS.md` § Quy ước backend). Phần dùng chung ở `vn.medischedule.common`
 (`config`, `exception`). Module đã có code: `auth`, `cms`, `storage`; các module khác (`booking`, `schedule`, `clinic`,
-`patient`, `emr`, `pharmacy`, `billing`, `commission`, `aftercare`, `notification`, `ai`) mới có `package-info.java` mô
-tả phạm vi.
+`patient`, `emr`, `pharmacy`, `billing`, `commission`, `aftercare`, `notification`, `system`, `ai`) mới có entity trong
+`domain` và `package-info.java` mô tả phạm vi. Module nào giữ bảng nào, phục vụ use case nào, khu web nào gọi:
+[`docs/modules.md`](../../docs/modules.md).
 
 **Database**: Spring Data JPA repository + `@Transactional` ở service quản lý transaction (`open-in-view: false`) của
 Spring Data JPA (Hibernate) trên PostgreSQL 16. Models/entity ở `backend/src/main/java/vn/medischedule/**/domain`,

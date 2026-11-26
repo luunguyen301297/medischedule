@@ -1,6 +1,7 @@
 # docs
 
+- Bản đồ module (module nào ở đâu, giữ bảng nào, phục vụ use case nào): [modules.md](modules.md)
 - Sơ đồ use case bản 2: https://claude.ai/artifact/1Dh4EEN2xN14GKx4vt8pcV
-- Thiết kế CSDL (bản rút gọn 26 bảng): https://claude.ai/artifact/D9UKDE4MkmBQ3NmeNVSvMR
+- Thiết kế CSDL (29 bảng, bản đã duyệt): https://claude.ai/artifact/MyPagR729Fb9aD5ZvVPP2g
 
-Hiện mới triển khai bảng `roles`, `users` (V1). Các bảng khác thêm dần theo module bằng migration Flyway mới.
+Schema đã đủ 29 bảng (migration V1–V6) và mỗi bảng đã có entity. Service, controller và màn hình thêm dần theo module.
