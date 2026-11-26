@@ -1,0 +1,4 @@
+{"task": "split-admin-accounts", "flow": "C-nho", "closed": "2026-11-25T14:56:28+07:00", "phases": {"dev": {"wall": 1022, "wait": 0}}}
+{"task": "db-core-schema", "flow": "B", "closed": "2026-11-26T22:42:58+07:00", "phases": {"dev": {"wall": 3641, "wait": 0}}}
+{"task": "jpa-entities", "flow": "B", "closed": "2026-11-26T22:51:52+07:00", "phases": {"dev": {"wall": 170, "wait": 0}, "code-review": {"wall": 113, "wait": 0}}}
+{"task": "entity-docs", "flow": "B", "closed": "2026-11-26T22:57:58+07:00", "phases": {"dev": {"wall": 149, "wait": 0}}}
