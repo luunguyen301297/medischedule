@@ -23,6 +23,9 @@ xác định phase, tra bảng Phase → skill (WORKFLOW §3.1), invoke skill b�
 * **Kết thúc:** khi flow đạt `idle` (và đã qua `distill` nếu có, ghi `knowledge_distill_status`), session sở
   hữu task chạy `python .claude/scripts/handoff.py close <task> --summary "…"`: append vào history rồi xoá file.
   `handoff.py stale` liệt kê file đã idle còn sót.
+* **Đóng trước, commit sau:** chạy `handoff.py close` **trước** commit cuối của task, rồi `git add` thêm
+  `docs/HANDOFF.history.md` và `docs/HANDOFF.timing.jsonl` vào cùng commit với code. Một commit, một lần push; không
+  tách commit riêng cho HANDOFF. Hai file này chỉ append nên gộp nhánh không conflict.
 
 ## 2. Chọn flow
 

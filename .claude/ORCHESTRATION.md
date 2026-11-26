@@ -26,7 +26,7 @@ Chỉ giao tiếp giữa hai tầng liền kề: triển khai ↔ phiên task �
 | `qa-plan` | **Session QA** (Sonnet, vai `qa`) viết kịch bản từ BA spec → `REVIEW-REQUEST`. Mở **cùng lượt với session dev** (§3.1) nên viết kịch bản song song lúc dev code; chỉ chạy test sau khi phiên task nhắn `DUYỆT` kèm diff (dev `DONE` + code review LGTM). QA chỉ ghi thư mục test (`backend/src/test/java/vn/medischedule/<module>/*Test.java`, `backend/src/test/java/vn/medischedule/<module>/*IntegrationTest.java`) và `docs/tests/` (hook chặn session QA sửa code sản phẩm) | Phiên task duyệt theo checklist `PROJECT/qa-process.md` → nhắn "DUYỆT, chạy" hoặc yêu cầu sửa |
 | `qa-run` | Session QA chạy test → `REVIEW-REQUEST` kèm báo cáo | Phiên task review báo cáo. Lỗi code → session dev sửa; test sai → session QA sửa; rồi chạy lại phần liên quan. **Chấp nhận** → `qa_db.py drop <task>` ngay |
 | `distill` | Phiên task | KB (PROJECT/kdd.md) khi `knowledge_impact != none` |
-| đóng | Phiên task (2 tầng) / điều hành xác nhận (3 tầng) | Kiểm diff + test → commit/merge theo quy ước → `handoff.py close` |
+| đóng | Phiên task (2 tầng) / điều hành xác nhận (3 tầng) | Kiểm diff + test → `handoff.py close` → commit gồm cả `docs/HANDOFF.history.md` + `docs/HANDOFF.timing.jsonl` (WORKFLOW §1) → push / merge |
 
 **Giữ ngữ cảnh phiên task gọn:** HANDOFF là nguồn sự thật — cuối mỗi phase ghi 2–3 dòng vào mục Báo cáo (quyết định,
 commit, test) để sau compact vẫn nối được. Review diff theo file (`git diff --stat` rồi từng file), không đọc cả diff một
