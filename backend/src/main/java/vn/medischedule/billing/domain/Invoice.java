@@ -26,33 +26,46 @@ public class Invoice {
 
     public enum Status { UNPAID, PAID, REFUNDED }
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Số hóa đơn, duy nhất. */
     private String invoiceNo;
 
+    /** appointment.id; NULL khi bán thuốc lẻ. */
     private Long appointmentId;
 
+    /** patient.id người thanh toán. */
     private Long patientId;
 
+    /** Tổng tiền trước BHYT và giảm giá (VND). */
     private BigDecimal total;
 
+    /** Phần BHYT chi trả (VND). */
     private BigDecimal insuranceAmount = BigDecimal.ZERO;
 
+    /** Phần giảm giá voucher (VND). */
     private BigDecimal discountAmount = BigDecimal.ZERO;
 
+    /** CASH, QR, CARD; NULL khi chưa thanh toán. */
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    /** Mã giao dịch cổng thanh toán (QR/thẻ), duy nhất; chống ghi nhận trùng. */
     private String gatewayTxnId;
 
+    /** UNPAID, PAID, REFUNDED. */
     @Enumerated(EnumType.STRING)
     private Status status = Status.UNPAID;
 
+    /** Mã hóa đơn điện tử. */
     private String einvoiceCode;
 
+    /** staff.id của thu ngân / lễ tân. */
     private Long cashierId;
 
+    /** Thời điểm thanh toán. */
     private OffsetDateTime paidAt;
 }

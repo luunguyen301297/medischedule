@@ -28,28 +28,38 @@ public class DoctorCommission {
 
     public enum DisputeStatus { OPEN, RESOLVED }
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** staff.id của bác sĩ. */
     private Long doctorId;
 
+    /** Ngày đầu tháng tính thưởng; mỗi bác sĩ một dòng mỗi tháng. */
     private LocalDate month;
 
+    /** Chính sách áp dụng cho tháng này. */
     @ManyToOne(fetch = FetchType.LAZY)
     private CommissionPolicy policy;
 
+    /** Số lượt khám đã thanh toán trong tháng. */
     private int visitCount = 0;
 
+    /** Số lượt được chỉ định đích danh. */
     private int designatedCount = 0;
 
+    /** Tổng thưởng (VND). */
     private BigDecimal amount = BigDecimal.ZERO;
 
+    /** DRAFT (còn tính lại được) hoặc LOCKED (đã chốt). */
     @Enumerated(EnumType.STRING)
     private Status status = Status.DRAFT;
 
+    /** Nội dung bác sĩ yêu cầu đối soát. */
     private String disputeNote;
 
+    /** OPEN / RESOLVED; NULL = không có khiếu nại. */
     @Enumerated(EnumType.STRING)
     private DisputeStatus disputeStatus;
 }

@@ -21,22 +21,30 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class MedicalRecord {
 
+    /** appointment.id; vừa là khóa chính vừa là khóa ngoại (1 lượt khám 1 bệnh án). */
     @Id
     private Long appointmentId;
 
+    /** Triệu chứng, lý do khám. */
     private String symptoms;
 
+    /** Sinh hiệu dạng JSON: {bp, pulse, temp, spo2, weight}. */
     @JdbcTypeCode(SqlTypes.JSON)
     private String vitalSigns;
 
+    /** Mã ICD-10 của chẩn đoán chính; danh mục nạp ở frontend. */
     @Column(name = "icd10_code")
     private String icd10Code;
 
+    /** Chẩn đoán. */
     private String diagnosis;
 
+    /** Lời dặn của bác sĩ. */
     private String advice;
 
+    /** Ngày hẹn tái khám. */
     private LocalDate followUpDate;
 
+    /** Thời điểm bác sĩ ký; khác NULL thì bệnh án bị khóa sửa. */
     private OffsetDateTime signedAt;
 }

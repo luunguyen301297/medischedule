@@ -21,21 +21,28 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class InvoiceItem {
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Hóa đơn chứa dòng này. */
     @ManyToOne(fetch = FetchType.LAZY)
     private Invoice invoice;
 
+    /** Dịch vụ tính tiền; đúng một trong service hoặc drugId có giá trị. */
     @ManyToOne(fetch = FetchType.LAZY)
     private MedicalService service;
 
+    /** drug.id khi dòng là thuốc. */
     private Long drugId;
 
+    /** Số lượng. */
     private int quantity;
 
+    /** Đơn giá chốt lúc lập hóa đơn (VND). */
     private BigDecimal unitPrice;
 
+    /** Thành tiền = quantity * unitPrice (VND). */
     private BigDecimal amount;
 }

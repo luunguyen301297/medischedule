@@ -28,25 +28,33 @@ public class ShiftRequest {
 
     public enum Status { PENDING, APPROVED, REJECTED, HANDLED }
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Ca bị ảnh hưởng. */
     @ManyToOne(fetch = FetchType.LAZY)
     private Shift shift;
 
+    /** staff.id của bác sĩ gửi yêu cầu. */
     private Long doctorId;
 
+    /** SWAP (xin đổi ca) hoặc UNAVAILABLE (báo bận đột xuất). */
     @Enumerated(EnumType.STRING)
     private Type type;
 
+    /** Lý do bác sĩ nhập. */
     private String reason;
 
+    /** PENDING, APPROVED/REJECTED (admin duyệt), HANDLED (lễ tân đã báo bệnh nhân). */
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
 
+    /** staff.id của người duyệt / xử lý. */
     private Long handledBy;
 
+    /** Thời điểm gửi yêu cầu. */
     @CreationTimestamp
     private OffsetDateTime createdAt;
 }

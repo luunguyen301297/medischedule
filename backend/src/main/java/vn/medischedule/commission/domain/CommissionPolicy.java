@@ -20,15 +20,20 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CommissionPolicy {
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Ngày bắt đầu hiệu lực, duy nhất; tháng dùng chính sách mới nhất có hiệu lực. */
     private LocalDate effectiveFrom;
 
+    /** Thưởng mỗi lượt khám (VND). */
     private BigDecimal perVisitAmount;
 
+    /** Phần trăm phí khám được hưởng (0–100). */
     private BigDecimal consultPercent;
 
+    /** Thưởng mỗi lượt được chỉ định đích danh (VND). */
     private BigDecimal designationBonus;
 }

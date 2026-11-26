@@ -17,11 +17,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Specialty {
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Tên chuyên khoa, duy nhất (vd. Da liễu, Nhi). */
     private String name;
 
+    /** false = ẩn khỏi danh sách đặt lịch, giữ lại cho dữ liệu cũ. */
     private boolean active = true;
 }

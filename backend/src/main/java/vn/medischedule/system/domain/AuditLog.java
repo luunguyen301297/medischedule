@@ -22,21 +22,28 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class AuditLog {
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** users.id người thao tác; NULL nếu do hệ thống. */
     private Long userId;
 
+    /** Hành động, vd. APPOINTMENT_RESCHEDULE, PRICE_CHANGE, PATIENT_MERGE, RECORD_VIEW. */
     private String action;
 
+    /** Tên bảng bị tác động. */
     private String entity;
 
+    /** Khóa của dòng bị tác động. */
     private Long entityId;
 
+    /** JSON giá trị trước / sau. */
     @JdbcTypeCode(SqlTypes.JSON)
     private String detail;
 
+    /** Thời điểm thao tác. */
     @CreationTimestamp
     private OffsetDateTime createdAt;
 }

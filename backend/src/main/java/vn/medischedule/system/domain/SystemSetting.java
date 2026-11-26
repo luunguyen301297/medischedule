@@ -15,10 +15,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SystemSetting {
 
+    /** Khóa tham số, vd. booking.max_pending_per_phone (giá trị mặc định seed ở V6). */
     @Id
     private String settingKey;
 
+    /** Giá trị dạng chữ; service tự ép kiểu. */
     private String value;
 
+    /** Giải thích tham số cho admin. */
     private String description;
 }

@@ -24,10 +24,12 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class User {
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Email đăng nhập, duy nhất. */
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -35,6 +37,7 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    /** Mật khẩu đã băm bcrypt. */
     @Column(name = "password_hash")   // NULL khi tài khoản chỉ đăng nhập Google (V5)
     private String passwordHash;
 
@@ -46,30 +49,39 @@ public class User {
     @Column(name = "reset_token_hash")
     private String resetTokenHash;
 
+    /** Hạn của link quên mật khẩu. */
     @Column(name = "reset_expires_at")
     private OffsetDateTime resetExpiresAt;
 
+    /** Token Firebase Cloud Messaging của app để gửi push. */
     @Column(name = "fcm_token")
     private String fcmToken;
 
+    /** Tên hiển thị của tài khoản. */
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
+    /** Số điện thoại liên hệ. */
     private String phone;
 
+    /** Vai trò duy nhất của tài khoản; quyết định hasRole(...). */
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    /** false = tài khoản bị khóa, không đăng nhập được. */
     @Column(nullable = false)
     private boolean enabled = true;
 
+    /** Lần đăng nhập thành công gần nhất. */
     @Column(name = "last_login_at")
     private OffsetDateTime lastLoginAt;
 
+    /** Thời điểm tạo tài khoản. */
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    /** Thời điểm sửa gần nhất. */
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 

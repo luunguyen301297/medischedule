@@ -23,20 +23,27 @@ public class Prescription {
 
     public enum Status { DRAFT, SIGNED, DISPENSED }
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** appointment.id; mỗi lượt khám tối đa một đơn. */
     private Long appointmentId;
 
+    /** Mã đơn thuốc liên thông quốc gia, duy nhất. */
     private String nationalRxCode;
 
+    /** DRAFT (bác sĩ đang kê), SIGNED (đã ký, chờ cấp), DISPENSED (dược sĩ đã cấp). */
     @Enumerated(EnumType.STRING)
     private Status status = Status.DRAFT;
 
+    /** Thời điểm bác sĩ ký đơn. */
     private OffsetDateTime signedAt;
 
+    /** staff.id của dược sĩ cấp thuốc. */
     private Long dispensedBy;
 
+    /** Thời điểm cấp thuốc. */
     private OffsetDateTime dispensedAt;
 }

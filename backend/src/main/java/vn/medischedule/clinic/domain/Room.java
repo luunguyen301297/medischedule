@@ -19,14 +19,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Room {
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Tên/số phòng, duy nhất (vd. P101). */
     private String name;
 
+    /** Chuyên khoa dùng phòng; NULL với phòng dùng chung (xét nghiệm). */
     @ManyToOne(fetch = FetchType.LAZY)
     private Specialty specialty;
 
+    /** false = phòng ngừng sử dụng. */
     private boolean active = true;
 }

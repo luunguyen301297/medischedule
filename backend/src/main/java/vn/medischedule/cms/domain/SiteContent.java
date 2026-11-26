@@ -20,17 +20,21 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class SiteContent {
 
+    /** Khóa khối nội dung, vd. "homepage". */
     @Id
     @Column(name = "content_key")
     private String key;
 
+    /** Nội dung dạng JSON, cấu trúc do frontend định nghĩa. */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
     private String content;
 
+    /** users.id của admin sửa gần nhất. */
     @Column(name = "updated_by")
     private Long updatedBy;
 
+    /** Thời điểm sửa gần nhất. */
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 }

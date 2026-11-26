@@ -19,19 +19,26 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class Drug {
 
+    /** Khóa chính. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Tên thuốc (biệt dược). */
     private String name;
 
+    /** Hoạt chất; đối chiếu với dị ứng của bệnh nhân khi kê đơn. */
     private String activeIngredient;
 
+    /** Đơn vị bán (viên, chai...). */
     private String unit;
 
+    /** Giá bán mỗi đơn vị (VND). */
     private BigDecimal salePrice;
 
+    /** Ngưỡng cảnh báo sắp hết; so với tổng quantity các lô. */
     private int minStock = 0;
 
+    /** false = ngừng kinh doanh. */
     private boolean active = true;
 }
