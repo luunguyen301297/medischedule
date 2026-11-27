@@ -22,13 +22,24 @@ function Logo({ name }: { name: string }) {
 const scrollToId = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
 /**
- * Trang giới thiệu công khai, dùng chung cho Đăng nhập / Đăng ký. Nội dung ở /admin/homepage, 3 loại:
+ * Trang giới thiệu công khai kèm form đăng nhập (đăng ký mở dialog). Nội dung ở /admin/homepage, 3 loại:
  *  1. booking  — đặt lịch khám + giới thiệu cơ bản, đầu trang
  *  2. intro    — giới thiệu chung song song form đăng nhập / đăng ký
  *  3. sections — nhiều cụm thông tin kèm ảnh nền
  * Mỗi cụm trượt vào khi cuộn tới (components/Reveal).
  */
-export default function LandingLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+export default function LandingLayout({
+  title,
+  subtitle,
+  onRegister,
+  children,
+}: {
+  title: string
+  subtitle: string
+  /** Nút Đăng ký trên thanh điều hướng (trang đăng nhập mở dialog đăng ký) */
+  onRegister: () => void
+  children: ReactNode
+}) {
   const { data = DEFAULT_HOMEPAGE } = useQuery({ queryKey: ['homepage'], queryFn: contentApi.homepage, staleTime: 60_000 })
   const { booking, intro, sections } = data
   const shown = sections.filter((s) => s.active && s.title)
@@ -53,7 +64,8 @@ export default function LandingLayout({ title, subtitle, children }: { title: st
         </nav>
         <div className="nav-right">
           {intro.hotline && <span className="nav-hotline"><PhoneOutlined /> {intro.hotline}</span>}
-          <Button type="primary" onClick={() => scrollToId('tai-khoan')}>{title}</Button>
+          <Button onClick={onRegister}>Đăng ký</Button>
+          <Button type="primary" onClick={() => scrollToId('tai-khoan')}>Đăng nhập</Button>
         </div>
       </header>
 

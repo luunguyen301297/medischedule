@@ -1,22 +1,47 @@
-import { LayoutOutlined, LogoutOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
+import { LayoutOutlined, LogoutOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Menu, Spin } from 'antd'
+import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { authApi } from '@/features/auth'
 import { tokenStore } from '@/shared/api/http'
 import '../admin.css'
 
-const MENU = [
+type MenuItem = { key: string; icon: JSX.Element; label: string; children?: MenuItem[] }
+
+const MENU: MenuItem[] = [
   { key: '/admin/staff', icon: <TeamOutlined />, label: 'Tài khoản nhân viên' },
   { key: '/admin/patients', icon: <UserOutlined />, label: 'Tài khoản bệnh nhân' },
-  { key: '/admin/homepage', icon: <LayoutOutlined />, label: 'Thiết lập trang chủ' },
+  {
+    key: 'settings',
+    icon: <SettingOutlined />,
+    label: 'Cài đặt',
+    children: [{ key: '/admin/homepage', icon: <LayoutOutlined />, label: 'Trang chủ' }],
+  },
 ]
+
+/** Mục lá đang khớp đường dẫn, kèm key menu cha (nếu có) để mở sẵn. */
+function findActive(pathname: string) {
+  for (const m of MENU) {
+    if (!m.children) {
+      if (pathname.startsWith(m.key)) return { key: m.key, parent: undefined }
+      continue
+    }
+    const child = m.children.find((c) => pathname.startsWith(c.key))
+    if (child) return { key: child.key, parent: m.key }
+  }
+  return { key: '', parent: undefined }
+}
 
 /** Khung khu quản trị: chỉ ADMIN vào được. */
 export default function AdminLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: authApi.me })
+  const active = findActive(pathname)
+  const [openKeys, setOpenKeys] = useState<string[]>([])
+  // Menu cha mặc định đóng; đổi trang thì chỉ mở menu cha chứa trang đang active
+  useEffect(() => setOpenKeys(active.parent ? [active.parent] : []), [active.parent])
 
   if (isLoading) return <Spin fullscreen />
   if (!me) return <Navigate to="/login" replace />
@@ -38,7 +63,9 @@ export default function AdminLayout() {
         </div>
         <Menu
           mode="inline"
-          selectedKeys={[MENU.find((m) => pathname.startsWith(m.key))?.key ?? '']}
+          selectedKeys={[active.key]}
+          openKeys={openKeys}
+          onOpenChange={setOpenKeys}
           items={MENU}
           onClick={(e) => navigate(e.key)}
         />

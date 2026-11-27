@@ -244,10 +244,7 @@ export default function HomepageSettingsPage() {
   return (
     <div className="admin-page">
       <div className="admin-head">
-        <div>
-          <h1>Thiết lập trang chủ</h1>
-          <p>Nội dung trang giới thiệu, nơi bệnh nhân đăng nhập và đăng ký.</p>
-        </div>
+        <h1>Thiết lập trang chủ</h1>
         <Space>
           <Button icon={<ExportOutlined />} href="/login" target="_blank">Xem trang</Button>
           <Button type="primary" loading={save.isPending} onClick={() => form.submit()}>Lưu thay đổi</Button>
