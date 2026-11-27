@@ -27,6 +27,7 @@
 .specialty-grid { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 12px; }
 .specialty-grid h2 { font-size: 17px; margin: 0; font-weight: 600; }
 .specialty-grid .ant-alert { margin-bottom: 12px; }
+.specialty-section-gap { margin-top: 32px; }
 .specialty-item.ant-list-item { gap: 6px; padding: 8px 12px; justify-content: flex-start; }
 .specialty-item.is-active { background: var(--ms-primary-tint); }
 .specialty-pick { flex: 1; min-width: 0; display: grid; gap: 2px; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }

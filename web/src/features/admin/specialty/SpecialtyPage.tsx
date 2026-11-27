@@ -4,7 +4,7 @@ import { Alert, App, Button, Empty, Form, Input, List, Modal, Popconfirm, Select
 import type { ColumnsType } from 'antd/es/table'
 import { useState } from 'react'
 import { errorCode, errorMessage, fieldErrors } from '@/shared/api/http'
-import { specialtyApi, type Room, type RoomRequest, type Specialty } from './api'
+import { specialtyApi, type DoctorOption, type Room, type RoomRequest, type Specialty } from './api'
 
 /** Một form cho cả chuyên khoa và phòng; trường nào không dùng thì bỏ qua */
 type CatalogForm = RoomRequest & { doctorUserIds?: number[] }
@@ -28,6 +28,8 @@ export default function SpecialtyPage() {
   const [selectedId, setSelectedId] = useState<number>()
   const [editing, setEditing] = useState<Editing | null>(null)
   const [form] = Form.useForm<CatalogForm>()
+  // Hộp thoại "Thêm bác sĩ": null = đóng, mảng = các bác sĩ đang chọn
+  const [adding, setAdding] = useState<number[] | null>(null)
 
   const specialties = useQuery({ queryKey: ['admin', 'specialties'], queryFn: specialtyApi.list })
   const list = specialties.data ?? []
@@ -40,8 +42,13 @@ export default function SpecialtyPage() {
   const doctors = useQuery({
     queryKey: ['admin', 'doctors'],
     queryFn: specialtyApi.doctors,
-    enabled: editing?.kind === 'specialty',
   })
+  const doctorsOfSelected = doctors.data?.filter((d) => d.specialtyId === selected?.id)
+
+  // Thêm / gỡ bác sĩ = ghi lại đúng danh sách bác sĩ của khoa qua API sửa chuyên khoa
+  const setDoctors = (ids: number[], done: string, onSuccess?: () => void) =>
+    selected &&
+    action.mutate({ run: () => specialtyApi.update(selected.id, { name: selected.name, doctorUserIds: ids }), done }, { onSuccess })
 
   // Số phòng, danh sách phòng và ô chọn ở trang chủ phụ thuộc nhau nên làm mới cả ba
   // Danh sách chuyên khoa làm mới trước: chuyên khoa vừa xóa rời khỏi `selected` thì không còn ai gọi lại phòng của nó (404)
@@ -152,6 +159,27 @@ export default function SpecialtyPage() {
     },
   ]
 
+  const doctorColumns: ColumnsType<DoctorOption> = [
+    { title: 'Họ tên', dataIndex: 'fullName' },
+    {
+      title: 'Thao tác',
+      width: 110,
+      align: 'center',
+      render: (_, d) => (
+        <Popconfirm
+          title={`Gỡ ${d.fullName} khỏi chuyên khoa?`}
+          okText="Gỡ"
+          cancelText="Hủy"
+          onConfirm={() =>
+            setDoctors(selected!.doctorUserIds.filter((id) => id !== d.userId), 'Đã gỡ bác sĩ khỏi chuyên khoa')
+          }
+        >
+          <Button type="text" danger icon={<DeleteOutlined />} disabled={action.isPending} aria-label={`Gỡ bác sĩ ${d.fullName}`} />
+        </Popconfirm>
+      ),
+    },
+  ]
+
   return (
     <div className="admin-page">
       <div className="admin-head">
@@ -224,6 +252,23 @@ export default function SpecialtyPage() {
               // ponytail: chỉ cuộn ngang khi có dòng; bảng rỗng mà có scroll.x thì AntD vẫn vẽ thanh cuộn
               scroll={rooms.data?.length ? { x: 'max-content' } : undefined}
             />
+
+            <div className="admin-head specialty-section-gap">
+              <h2>Bác sĩ · {selected.name}</h2>
+              <Button icon={<PlusOutlined />} onClick={() => setAdding([])}>
+                Thêm bác sĩ
+              </Button>
+            </div>
+            {doctors.isError && <Alert type="error" showIcon message={errorMessage(doctors.error)} />}
+            <Table
+              rowKey="userId"
+              columns={doctorColumns}
+              dataSource={doctorsOfSelected}
+              loading={doctors.isLoading}
+              pagination={false}
+              locale={{ emptyText: <Empty description="Chưa có bác sĩ" /> }}
+              scroll={doctorsOfSelected?.length ? { x: 'max-content' } : undefined}
+            />
           </section>
         )}
       </div>
@@ -282,6 +327,38 @@ export default function SpecialtyPage() {
             </Form.Item>
           )}
         </Form>
+      </Modal>
+
+      <Modal
+        title={`Thêm bác sĩ · ${selected?.name ?? ''}`}
+        open={adding !== null}
+        okText="Thêm"
+        cancelText="Hủy"
+        okButtonProps={{ disabled: !adding?.length }}
+        confirmLoading={action.isPending}
+        onOk={() =>
+          selected &&
+          adding?.length &&
+          setDoctors([...selected.doctorUserIds, ...adding], 'Đã thêm bác sĩ', () => setAdding(null))
+        }
+        onCancel={() => setAdding(null)}
+      >
+        <Select
+          mode="multiple"
+          allowClear
+          style={{ width: '100%' }}
+          optionFilterProp="label"
+          placeholder="Chọn bác sĩ"
+          aria-label="Chọn bác sĩ"
+          value={adding ?? []}
+          onChange={setAdding}
+          loading={doctors.isLoading}
+          notFoundContent={doctors.isLoading ? undefined : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không còn bác sĩ để thêm" />}
+          // Bác sĩ đang ở khoa khác ghi kèm tên khoa; thêm thì chuyển sang khoa này
+          options={doctors.data
+            ?.filter((d) => d.specialtyId !== selected?.id)
+            .map((d) => ({ value: d.userId, label: d.specialtyName ? `${d.fullName} · ${d.specialtyName}` : d.fullName }))}
+        />
       </Modal>
     </div>
   )
