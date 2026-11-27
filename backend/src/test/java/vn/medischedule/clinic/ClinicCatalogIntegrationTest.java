@@ -99,6 +99,7 @@ class ClinicCatalogIntegrationTest {
         }
         jdbc.update("DELETE FROM specialty WHERE name NOT IN (" + "?,".repeat(SEED.size() - 1) + "?)", SEED.toArray());
         jdbc.update("UPDATE specialty SET active = TRUE");
+        jdbc.update("DELETE FROM users WHERE email LIKE 'qa-doc-%'");
     }
 
     // ---------- Quyền: TC-02, TC-03 ----------
@@ -458,6 +459,254 @@ class ClinicCatalogIntegrationTest {
             ok(HttpMethod.PATCH, SPECIALTIES + "/" + s.get("id").asLong() + "/active?value=false", null);
         }
         assertThat(publicNames()).isEmpty();
+    }
+
+    // ---------- Chọn bác sĩ cho chuyên khoa (specialty-doctor): AC-02…AC-17 ----------
+
+    private static final String DOCTORS = "/api/admin/doctors";
+
+    @Test
+    void doctorOptionsListOnlyActiveDoctorsWithCurrentSpecialty() throws Exception {
+        long free = newDoctor("QA Bác Rảnh", true);
+        long busy = newDoctor("QA Bác Bận", true);
+        long locked = newDoctor("QA Bác Khóa", false);
+        long sp = newSpecialty("QA Khoa Bận");
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Bận", busy));
+
+        JsonNode list = ok(HttpMethod.GET, DOCTORS, null);
+        assertThat(userIds(list)).contains(free, busy).doesNotContain(locked);
+        List<String> nonDoctors = jdbc.queryForList(
+                "SELECT full_name FROM users WHERE username IN ('letan','duocsi','benhnhan','qaadmin')", String.class);
+        assertThat(list.findValuesAsText("fullName")).doesNotContainAnyElementsOf(nonDoctors);
+        JsonNode busyNode = doctorNode(list, busy);
+        assertThat(busyNode.get("specialtyId").asLong()).isEqualTo(sp);
+        assertThat(busyNode.get("specialtyName").asText()).isEqualTo("QA Khoa Bận");
+        assertThat(doctorNode(list, free).get("specialtyId").isNull()).isTrue();
+        assertThat(doctorNode(list, free).get("specialtyName").isNull()).isTrue();
+    }
+
+    @Test
+    void createWithDoctorsCreatesStaffAndShowsSingleOrCount() throws Exception {
+        long d1 = newDoctor("QA Bác Một", true);
+        long d2 = newDoctor("QA Bác Hai", true);
+        Res one = send(admin, HttpMethod.POST, SPECIALTIES, specialtyBody("QA Một bác sĩ", d1));
+        assertThat(one.status).isEqualTo(201);
+        assertThat(longs(one.body.get("doctorUserIds"))).containsExactly(d1);
+        assertThat(one.body.get("singleDoctorName").asText()).isEqualTo("QA Bác Một");
+        assertThat(jdbc.queryForObject("SELECT full_name FROM staff WHERE user_id = ?", String.class, d1))
+                .isEqualTo("QA Bác Một");
+        assertThat(count("staff WHERE user_id = " + d1 + " AND specialty_id = " + one.body.get("id").asLong())).isEqualTo(1);
+
+        Res two = send(admin, HttpMethod.POST, SPECIALTIES, Map.of("name", "QA Hai bác sĩ", "doctorUserIds", List.of(d2, d2)));
+        assertThat(two.status).isEqualTo(201);
+        assertThat(longs(two.body.get("doctorUserIds"))).containsExactly(d2);
+        long twoId = two.body.get("id").asLong();
+        JsonNode both = ok(HttpMethod.PUT, SPECIALTIES + "/" + twoId, specialtyBody("QA Hai bác sĩ", d1, d2));
+        assertThat(longs(both.get("doctorUserIds"))).containsExactlyInAnyOrder(d1, d2);
+        assertThat(both.get("singleDoctorName").isNull()).isTrue();
+
+        Res none = send(admin, HttpMethod.POST, SPECIALTIES, Map.of("name", "QA Không bác sĩ"));
+        assertThat(none.status).isEqualTo(201);
+        assertThat(none.body.get("doctorUserIds")).isEmpty();
+        assertThat(none.body.get("singleDoctorName").isNull()).isTrue();
+        assertThat(count("staff")).isEqualTo(2);
+    }
+
+    @Test
+    void doctorMovesBetweenSpecialtiesAndCanBeUnassigned() throws Exception {
+        long a = newDoctor("QA Bác A", true);
+        long b = newDoctor("QA Bác B", true);
+        long nhi = newSpecialty("QA Nhi");
+        long skin = newSpecialty("QA Da");
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + nhi, specialtyBody("QA Nhi", a, b));
+
+        // AC-04: chuyển A sang khoa Da, B ở lại Nhi
+        JsonNode moved = ok(HttpMethod.PUT, SPECIALTIES + "/" + skin, specialtyBody("QA Da", a));
+        assertThat(longs(moved.get("doctorUserIds"))).containsExactly(a);
+        JsonNode list = ok(HttpMethod.GET, SPECIALTIES, null);
+        assertThat(longs(byId(list, nhi).get("doctorUserIds"))).containsExactly(b);
+        assertThat(byId(list, nhi).get("singleDoctorName").asText()).isEqualTo("QA Bác B");
+        assertThat(byId(list, skin).get("singleDoctorName").asText()).isEqualTo("QA Bác A");
+        assertThat(count("staff WHERE user_id = " + a)).isEqualTo(1);
+
+        // AC-05: bỏ B (danh sách rỗng) thì B không có khoa, A vẫn ở Da
+        JsonNode cleared = ok(HttpMethod.PUT, SPECIALTIES + "/" + nhi, specialtyBody("QA Nhi"));
+        assertThat(cleared.get("doctorUserIds")).isEmpty();
+        assertThat(jdbc.queryForObject("SELECT specialty_id FROM staff WHERE user_id = ?", Long.class, b)).isNull();
+        assertThat(jdbc.queryForObject("SELECT specialty_id FROM staff WHERE user_id = ?", Long.class, a)).isEqualTo(skin);
+
+        // thiếu doctorUserIds (null) coi như rỗng
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + skin, Map.of("name", "QA Da"));
+        assertThat(jdbc.queryForObject("SELECT specialty_id FROM staff WHERE user_id = ?", Long.class, a)).isNull();
+    }
+
+    @Test
+    void invalidDoctorIdsAreRejectedAndNothingChanges() throws Exception {
+        long good = newDoctor("QA Bác Tốt", true);
+        long locked = newDoctor("QA Bác Bị Khóa", false);
+        long receptionist = jdbc.queryForObject("SELECT id FROM users WHERE username = 'letan'", Long.class);
+        long sp = newSpecialty("QA Khoa Lỗi");
+        long other = newSpecialty("QA Khoa Khác");
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + other, specialtyBody("QA Khoa Khác", good));
+        String before = snapshot() + staffSnapshot();
+
+        for (long bad : List.of(locked, receptionist, 999999L)) {
+            // hợp lệ + không hợp lệ: không gán cả id hợp lệ, không đổi tên
+            assertError(send(admin, HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Tên Mới", good, bad)),
+                    400, "DOCTOR_INVALID", "Bác sĩ không hợp lệ, hãy tải lại danh sách");
+            assertError(send(admin, HttpMethod.POST, SPECIALTIES, specialtyBody("QA Tạo Lỗi", good, bad)),
+                    400, "DOCTOR_INVALID", "Bác sĩ không hợp lệ, hãy tải lại danh sách");
+        }
+        assertThat(snapshot() + staffSnapshot()).isEqualTo(before);
+        assertThat(names(ok(HttpMethod.GET, SPECIALTIES, null))).doesNotContain("QA Tạo Lỗi", "QA Tên Mới");
+    }
+
+    @Test
+    void nameErrorsKeepDoctorsUntouched() throws Exception {
+        long d = newDoctor("QA Bác Tên", true);
+        long sp = newSpecialty("QA Khoa Tên");
+        long holder = newSpecialty("QA Khoa Giữ");
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + holder, specialtyBody("QA Khoa Giữ", d));
+        String before = snapshot() + staffSnapshot();
+
+        // AC-06: tên trùng / rỗng thì báo lỗi như cũ, d vẫn ở khoa cũ
+        assertError(send(admin, HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("nhi", d)),
+                409, "SPECIALTY_EXISTS", "Chuyên khoa đã tồn tại");
+        assertError(send(admin, HttpMethod.POST, SPECIALTIES, specialtyBody("DA LIỄU", d)),
+                409, "SPECIALTY_EXISTS", "Chuyên khoa đã tồn tại");
+        assertInvalid(send(admin, HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("  ", d)), "name");
+        assertInvalid(send(admin, HttpMethod.POST, SPECIALTIES, specialtyBody("", d)), "name");
+        assertThat(snapshot() + staffSnapshot()).isEqualTo(before);
+        assertThat(jdbc.queryForObject("SELECT specialty_id FROM staff WHERE user_id = ?", Long.class, d)).isEqualTo(holder);
+    }
+
+    @Test
+    void lockedDoctorIsNotCountedKeepsSpecialtyAndStillBlocksDelete() throws Exception {
+        long d1 = newDoctor("QA Bác Còn", true);
+        long d2 = newDoctor("QA Bác Sẽ Khóa", true);
+        long sp = newSpecialty("QA Khoa Khóa");
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Khóa", d1, d2));
+        jdbc.update("UPDATE users SET enabled = FALSE WHERE id = ?", d2);
+
+        JsonNode row = byId(ok(HttpMethod.GET, SPECIALTIES, null), sp);
+        assertThat(longs(row.get("doctorUserIds"))).containsExactly(d1);
+        assertThat(row.get("singleDoctorName").asText()).isEqualTo("QA Bác Còn");
+        assertThat(userIds(ok(HttpMethod.GET, DOCTORS, null))).doesNotContain(d2);
+
+        // lưu lại khoa không gỡ nhầm bác sĩ đã khóa (không hiện trên form)
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Khóa", d1));
+        assertThat(jdbc.queryForObject("SELECT specialty_id FROM staff WHERE user_id = ?", Long.class, d2)).isEqualTo(sp);
+
+        // AC-14: còn bác sĩ (kể cả đã khóa) thì chặn xóa
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Khóa"));
+        assertError(send(admin, HttpMethod.DELETE, SPECIALTIES + "/" + sp, null),
+                409, "SPECIALTY_IN_USE", "Chuyên khoa đang được dùng, không thể xóa. Hãy ngừng hoạt động.");
+    }
+
+    @Test
+    void specialtyWithAssignedDoctorCannotBeDeletedUntilUnassigned() throws Exception {
+        long d = newDoctor("QA Bác Xóa", true);
+        long sp = newSpecialty("QA Khoa Xóa");
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Xóa", d));
+        assertError(send(admin, HttpMethod.DELETE, SPECIALTIES + "/" + sp, null),
+                409, "SPECIALTY_IN_USE", "Chuyên khoa đang được dùng, không thể xóa. Hãy ngừng hoạt động.");
+        ok(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Xóa"));
+        assertThat(send(admin, HttpMethod.DELETE, SPECIALTIES + "/" + sp, null).status).isEqualTo(204);
+    }
+
+    @Test
+    void inactiveSpecialtyStillAcceptsDoctors() throws Exception {
+        long d = newDoctor("QA Bác Ngừng", true);
+        long sp = newSpecialty("QA Khoa Ngừng");
+        ok(HttpMethod.PATCH, SPECIALTIES + "/" + sp + "/active?value=false", null);
+        JsonNode res = ok(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Ngừng", d));
+        assertThat(res.get("active").asBoolean()).isFalse();
+        assertThat(longs(res.get("doctorUserIds"))).containsExactly(d);
+    }
+
+    @Test
+    void singleRoomNameCountsInactiveRoomsAndFollowsRoomChanges() throws Exception {
+        long sp = newSpecialty("QA Phòng Đơn");
+        assertThat(byId(ok(HttpMethod.GET, SPECIALTIES, null), sp).get("singleRoomName").isNull()).isTrue();
+        long room = newRoom("QA-SR1", sp);
+        JsonNode one = byId(ok(HttpMethod.GET, SPECIALTIES, null), sp);
+        assertThat(one.get("roomCount").asLong()).isEqualTo(1);
+        assertThat(one.get("singleRoomName").asText()).isEqualTo("QA-SR1");
+
+        // phòng ngừng vẫn tính (khớp roomCount)
+        ok(HttpMethod.PATCH, ROOMS + "/" + room + "/active?value=false", null);
+        assertThat(byId(ok(HttpMethod.GET, SPECIALTIES, null), sp).get("singleRoomName").asText()).isEqualTo("QA-SR1");
+        // đổi tên → cập nhật; thêm phòng thứ hai → không còn tên đơn; xóa phòng đầu → còn tên phòng sau
+        ok(HttpMethod.PUT, ROOMS + "/" + room, roomBody("QA-SR1b", sp));
+        assertThat(byId(ok(HttpMethod.GET, SPECIALTIES, null), sp).get("singleRoomName").asText()).isEqualTo("QA-SR1b");
+        newRoom("QA-SR2", sp);
+        JsonNode two = byId(ok(HttpMethod.GET, SPECIALTIES, null), sp);
+        assertThat(two.get("roomCount").asLong()).isEqualTo(2);
+        assertThat(two.get("singleRoomName").isNull()).isTrue();
+        assertThat(send(admin, HttpMethod.DELETE, ROOMS + "/" + room, null).status).isEqualTo(204);
+        assertThat(byId(ok(HttpMethod.GET, SPECIALTIES, null), sp).get("singleRoomName").asText()).isEqualTo("QA-SR2");
+        // phòng dùng chung (không khoa) không bị tính vào khoa nào
+        insertSharedRoom("QA-SR-XN");
+        assertThat(byId(ok(HttpMethod.GET, SPECIALTIES, null), sp).get("roomCount").asLong()).isEqualTo(1);
+    }
+
+    @Test
+    void doctorEndpointsAndDoctorSavesRejectNonAdmin() throws Exception {
+        long d = newDoctor("QA Bác Quyền", true);
+        long sp = newSpecialty("QA Khoa Quyền");
+        String before = snapshot() + staffSnapshot();
+        var calls = List.of(new Call(HttpMethod.GET, DOCTORS, null),
+                new Call(HttpMethod.POST, SPECIALTIES, specialtyBody("QA Lạ", d)),
+                new Call(HttpMethod.PUT, SPECIALTIES + "/" + sp, specialtyBody("QA Khoa Quyền", d)));
+        for (Call c : calls) {
+            assertThat(send(null, c.method, c.url, c.body).status).as("không token %s %s", c.method, c.url).isEqualTo(401);
+        }
+        for (String user : List.of("bacsi", "letan", "duocsi", "benhnhan")) {
+            String token = bearer(user);
+            for (Call c : calls) {
+                assertThat(send(token, c.method, c.url, c.body).status).as("%s %s %s", user, c.method, c.url).isEqualTo(403);
+            }
+        }
+        assertThat(snapshot() + staffSnapshot()).isEqualTo(before);
+    }
+
+    // ---- helper bác sĩ ----
+
+    private static final java.util.concurrent.atomic.AtomicInteger DOC_SEQ = new java.util.concurrent.atomic.AtomicInteger();
+
+    /** Tạo tài khoản DOCTOR qua SQL (chưa có API tạo); dọn trong clean() theo email qa-doc-%. */
+    private long newDoctor(String fullName, boolean enabled) {
+        return jdbc.queryForObject("""
+                INSERT INTO users (email, password_hash, full_name, role_id, enabled)
+                VALUES (?, 'x', ?, (SELECT id FROM roles WHERE code = 'DOCTOR'), ?) RETURNING id
+                """, Long.class, "qa-doc-" + DOC_SEQ.incrementAndGet() + "-" + System.nanoTime() + "@test.local", fullName, enabled);
+    }
+
+    private static Map<String, Object> specialtyBody(String name, long... doctorUserIds) {
+        return Map.of("name", name, "doctorUserIds", java.util.Arrays.stream(doctorUserIds).boxed().toList());
+    }
+
+    private static List<Long> longs(JsonNode array) {
+        var out = new ArrayList<Long>();
+        array.forEach(n -> out.add(n.asLong()));
+        return out;
+    }
+
+    private static List<Long> userIds(JsonNode list) {
+        var out = new ArrayList<Long>();
+        list.forEach(n -> out.add(n.get("userId").asLong()));
+        return out;
+    }
+
+    private static JsonNode doctorNode(JsonNode list, long userId) {
+        for (JsonNode n : list) {
+            if (n.get("userId").asLong() == userId) return n;
+        }
+        throw new AssertionError("Không thấy bác sĩ " + userId + " trong " + list);
+    }
+
+    private String staffSnapshot() {
+        return jdbc.queryForList("SELECT user_id, specialty_id FROM staff ORDER BY user_id").toString();
     }
 
     // ---------- Helper HTTP ----------

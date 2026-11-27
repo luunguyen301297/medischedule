@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.medischedule.auth.domain.Role;
 import vn.medischedule.auth.domain.RoleCode;
 import vn.medischedule.auth.domain.User;
+import vn.medischedule.auth.dto.AuthDtos.DoctorAccount;
 import vn.medischedule.auth.dto.AuthDtos.LoginRequest;
 import vn.medischedule.auth.dto.AuthDtos.RegisterRequest;
 import vn.medischedule.auth.dto.AuthDtos.TokenResponse;
@@ -18,6 +19,7 @@ import vn.medischedule.auth.security.JwtService;
 import vn.medischedule.common.exception.ApiException;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,6 +52,14 @@ public class AuthService {
         }
         user.setLastLoginAt(OffsetDateTime.now());
         return token(user);
+    }
+
+    /** Tài khoản vai trò DOCTOR chưa bị khóa. */
+    @Transactional(readOnly = true)
+    public List<DoctorAccount> activeDoctors() {
+        return users.findByRole_CodeAndEnabledTrue(RoleCode.DOCTOR).stream()
+                .map(u -> new DoctorAccount(u.getId(), u.getFullName()))
+                .toList();
     }
 
     @Transactional

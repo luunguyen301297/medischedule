@@ -3,13 +3,17 @@ package vn.medischedule.clinic.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
+import vn.medischedule.auth.dto.AuthDtos.DoctorAccount;
+import vn.medischedule.auth.service.AuthService;
 import vn.medischedule.clinic.domain.Room;
 import vn.medischedule.clinic.domain.Specialty;
+import vn.medischedule.clinic.domain.Staff;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomRequest;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyOption;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyRequest;
 import vn.medischedule.clinic.repository.RoomRepository;
 import vn.medischedule.clinic.repository.SpecialtyRepository;
+import vn.medischedule.clinic.repository.StaffRepository;
 import vn.medischedule.common.exception.ApiException;
 
 import java.util.List;
@@ -24,7 +28,9 @@ class ClinicCatalogServiceTest {
 
     SpecialtyRepository specialties = mock(SpecialtyRepository.class);
     RoomRepository rooms = mock(RoomRepository.class);
-    ClinicCatalogService service = new ClinicCatalogService(specialties, rooms);
+    StaffRepository staff = mock(StaffRepository.class);
+    AuthService auth = mock(AuthService.class);
+    ClinicCatalogService service = new ClinicCatalogService(specialties, rooms, staff, auth);
 
     Specialty open = specialty(1L, "Nhi", true);
     Specialty closed = specialty(2L, "Mắt", false);
@@ -44,20 +50,20 @@ class ClinicCatalogServiceTest {
     @Test
     void duplicateSpecialtyNameIsRejectedAfterTrim() {
         when(specialties.existsByNameIgnoreCase("nhi")).thenReturn(true);
-        assertCode(() -> service.createSpecialty(new SpecialtyRequest(" nhi ")), "SPECIALTY_EXISTS");
+        assertCode(() -> service.createSpecialty(new SpecialtyRequest(" nhi ", null)), "SPECIALTY_EXISTS");
         verify(specialties, never()).saveAndFlush(any());
     }
 
     @Test
     void renameToAnotherSpecialtyNameIsRejectedAndEntityUntouched() {
         when(specialties.existsByNameIgnoreCaseAndIdNot("Mắt", 1L)).thenReturn(true);
-        assertCode(() -> service.renameSpecialty(1L, new SpecialtyRequest("Mắt")), "SPECIALTY_EXISTS");
+        assertCode(() -> service.renameSpecialty(1L, new SpecialtyRequest("Mắt", null)), "SPECIALTY_EXISTS");
         assertThat(open.getName()).isEqualTo("Nhi");
     }
 
     @Test
     void createdSpecialtyIsActiveWithTrimmedName() {
-        var res = service.createSpecialty(new SpecialtyRequest("  Da liễu  "));
+        var res = service.createSpecialty(new SpecialtyRequest("  Da liễu  ", null));
         assertThat(res.name()).isEqualTo("Da liễu");
         assertThat(res.active()).isTrue();
         assertThat(res.roomCount()).isZero();
@@ -66,7 +72,7 @@ class ClinicCatalogServiceTest {
     @Test
     void concurrentDuplicateNameFromIndexBecomesExists() {
         when(specialties.saveAndFlush(any())).thenThrow(violation("uq_specialty_name_ci"));
-        assertCode(() -> service.createSpecialty(new SpecialtyRequest("Nhi")), "SPECIALTY_EXISTS");
+        assertCode(() -> service.createSpecialty(new SpecialtyRequest("Nhi", null)), "SPECIALTY_EXISTS");
         when(rooms.saveAndFlush(any())).thenThrow(violation("room_name_key"));
         assertCode(() -> service.createRoom(new RoomRequest("P102", 1L)), "ROOM_EXISTS");
     }
@@ -179,5 +185,60 @@ class ClinicCatalogServiceTest {
         r.setName(name);
         r.setSpecialty(specialty);
         return r;
+    }
+
+    // ---------- Gán bác sĩ ----------
+
+    @Test
+    void assignCreatesStaffMovesFromOtherSpecialtyAndUnassignsRemoved() {
+        when(auth.activeDoctors()).thenReturn(List.of(
+                new DoctorAccount(100L, "BS Mới"), new DoctorAccount(101L, "BS Khoa Mắt"), new DoctorAccount(102L, "BS Bị Bỏ")));
+        Staff fromEye = staffOf(101L, closed);
+        Staff removed = staffOf(102L, open);
+        when(staff.findBySpecialtyId(1L)).thenReturn(List.of(removed));
+        when(staff.findByUserIdIn(any())).thenReturn(List.of(fromEye));
+        when(staff.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        service.renameSpecialty(1L, new SpecialtyRequest("Nhi", List.of(100L, 101L, 101L)));
+
+        assertThat(fromEye.getSpecialty()).isSameAs(open);
+        assertThat(removed.getSpecialty()).isNull();
+        verify(staff).save(argThat(st -> st.getUserId() == 100L && st.getFullName().equals("BS Mới")));
+    }
+
+    @Test
+    void inactiveOrUnknownDoctorRejectedBeforeAnyChange() {
+        when(auth.activeDoctors()).thenReturn(List.of(new DoctorAccount(100L, "BS A")));
+        Staff current = staffOf(100L, open);
+        when(staff.findBySpecialtyId(1L)).thenReturn(List.of(current));
+
+        assertCode(() -> service.renameSpecialty(1L, new SpecialtyRequest("Nhi", List.of(999L))), "DOCTOR_INVALID");
+        assertThat(current.getSpecialty()).isSameAs(open);
+        verify(staff, never()).save(any());
+    }
+
+    @Test
+    void lockedDoctorKeepsSpecialtyAndIsNotCounted() {
+        when(auth.activeDoctors()).thenReturn(List.of(new DoctorAccount(100L, "BS A")));
+        Staff locked = staffOf(200L, open);
+        Staff activeDoc = staffOf(100L, open);
+        when(staff.findBySpecialtyId(1L)).thenReturn(List.of(locked, activeDoc));
+        when(staff.findByUserIdIn(any())).thenReturn(List.of(activeDoc));
+        when(staff.findBySpecialtyIsNotNull()).thenReturn(List.of(locked, activeDoc));
+        when(rooms.findBySpecialtyIsNotNull()).thenReturn(List.of(room));
+
+        var res = service.renameSpecialty(1L, new SpecialtyRequest("Nhi", List.of(100L)));
+
+        assertThat(locked.getSpecialty()).isSameAs(open);
+        assertThat(res.doctorUserIds()).containsExactly(100L);
+        assertThat(res.singleDoctorName()).isEqualTo("BS A");
+        assertThat(res.singleRoomName()).isEqualTo("P101");
+    }
+
+    private static Staff staffOf(Long userId, Specialty sp) {
+        Staff st = new Staff();
+        st.setUserId(userId);
+        st.setSpecialty(sp);
+        return st;
     }
 }

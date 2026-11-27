@@ -44,5 +44,8 @@ public final class AuthDtos {
         }
     }
 
+    /** Tài khoản bác sĩ đang hoạt động, cho module khác (clinic) đọc qua AuthService. */
+    public record DoctorAccount(Long userId, String fullName) {}
+
     public record TokenResponse(String accessToken, String tokenType, long expiresIn, UserResponse user) {}
 }

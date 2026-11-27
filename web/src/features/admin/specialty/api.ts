@@ -5,6 +5,25 @@ export interface Specialty {
   name: string
   active: boolean
   roomCount: number
+  /** Chỉ có khi đúng 1 phòng */
+  singleRoomName: string | null
+  /** Bác sĩ đang hoạt động thuộc khoa (users.id) */
+  doctorUserIds: number[]
+  /** Chỉ có khi đúng 1 bác sĩ */
+  singleDoctorName: string | null
+}
+
+export interface SpecialtyRequest {
+  name: string
+  doctorUserIds: number[]
+}
+
+/** Bác sĩ đang hoạt động; specialtyId null = chưa có khoa */
+export interface DoctorOption {
+  userId: number
+  fullName: string
+  specialtyId: number | null
+  specialtyName: string | null
 }
 
 export interface Room {
@@ -21,8 +40,9 @@ export interface RoomRequest {
 
 export const specialtyApi = {
   list: () => http.get<Specialty[]>('/admin/specialties').then((r) => r.data),
-  create: (name: string) => http.post<Specialty>('/admin/specialties', { name }).then((r) => r.data),
-  rename: (id: number, name: string) => http.put<Specialty>(`/admin/specialties/${id}`, { name }).then((r) => r.data),
+  doctors: () => http.get<DoctorOption[]>('/admin/doctors').then((r) => r.data),
+  create: (body: SpecialtyRequest) => http.post<Specialty>('/admin/specialties', body).then((r) => r.data),
+  update: (id: number, body: SpecialtyRequest) => http.put<Specialty>(`/admin/specialties/${id}`, body).then((r) => r.data),
   setActive: (id: number, value: boolean) =>
     http.patch<Specialty>(`/admin/specialties/${id}/active`, null, { params: { value } }).then((r) => r.data),
   remove: (id: number) => http.delete<void>(`/admin/specialties/${id}`).then((r) => r.data),

@@ -4,7 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import vn.medischedule.clinic.domain.Room;
-import vn.medischedule.clinic.domain.Specialty;
+
+import java.util.List;
 
 /** Request/response của module clinic. */
 public final class ClinicDtos {
@@ -13,13 +14,16 @@ public final class ClinicDtos {
 
     public record SpecialtyRequest(
             @NotBlank(message = "Nhập tên chuyên khoa")
-            @Size(max = 100, message = "Tên chuyên khoa tối đa 100 ký tự") String name) {}
+            @Size(max = 100, message = "Tên chuyên khoa tối đa 100 ký tự") String name,
+            /** users.id của các bác sĩ thuộc khoa; null coi như rỗng. */
+            List<Long> doctorUserIds) {}
 
-    public record SpecialtyResponse(Long id, String name, boolean active, long roomCount) {
-        public static SpecialtyResponse of(Specialty s, long roomCount) {
-            return new SpecialtyResponse(s.getId(), s.getName(), s.isActive(), roomCount);
-        }
-    }
+    /** singleRoomName / singleDoctorName chỉ có khi đúng 1 phòng / 1 bác sĩ; chỉ tính bác sĩ đang hoạt động. */
+    public record SpecialtyResponse(Long id, String name, boolean active, long roomCount, String singleRoomName,
+                                    List<Long> doctorUserIds, String singleDoctorName) {}
+
+    /** Bác sĩ đang hoạt động cho ô chọn; specialtyId null = chưa có khoa. */
+    public record DoctorOption(Long userId, String fullName, Long specialtyId, String specialtyName) {}
 
     public record RoomRequest(
             @NotBlank(message = "Nhập tên phòng")

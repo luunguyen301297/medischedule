@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.medischedule.auth.domain.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -24,6 +25,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByPhone(String phone);
 
     Page<User> findByRole_Code(String roleCode, Pageable pageable);
+
+    List<User> findByRole_CodeAndEnabledTrue(String roleCode);
 
     /**
      * Lọc theo vai trò (tùy chọn), loại trừ một vai trò (tùy chọn) và từ khóa trong họ tên / email / tên đăng nhập / SĐT.

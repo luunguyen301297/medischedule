@@ -6,6 +6,18 @@ import { useState } from 'react'
 import { errorCode, errorMessage, fieldErrors } from '@/shared/api/http'
 import { specialtyApi, type Room, type RoomRequest, type Specialty } from './api'
 
+/** Một form cho cả chuyên khoa và phòng; trường nào không dùng thì bỏ qua */
+type CatalogForm = RoomRequest & { doctorUserIds?: number[] }
+
+/** Dòng phụ: tên phòng khi đúng 1 phòng, tên bác sĩ khi đúng 1 bác sĩ, còn lại là số lượng */
+const summary = (s: Specialty) =>
+  [
+    s.roomCount === 1 && s.singleRoomName ? `Phòng ${s.singleRoomName}` : `${s.roomCount} phòng`,
+    s.singleDoctorName ?? (s.doctorUserIds.length > 1 ? `${s.doctorUserIds.length} bác sĩ` : null),
+  ]
+    .filter(Boolean)
+    .join(' · ')
+
 /** Hộp thoại đang mở: thêm (không có item) hoặc sửa một chuyên khoa / phòng. */
 type Editing = { kind: 'specialty'; item?: Specialty } | { kind: 'room'; item?: Room }
 
@@ -15,7 +27,7 @@ export default function SpecialtyPage() {
   const qc = useQueryClient()
   const [selectedId, setSelectedId] = useState<number>()
   const [editing, setEditing] = useState<Editing | null>(null)
-  const [form] = Form.useForm<RoomRequest>()
+  const [form] = Form.useForm<CatalogForm>()
 
   const specialties = useQuery({ queryKey: ['admin', 'specialties'], queryFn: specialtyApi.list })
   const list = specialties.data ?? []
@@ -25,6 +37,11 @@ export default function SpecialtyPage() {
     queryFn: () => specialtyApi.rooms(selected!.id),
     enabled: !!selected,
   })
+  const doctors = useQuery({
+    queryKey: ['admin', 'doctors'],
+    queryFn: specialtyApi.doctors,
+    enabled: editing?.kind === 'specialty',
+  })
 
   // Số phòng, danh sách phòng và ô chọn ở trang chủ phụ thuộc nhau nên làm mới cả ba
   // Danh sách chuyên khoa làm mới trước: chuyên khoa vừa xóa rời khỏi `selected` thì không còn ai gọi lại phòng của nó (404)
@@ -33,6 +50,7 @@ export default function SpecialtyPage() {
     const alive = new Set(qc.getQueryData<Specialty[]>(['admin', 'specialties'])?.map((s) => s.id))
     qc.invalidateQueries({ queryKey: ['admin', 'rooms'], predicate: (q) => alive.has(q.queryKey[2] as number) })
     qc.invalidateQueries({ queryKey: ['public', 'specialties'] })
+    qc.invalidateQueries({ queryKey: ['admin', 'doctors'] })
   }
 
   // Bật/tắt và xóa: không cập nhật lạc quan, lỗi 409 thì giữ nguyên trạng thái cũ
@@ -45,13 +63,17 @@ export default function SpecialtyPage() {
   })
 
   const save = useMutation({
-    mutationFn: async ({ target, values }: { target: Editing; values: RoomRequest }) => {
+    mutationFn: async ({ target, values }: { target: Editing; values: CatalogForm }) => {
       if (target.kind === 'room') {
-        await (target.item ? specialtyApi.updateRoom(target.item.id, values) : specialtyApi.createRoom(values))
-      } else if (target.item) {
-        await specialtyApi.rename(target.item.id, values.name)
+        const body = { name: values.name, specialtyId: values.specialtyId }
+        await (target.item ? specialtyApi.updateRoom(target.item.id, body) : specialtyApi.createRoom(body))
+        return
+      }
+      const body = { name: values.name, doctorUserIds: values.doctorUserIds ?? [] }
+      if (target.item) {
+        await specialtyApi.update(target.item.id, body)
       } else {
-        setSelectedId((await specialtyApi.create(values.name)).id)
+        setSelectedId((await specialtyApi.create(body)).id)
       }
     },
     onSuccess: () => {
@@ -61,8 +83,9 @@ export default function SpecialtyPage() {
     onError: (e) => {
       const fields = fieldErrors(e)
       const code = errorCode(e)
-      if (fields) form.setFields(Object.entries(fields).map(([name, err]) => ({ name: name as keyof RoomRequest, errors: [err] })))
+      if (fields) form.setFields(Object.entries(fields).map(([name, err]) => ({ name: name as keyof CatalogForm, errors: [err] })))
       else if (code === 'SPECIALTY_EXISTS' || code === 'ROOM_EXISTS') form.setFields([{ name: 'name', errors: [errorMessage(e)] }])
+      else if (code === 'DOCTOR_INVALID') form.setFields([{ name: 'doctorUserIds', errors: [errorMessage(e)] }])
       else message.error(errorMessage(e))
     },
     onSettled: refresh,
@@ -73,6 +96,7 @@ export default function SpecialtyPage() {
     form.setFieldsValue({
       name: target.item?.name,
       specialtyId: target.kind === 'room' ? (target.item?.specialtyId ?? selected?.id) : undefined,
+      doctorUserIds: target.kind === 'specialty' ? (target.item?.doctorUserIds ?? []) : undefined,
     })
     setEditing(target)
   }
@@ -149,8 +173,9 @@ export default function SpecialtyPage() {
             <List.Item className={`specialty-item ${s.id === selected?.id ? 'is-active' : ''}`}>
               <button type="button" className="specialty-pick" aria-current={s.id === selected?.id} onClick={() => setSelectedId(s.id)}>
                 <b>{s.name}</b>
-                <span>
-                  {s.roomCount} phòng {!s.active && <Tag>Đang ngừng</Tag>}
+                <span className="specialty-meta">
+                  <span className="specialty-sub" title={summary(s)}>{summary(s)}</span>
+                  {!s.active && <Tag>Đang ngừng</Tag>}
                 </span>
               </button>
               <Switch
@@ -237,6 +262,23 @@ export default function SpecialtyPage() {
                 .map((s) => ({ value: s.id, label: s.name }))}
             />
           </Form.Item>
+          {!isRoom && (
+            <Form.Item name="doctorUserIds" label="Bác sĩ">
+              <Select
+                mode="multiple"
+                allowClear
+                optionFilterProp="label"
+                placeholder="Chọn bác sĩ"
+                loading={doctors.isLoading}
+                notFoundContent={doctors.isLoading ? undefined : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Chưa có tài khoản bác sĩ" />}
+                // Bác sĩ đang ở khoa khác ghi kèm tên khoa; lưu thì chuyển sang khoa này
+                options={doctors.data?.map((d) => ({
+                  value: d.userId,
+                  label: d.specialtyId && d.specialtyId !== editing?.item?.id ? `${d.fullName} · ${d.specialtyName}` : d.fullName,
+                }))}
+              />
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>

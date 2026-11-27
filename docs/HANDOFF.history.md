@@ -221,3 +221,51 @@ Menu Cài đặt > Chuyên khoa: CRUD chuyên khoa + phòng khám (admin), GET /
 
 - ba: spec duyệt; user chọn xóa-nếu-chưa-dùng, chặn ngừng CK còn phòng, bỏ phòng dùng chung, nối trang chủ luôn.
 - design/tl-review: APPROVED, action items ở docs/reviews/design-review-clinic-specialty-admin.md. Nhánh feat/clinic-specialty-admin.
+
+---
+
+### C — Chọn bác sĩ cho chuyên khoa, hiện tên khi chỉ có 1 bác sĩ (`specialty-doctor`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-27).
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| ba | 1p | 0p | 1p |
+| tl-review | 0p | 0p | 0p |
+| dev | 4p | 0p | 4p |
+| code-review | 0p | 0p | 0p |
+| qa-run | 11p | 0p | 11p |
+| **Cộng** | 18p | 0p | 18p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ✅ | docs/tasks/specialty-doctor-ba-spec.md |
+| Tech Design | ⬜ | docs/design/specialty-doctor-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ✅ | docs/reviews/design-review-specialty-doctor.md |
+| API Spec | ⬜ | docs/api/specialty-doctor-api-spec.md (khi needs_api_detail) |
+| DB Migration | ✅ | backend/src/main/resources/db/migration/V9__assign_and_mock_specialty_doctors.sql (dữ liệu mẫu) |
+| UX Spec | ⬜ | docs/design/specialty-doctor-ux-spec.md (không bắt buộc) |
+| Test cases | ✅ | docs/tests/specialty-doctor-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+- 2026-11-27 · ba/tl-review: spec duyệt (17 AC, GĐ-01…05); TL APPROVED, không migration, action items ở design-review.
+- 2026-11-27 · dev: BE (`AuthService.activeDoctors`, `StaffRepository`, `GET /api/admin/doctors`, `doctorUserIds` /
+  `singleRoomName` / `singleDoctorName`) + FE (ô Bác sĩ, dòng phụ). Typecheck sạch. Chưa commit.
+- 2026-11-27 · code-review: LGTM (0 Critical/Major), đã áp nit `doctorOptions`.
+- 2026-11-27 · qa-run: tự động xanh trên `qa_specialty_doctor` (IT 32, UT 18, AuthServiceTest 4); DB tạm đã drop.
+  **Còn lại: user tự kiểm giao diện thủ công** theo mục "Kiểm thủ công (UI)" trong
+  `docs/tests/specialty-doctor-test-cases.md` (AC-01, AC-13, dòng phụ AC-09/10/11/16/17) — cần restart backend :8085.
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+- 2026-11-27 · dev (thêm theo yêu cầu user): V9 dữ liệu mẫu — gán bác sĩ chưa có khoa vào khoa trống, tạo bác sĩ mẫu
+  (`bs.mau<id>@medischedule.test`, mật khẩu ngẫu nhiên không đăng nhập được) cho khoa còn trống. Thử trên bản chép DB
+  dev: 10/10 khoa có bác sĩ (3 thật + 7 mẫu), chạy lại không đổi; IT/UT xanh qua Flyway. DB dev 5435 nhận V9 khi
+  restart backend.
+
+- [ ] Kiểm UI thủ công (user làm): đạt → commit + đóng task; lỗi → ghi lại đây, quay về `dev`.

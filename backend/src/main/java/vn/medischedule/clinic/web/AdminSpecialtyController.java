@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import vn.medischedule.clinic.dto.ClinicDtos.DoctorOption;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomRequest;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomResponse;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyRequest;
@@ -35,6 +36,11 @@ public class AdminSpecialtyController {
     @GetMapping("/specialties")
     public List<SpecialtyResponse> list() {
         return catalog.listSpecialties();
+    }
+
+    @GetMapping("/doctors")
+    public List<DoctorOption> doctors() {
+        return catalog.doctorOptions();
     }
 
     @PostMapping("/specialties")
