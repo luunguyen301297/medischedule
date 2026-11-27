@@ -3,7 +3,7 @@
 - **Task:** clinic-specialty-admin
 - **BA spec:** [`docs/tasks/clinic-specialty-admin-ba-spec.md`](../tasks/clinic-specialty-admin-ba-spec.md) (24 AC)
 - **Design:** [`docs/design/clinic-specialty-admin-tech-design.md`](../design/clinic-specialty-admin-tech-design.md)
-- **Trạng thái:** đã chạy (2026-11-27). **Verdict: FAILED** vì 1 lỗi giao diện còn mở (mục 5)
+- **Trạng thái:** đã chạy (2026-11-27). **Verdict: PASSED** ở HEAD `813ab3e` (lượt 2). Lượt 1 FAILED vì lỗi #1, đã sửa
 
 ## 1. Phạm vi và quy ước
 
@@ -178,13 +178,29 @@ DOM; kết quả dưới đây lấy theo DOM.
 | TC-32 (03–05, 07) | Đạt | Tên trống và `" nhi "` báo lỗi tại ô; thêm, đổi tên hiện không cần F5 |
 | TC-33 (12, 13, 16) | Đạt, có lỗi #1 | Thêm phòng, chuyển sang "Nhi" rồi chuyển về, số phòng đúng. Chưa thử đổi tên phòng và Select khi có chuyên khoa ngừng qua UI |
 | TC-34 (08, 09, 17) | Đạt, có lỗi #1 | Ngừng khi còn phòng: báo đúng, Switch giữ nguyên. Sau đó có "Đang ngừng", cảnh báo, nút Thêm phòng bị tắt. Switch mở lại phòng bị tắt, nhưng lúc đo trùng với lỗi #1 nên phần này dựa vào code (`SpecialtyPage.tsx:100`) |
+| TC-36 (ngoài AC, `767a415`) | Đạt | Playwright chặn `/api/public/specialties` (HTTP 500 và hủy request): ô chọn hiện "Không tải được danh sách chuyên khoa, thử lại sau", ô chọn và nút gửi bị khóa. Bỏ chặn thì đủ 10 mục |
 | TC-35 (10, 11, 19) | Đạt, có lỗi #1 | Xóa khi còn phòng bị chặn đúng thông báo; Hủy không xóa; xóa phòng, xóa chuyên khoa được; cột phải chuyển về mục đầu. Console chỉ có 409 dự kiến |
 
 Dữ liệu dev sau khi kiểm: 10/10 chuyên khoa và 10/10 phòng hoạt động, không còn dữ liệu "QA". Trong lúc kiểm, DB dev
 được thêm phòng P101–P110 từ ngoài phiên QA.
 
-Chưa kiểm trên trình duyệt: thông báo "Không tải được danh sách chuyên khoa" (commit `767a415`, ngoài AC), vì cần làm
-API lỗi trên backend dùng chung; thanh cuộn của commit `05a9a36`.
+Chưa kiểm trên trình duyệt (cả hai lượt): đổi tên phòng, và Select khi sửa phòng lúc có chuyên khoa đang ngừng (rename
+đã có IT; Select dựa vào code).
+
+### Lượt 2 (HEAD `813ab3e`)
+
+- **JUnit:** cùng lệnh ở mục 2c; Flyway chạy lại `R__seed dev data` trên DB `qa_clinic_specialty_admin`.
+  `ClinicCatalogIntegrationTest`: Tests run: 22, Failures: 0, Errors: 0. `ClinicCatalogServiceTest`: Tests run: 15,
+  Failures: 0, Errors: 0. Phòng mẫu không ảnh hưởng IT vì mỗi ca xóa hết phòng trước khi chạy. `typecheck` sạch.
+- **Seed:** trên DB qa (0 phòng, trong transaction rồi `ROLLBACK`), ngừng "Mắt" rồi chạy khối 3 của `R__`: chèn 9
+  phòng, không có P109.
+- **Lỗi #1:** đã sửa. Với chuyên khoa "QA Fix", Switch chỉ khóa khoảng 50–90 ms; giá trị mới (hoặc dòng bị xóa) hiện
+  ngay khi toast vừa xuất hiện.
+- **Thanh cuộn (`05a9a36`):** chuyên khoa 0 phòng không có thanh cuộn ngang.
+- **TC-29, TC-31:** kết quả ở bảng trên chạy tại `9d88e78`, đã gồm `767a415`; từ đó `features/landing` không đổi nên
+  không chạy lại. TC-31 chạy trước khi biết dev DB có phòng mẫu: chỉ ngừng cột `specialty.active` bằng SQL rồi bật
+  lại, không đi bước ngừng phòng. Bước chặn ngừng chuyên khoa còn phòng đã kiểm ở TC-34 và TC-09.
+- **Dữ liệu dev:** 10/10 chuyên khoa, 10/10 phòng P101–P110 hoạt động, không còn dữ liệu "QA".
 
 ## 3. Regression
 
@@ -211,17 +227,16 @@ Test chọn theo diff: `ClinicCatalogServiceTest`, `ClinicCatalogIntegrationTest
 
 ## 5. Open Issues
 
-- [ ] **#1 (lỗi, cần sửa):** `web/src/features/admin/specialty/SpecialtyPage.tsx:39-40`. `onSuccess` / `onError` của
+- [x] **#1 (đã sửa ở `813ab3e`, kiểm lại ở lượt 2):** `web/src/features/admin/specialty/SpecialtyPage.tsx:39-40`. `onSuccess` / `onError` của
   `action` trả về `message.success(...)` / `message.error(...)`. Giá trị này là thenable chỉ resolve khi toast đóng, và
   React Query chờ nó trước khi chạy `onSettled`. Hậu quả: sau mỗi lần bật tắt hoặc xóa, dữ liệu chưa làm mới và mọi
   Switch bị khóa khoảng 3 giây. Đo sau khi mở lại chuyên khoa: toast hiện ở 2641 ms, Switch vẫn `checked=false`,
   `disabled=true` tới 5716 ms. Khi khung trình duyệt ẩn thì khóa lâu hơn (quan sát trên 8 giây). Ảnh hưởng TC-33–35
-  ("cập nhật ngay"). Hướng sửa: bọc thân hai callback trong `{ }`. Còn nguyên ở HEAD `05a9a36`.
+  ("cập nhật ngay"). Hướng sửa: bọc thân hai callback trong `{ }`.
 
 Ghi nhận thêm, không tính vào verdict:
 
 - Hộp thoại "Sửa phòng khám" khi đang đóng đổi tiêu đề thành "Thêm chuyên khoa" trong chốc lát (`editing` về `null`
   trước khi hết hiệu ứng, `SpecialtyPage.tsx:77-79, 202`).
-- Seed dev (`9d88e78`, đọc code, chưa chạy ca này): khối chèn phòng mẫu không lọc `s.active`. Mỗi lần `R__` chạy lại,
-  chuyên khoa đang ngừng mà thiếu phòng mẫu sẽ được thêm phòng đang hoạt động, trái AC-08/AC-17. Phòng mẫu đã xóa hoặc
-  đổi tên cũng được tạo lại. Chỉ ảnh hưởng môi trường dev.
+- Seed dev: lỗi chèn phòng vào chuyên khoa đang ngừng đã sửa ở `813ab3e`. Còn lại: phòng mẫu đã xóa hoặc đổi tên được
+  tạo lại mỗi khi `R__` chạy lại. Chỉ ảnh hưởng môi trường dev.
