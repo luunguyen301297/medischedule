@@ -27,9 +27,11 @@ export default function SpecialtyPage() {
   })
 
   // Số phòng, danh sách phòng và ô chọn ở trang chủ phụ thuộc nhau nên làm mới cả ba
-  const refresh = () => {
-    qc.invalidateQueries({ queryKey: ['admin', 'specialties'] })
-    qc.invalidateQueries({ queryKey: ['admin', 'rooms'] })
+  // Danh sách chuyên khoa làm mới trước: chuyên khoa vừa xóa rời khỏi `selected` thì không còn ai gọi lại phòng của nó (404)
+  const refresh = async () => {
+    await qc.invalidateQueries({ queryKey: ['admin', 'specialties'] })
+    const alive = new Set(qc.getQueryData<Specialty[]>(['admin', 'specialties'])?.map((s) => s.id))
+    qc.invalidateQueries({ queryKey: ['admin', 'rooms'], predicate: (q) => alive.has(q.queryKey[2] as number) })
     qc.invalidateQueries({ queryKey: ['public', 'specialties'] })
   }
 
