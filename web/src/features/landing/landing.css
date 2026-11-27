@@ -166,7 +166,7 @@
 .auth-panel h2 { font-size: 24px; font-weight: 700; margin: 0 0 6px; }
 .auth-sub { font-size: 14.5px; color: var(--ms-ink-soft); margin: 0 0 24px; }
 .auth-switch { margin-top: 18px; text-align: center; font-size: 14px; color: var(--ms-ink-soft); }
-.auth-switch a { font-weight: 600; }
+.auth-switch a, .auth-switch-link.ant-btn { font-weight: 600; padding: 0; height: auto; font-size: inherit; }
 .auth-panel .ant-form-item { margin-bottom: 16px; }
 .auth-panel .ant-form-item-label { padding-bottom: 4px; }
 .auth-panel .ant-form-item-label > label { font-weight: 600; font-size: 14px; }

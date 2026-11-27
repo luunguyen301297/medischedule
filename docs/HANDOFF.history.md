@@ -122,3 +122,61 @@
 ## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
 
 - dev: Javadoc 1 dòng cho mọi field của 29 entity (245 dòng), không đổi code. compile OK. Chưa commit.
+
+---
+
+### B — Menu admin 2 cấp: Cài đặt > Trang chủ (`admin-menu-settings`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-27).
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| dev | 23p | 0p | 23p |
+| **Cộng** | 23p | 0p | 23p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/admin-menu-settings-ba-spec.md |
+| Tech Design | ⬜ | docs/design/admin-menu-settings-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-admin-menu-settings.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/admin-menu-settings-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/admin-menu-settings-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/admin-menu-settings-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### C-nho — Đăng nhập bằng số điện thoại (`login-phone`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-27).
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| dev | 12p | 0p | 12p |
+| **Cộng** | 12p | 0p | 12p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/login-phone-ba-spec.md |
+| Tech Design | ⬜ | docs/design/login-phone-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-login-phone.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/login-phone-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/login-phone-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/login-phone-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)

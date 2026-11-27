@@ -10,7 +10,8 @@
 .admin-user b { font-weight: 600; }
 .admin-user-sub { color: var(--ms-ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .admin-main { overflow: auto; min-width: 0; }
-.admin-page { padding: 28px 36px 48px; }
+.admin-page { padding: 16px 24px; }
+.admin-page .ant-tabs .ant-tabs-tab { padding-block: 8px; }
 .admin-list-end { padding: 16px 0; text-align: center; color: var(--ms-ink-soft); }
 .admin-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 5px; }
 .admin-head h1 { font-size: 24px; margin: 0 0 4px; font-weight: 700; }

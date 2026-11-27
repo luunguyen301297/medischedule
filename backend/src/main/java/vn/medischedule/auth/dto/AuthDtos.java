@@ -13,17 +13,17 @@ public final class AuthDtos {
 
     private AuthDtos() {}
 
-    /** login: email hoặc tên đăng nhập. */
+    /** login: email, số điện thoại hoặc tên đăng nhập. */
     public record LoginRequest(
             @NotBlank String login,
             @NotBlank String password) {}
 
-    /** Bệnh nhân tự đăng ký; luôn nhận vai trò PATIENT. */
+    /** Bệnh nhân tự đăng ký; luôn nhận vai trò PATIENT. SĐT bắt buộc vì dùng để đăng nhập. */
     public record RegisterRequest(
             @NotBlank @Email String email,
             @NotBlank @Size(min = 8, max = 72) String password,
             @NotBlank @Size(max = 120) String fullName,
-            @Size(max = 15) String phone) {}
+            @NotBlank @Pattern(regexp = "^0\\d{9}$", message = "Số điện thoại gồm 10 số, bắt đầu bằng 0") String phone) {}
 
     /** Admin tạo tài khoản nhân viên với vai trò chỉ định. */
     public record CreateUserRequest(

@@ -24,7 +24,7 @@ export interface TokenResponse {
 export interface RegisterRequest {
   fullName: string
   email: string
-  phone?: string
+  phone: string
   password: string
 }
 

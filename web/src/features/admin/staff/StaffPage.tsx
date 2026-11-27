@@ -27,16 +27,7 @@ const PAGE_SIZE = 20
 
 const fmtTime = (iso: string | null) => (iso ? new Date(iso).toLocaleString('vi-VN') : 'Chưa đăng nhập')
 
-const TEXT: Record<UserGroup, { title: string; desc: string }> = {
-  staff: {
-    title: 'Tài khoản nhân viên',
-    desc: 'Tạo tài khoản cho bác sĩ, lễ tân, dược sĩ, quản trị viên; đổi vai trò hoặc khóa tài khoản.',
-  },
-  patient: {
-    title: 'Tài khoản bệnh nhân',
-    desc: 'Bệnh nhân tự đăng ký. Tra cứu, khóa hoặc mở khóa tài khoản.',
-  },
-}
+const TITLE: Record<UserGroup, string> = { staff: 'Tài khoản nhân viên', patient: 'Tài khoản bệnh nhân' }
 
 /** Danh sách tài khoản theo nhóm: nhân viên (/admin/staff) hoặc bệnh nhân (/admin/patients). */
 export default function StaffPage({ group }: { group: UserGroup }) {
@@ -109,6 +100,7 @@ export default function StaffPage({ group }: { group: UserGroup }) {
       if (fields) form.setFields(Object.entries(fields).map(([name, err]) => ({ name: name as keyof CreateUserRequest, errors: [err] })))
       else if (code === 'EMAIL_EXISTS') form.setFields([{ name: 'email', errors: [errorMessage(e)] }])
       else if (code === 'USERNAME_EXISTS') form.setFields([{ name: 'username', errors: [errorMessage(e)] }])
+      else if (code === 'PHONE_EXISTS') form.setFields([{ name: 'phone', errors: [errorMessage(e)] }])
       else message.error(errorMessage(e))
     },
   })
@@ -130,31 +122,38 @@ export default function StaffPage({ group }: { group: UserGroup }) {
         </div>
       ),
     },
-    { title: 'Tên đăng nhập', dataIndex: 'username', width: 160, render: (v: string | null) => v ?? '—' },
+    // Bệnh nhân đăng nhập bằng email / SĐT, không dùng tên đăng nhập
+    ...(isStaff ? [{ title: 'Tên đăng nhập', dataIndex: 'username', width: 160, render: (v: string | null) => v ?? '—' }] : []),
     { title: 'Số điện thoại', dataIndex: 'phone', width: 140, render: (v: string | null) => v ?? '—' },
-    {
-      title: 'Vai trò',
-      dataIndex: 'role',
-      width: 190,
-      render: (r: Role, u) =>
-        !isStaff || u.id === me?.id ? (
-          <Tag color={ROLE_COLOR[r]}>{ROLE_LABEL[r]}</Tag>
-        ) : (
-          <Select
-            id={`row-role-${u.id}`}
-            size="small"
-            value={r}
-            style={{ width: 160 }}
-            disabled={changeRole.isPending}
-            onChange={(v) => changeRole.mutate({ id: u.id, role: v })}
-            options={STAFF_ROLES.map((k) => ({ value: k, label: ROLE_LABEL[k] }))}
-          />
-        ),
-    },
+    // Bệnh nhân luôn là PATIENT nên không cần cột vai trò
+    ...(isStaff
+      ? [
+          {
+            title: 'Vai trò',
+            dataIndex: 'role',
+            width: 190,
+            render: (r: Role, u: UserResponse) =>
+              u.id === me?.id ? (
+                <Tag color={ROLE_COLOR[r]}>{ROLE_LABEL[r]}</Tag>
+              ) : (
+                <Select
+                  id={`row-role-${u.id}`}
+                  size="small"
+                  value={r}
+                  style={{ width: 160 }}
+                  disabled={changeRole.isPending}
+                  onChange={(v) => changeRole.mutate({ id: u.id, role: v })}
+                  options={STAFF_ROLES.map((k) => ({ value: k, label: ROLE_LABEL[k] }))}
+                />
+              ),
+          },
+        ]
+      : []),
     {
       title: 'Hoạt động',
       dataIndex: 'enabled',
       width: 140,
+      align: 'center',
       onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
       render: (v: boolean, u) => (
         <Switch
@@ -172,10 +171,7 @@ export default function StaffPage({ group }: { group: UserGroup }) {
   return (
     <div className="admin-page">
       <div className="admin-head">
-        <div>
-          <h1>{TEXT[group].title}</h1>
-          <p>{TEXT[group].desc}</p>
-        </div>
+        <h1>{TITLE[group]}</h1>
         {isStaff && (
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
             Tạo tài khoản
@@ -187,7 +183,7 @@ export default function StaffPage({ group }: { group: UserGroup }) {
         <Input.Search
           id="staff-search"
           allowClear
-          placeholder="Tìm theo họ tên, email, tên đăng nhập"
+          placeholder={isStaff ? 'Tìm theo họ tên, email, tên đăng nhập, SĐT' : 'Tìm theo họ tên, email, số điện thoại'}
           style={{ width: 360, maxWidth: '100%' }}
           onSearch={(v) => setQ(v.trim())}
         />

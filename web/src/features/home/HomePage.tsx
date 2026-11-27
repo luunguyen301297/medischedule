@@ -1,7 +1,6 @@
-import { SettingOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Descriptions, Space, Spin } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { authApi, ROLE_LABEL } from '@/features/auth'
 import { tokenStore } from '@/shared/api/http'
 
@@ -9,6 +8,9 @@ import { tokenStore } from '@/shared/api/http'
 export default function HomePage() {
   const navigate = useNavigate()
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: authApi.me })
+
+  // Quản trị viên không dùng trang này: vào thẳng khu quản trị
+  if (me?.role === 'ADMIN') return <Navigate to="/admin" replace />
 
   const logout = () => {
     tokenStore.clear()
@@ -25,11 +27,6 @@ export default function HomePage() {
       >
         MediSchedule
         <Space>
-          {me?.role === 'ADMIN' && (
-            <Button icon={<SettingOutlined />} onClick={() => navigate('/admin')}>
-              Trang quản trị
-            </Button>
-          )}
           <Button onClick={logout}>Đăng xuất</Button>
         </Space>
       </header>

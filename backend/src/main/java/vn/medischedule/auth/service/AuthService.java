@@ -29,13 +29,19 @@ public class AuthService {
     private final PasswordEncoder encoder;
     private final JwtService jwt;
 
-    /** Đăng nhập bằng email hoặc tên đăng nhập. */
+    /** Đăng nhập bằng email, số điện thoại hoặc tên đăng nhập. */
     @Transactional
     public TokenResponse login(LoginRequest req) {
         String login = req.login().trim();
-        Optional<User> found = login.contains("@")
-                ? users.findByEmailIgnoreCase(login)
-                : users.findByUsernameIgnoreCase(login);
+        Optional<User> found;
+        if (login.contains("@")) {
+            found = users.findByEmailIgnoreCase(login);
+        } else if (login.matches("\\+?\\d+")) {
+            // Tên đăng nhập cũng có thể toàn số: không khớp SĐT thì thử tiếp tên đăng nhập
+            found = users.findByPhone(login).or(() -> users.findByUsernameIgnoreCase(login));
+        } else {
+            found = users.findByUsernameIgnoreCase(login);
+        }
         User user = found
                 .filter(u -> encoder.matches(req.password(), u.getPasswordHash()))
                 .orElseThrow(() -> ApiException.unauthorized("BAD_CREDENTIALS", "Tài khoản hoặc mật khẩu không đúng"));
@@ -63,12 +69,16 @@ public class AuthService {
         if (uname != null && users.existsByUsernameIgnoreCase(uname)) {
             throw new ApiException(HttpStatus.CONFLICT, "USERNAME_EXISTS", "Tên đăng nhập đã được sử dụng");
         }
+        String ph = phone == null || phone.isBlank() ? null : phone.trim();
+        if (ph != null && users.existsByPhone(ph)) {
+            throw new ApiException(HttpStatus.CONFLICT, "PHONE_EXISTS", "Số điện thoại đã được sử dụng");
+        }
         User u = new User();
         u.setEmail(normalized);
         u.setUsername(uname);
         u.setPasswordHash(encoder.encode(rawPassword));
         u.setFullName(fullName.trim());
-        u.setPhone(phone == null || phone.isBlank() ? null : phone.trim());
+        u.setPhone(ph);
         u.setRole(role(roleCode));
         return users.save(u);
     }

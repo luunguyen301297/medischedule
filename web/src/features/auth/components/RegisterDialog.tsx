@@ -1,16 +1,21 @@
 import { LockOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons'
-import { App, Button, Form, Input } from 'antd'
+import { App, Button, Form, Input, Modal } from 'antd'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { authApi, type RegisterRequest } from '../api'
-import { errorCode, errorMessage, fieldErrors, tokenStore } from '@/shared/api/http'
-import { LandingLayout } from '@/features/landing'
+import { authApi, type RegisterRequest, type TokenResponse } from '../api'
+import { errorCode, errorMessage, fieldErrors } from '@/shared/api/http'
 
 type FormValues = RegisterRequest & { confirm: string }
 
-/** Bệnh nhân tự tạo tài khoản; backend luôn gán vai trò PATIENT. */
-export default function RegisterPage() {
-  const navigate = useNavigate()
+/** Bệnh nhân tự tạo tài khoản (backend luôn gán vai trò PATIENT); tạo xong trả token để đăng nhập luôn. */
+export default function RegisterDialog({
+  open,
+  onClose,
+  onDone,
+}: {
+  open: boolean
+  onClose: () => void
+  onDone: (res: TokenResponse) => void
+}) {
   const { message } = App.useApp()
   const [form] = Form.useForm<FormValues>()
   const [loading, setLoading] = useState(false)
@@ -18,17 +23,17 @@ export default function RegisterPage() {
   const onFinish = async ({ confirm: _confirm, ...v }: FormValues) => {
     setLoading(true)
     try {
-      const res = await authApi.register({ ...v, phone: v.phone || undefined })
-      tokenStore.set(res.accessToken)
+      const res = await authApi.register(v)
       message.success('Tạo tài khoản thành công')
-      navigate('/', { replace: true })
+      onDone(res)
     } catch (e) {
       // Lỗi theo từng ô (validate của backend) hiện ngay dưới ô đó
       const fields = fieldErrors(e)
       if (fields) {
         form.setFields(Object.entries(fields).map(([name, err]) => ({ name: name as keyof FormValues, errors: [err] })))
       } else {
-        if (errorCode(e) === 'EMAIL_EXISTS') form.setFields([{ name: 'email', errors: [errorMessage(e)] }])
+        const field = ({ EMAIL_EXISTS: 'email', PHONE_EXISTS: 'phone' } as const)[errorCode(e) ?? '']
+        if (field) form.setFields([{ name: field, errors: [errorMessage(e)] }])
         else message.error(errorMessage(e))
       }
     } finally {
@@ -37,7 +42,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <LandingLayout title="Tạo tài khoản" subtitle="Dành cho bệnh nhân. Chỉ mất chưa tới một phút.">
+    <Modal open={open} onCancel={onClose} footer={null} width={560} destroyOnClose title="Tạo tài khoản">
+      <p className="auth-sub">Dành cho bệnh nhân. Chỉ mất chưa tới một phút.</p>
       <Form form={form} layout="vertical" size="large" onFinish={onFinish} requiredMark={false}>
         <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, whitespace: true, message: 'Nhập họ và tên' }, { max: 120 }]}>
           <Input prefix={<UserOutlined />} placeholder="Nguyễn Văn A" autoComplete="name" />
@@ -50,9 +56,12 @@ export default function RegisterPage() {
           <Form.Item
             name="phone"
             label="Số điện thoại"
-            rules={[{ pattern: /^0\d{9}$/, message: 'Số điện thoại gồm 10 số, bắt đầu bằng 0' }]}
+            rules={[
+              { required: true, message: 'Nhập số điện thoại' },
+              { pattern: /^0\d{9}$/, message: 'Số điện thoại gồm 10 số, bắt đầu bằng 0' },
+            ]}
           >
-            <Input prefix={<PhoneOutlined />} placeholder="Không bắt buộc" autoComplete="tel" inputMode="tel" maxLength={10} />
+            <Input prefix={<PhoneOutlined />} placeholder="09xx xxx xxx" autoComplete="tel" inputMode="tel" maxLength={10} />
           </Form.Item>
         </div>
 
@@ -88,9 +97,6 @@ export default function RegisterPage() {
           Tạo tài khoản
         </Button>
       </Form>
-      <div className="auth-switch">
-        Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
-      </div>
-    </LandingLayout>
+    </Modal>
   )
 }
