@@ -167,3 +167,21 @@ FROM (VALUES
 ) AS v(email, username, full_name, role_code)
 JOIN roles r ON r.code = v.role_code
 ON CONFLICT DO NOTHING;   -- trùng email hoặc username thì bỏ qua
+
+-- 3. Mỗi chuyên khoa (seed ở V8) một phòng khám mẫu; chuyên khoa đã đổi tên/xóa thì bỏ qua, phòng đã có thì giữ nguyên
+INSERT INTO room (name, specialty_id)
+SELECT v.room, s.id
+FROM (VALUES
+    ('Nội tổng quát', 'P101'),
+    ('Nhi', 'P102'),
+    ('Tai Mũi Họng', 'P103'),
+    ('Da liễu', 'P104'),
+    ('Sản phụ khoa', 'P105'),
+    ('Tim mạch', 'P106'),
+    ('Tiêu hóa', 'P107'),
+    ('Cơ xương khớp', 'P108'),
+    ('Mắt', 'P109'),
+    ('Răng Hàm Mặt', 'P110')
+) AS v(specialty, room)
+JOIN specialty s ON s.name = v.specialty
+ON CONFLICT DO NOTHING;
