@@ -269,3 +269,37 @@ Menu Cài đặt > Chuyên khoa: CRUD chuyên khoa + phòng khám (admin), GET /
   restart backend.
 
 - [ ] Kiểm UI thủ công (user làm): đạt → commit + đóng task; lỗi → ghi lại đây, quay về `dev`.
+
+---
+
+### Full — Ca làm việc + Lịch làm việc nhân viên (`work-shift`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-27).
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| ba | 2p | 0p | 2p |
+| design | 1p | 0p | 1p |
+| tl-review | 0p | 0p | 0p |
+| dev | 7p | 0p | 7p |
+| code-review | 0p | 0p | 0p |
+| qa-plan | 1g23 | 0p | 1g23 |
+| **Cộng** | 1g35 | 0p | 1g35 |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/work-shift-ba-spec.md |
+| Tech Design | ⬜ | docs/design/work-shift-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-work-shift.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/work-shift-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/work-shift-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/work-shift-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)

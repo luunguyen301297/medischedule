@@ -3,6 +3,8 @@ import HomepageSettingsPage from './homepage/HomepageSettingsPage'
 import AdminLayout from './layout/AdminLayout'
 import SpecialtyPage from './specialty/SpecialtyPage'
 import StaffPage from './staff/StaffPage'
+import WorkSchedulePage from './workshift/WorkSchedulePage'
+import WorkShiftPage from './workshift/WorkShiftPage'
 
 /** Toàn bộ route của khu quản trị, gắn ở /admin/* (tải lười, xem app/router.tsx). */
 export default function AdminRoutes() {
@@ -14,6 +16,8 @@ export default function AdminRoutes() {
         <Route path="patients" element={<StaffPage key="patient" group="patient" />} />
         <Route path="homepage" element={<HomepageSettingsPage />} />
         <Route path="specialties" element={<SpecialtyPage />} />
+        <Route path="work-shifts" element={<WorkShiftPage />} />
+        <Route path="work-schedule" element={<WorkSchedulePage />} />
       </Route>
     </Routes>
   )

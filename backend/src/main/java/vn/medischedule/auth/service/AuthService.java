@@ -12,6 +12,7 @@ import vn.medischedule.auth.domain.User;
 import vn.medischedule.auth.dto.AuthDtos.DoctorAccount;
 import vn.medischedule.auth.dto.AuthDtos.LoginRequest;
 import vn.medischedule.auth.dto.AuthDtos.RegisterRequest;
+import vn.medischedule.auth.dto.AuthDtos.StaffAccount;
 import vn.medischedule.auth.dto.AuthDtos.TokenResponse;
 import vn.medischedule.auth.dto.AuthDtos.UpdateUserRequest;
 import vn.medischedule.auth.dto.AuthDtos.UserUpdatedEvent;
@@ -63,6 +64,14 @@ public class AuthService {
     public List<DoctorAccount> activeDoctors() {
         return users.findByRole_CodeAndEnabledTrue(RoleCode.DOCTOR).stream()
                 .map(u -> new DoctorAccount(u.getId(), u.getFullName()))
+                .toList();
+    }
+
+    /** Mọi tài khoản nhân viên (trừ bệnh nhân), kể cả đã khóa, để hiện tên trên lịch cũ. */
+    @Transactional(readOnly = true)
+    public List<StaffAccount> staffAccounts() {
+        return users.findByRole_CodeNot(RoleCode.PATIENT).stream()
+                .map(u -> new StaffAccount(u.getId(), u.getFullName(), u.getRole().getCode(), u.isEnabled()))
                 .toList();
     }
 

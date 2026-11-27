@@ -1,4 +1,4 @@
-import { ApartmentOutlined, LayoutOutlined, LogoutOutlined, SafetyCertificateOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
+import { ApartmentOutlined, CalendarOutlined, ClockCircleOutlined, LayoutOutlined, LogoutOutlined, SafetyCertificateOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Menu, Spin } from 'antd'
 import { useEffect, useState } from 'react'
@@ -11,6 +11,7 @@ import '../admin.css'
 type MenuItem = { key: string; icon: JSX.Element; label: string; children?: MenuItem[] }
 
 const MENU: MenuItem[] = [
+  { key: '/admin/work-schedule', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
   {
     key: 'accounts',
     icon: <SafetyCertificateOutlined />,
@@ -27,6 +28,7 @@ const MENU: MenuItem[] = [
     children: [
       { key: '/admin/homepage', icon: <LayoutOutlined />, label: 'Trang chủ' },
       { key: '/admin/specialties', icon: <ApartmentOutlined />, label: 'Chuyên khoa' },
+      { key: '/admin/work-shifts', icon: <ClockCircleOutlined />, label: 'Ca làm việc' },
     ],
   },
 ]

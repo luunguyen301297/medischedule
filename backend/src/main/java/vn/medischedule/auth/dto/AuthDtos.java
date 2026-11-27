@@ -57,5 +57,8 @@ public final class AuthDtos {
     /** Tài khoản bác sĩ đang hoạt động, cho module khác (clinic) đọc qua AuthService. */
     public record DoctorAccount(Long userId, String fullName) {}
 
+    /** Tài khoản nhân viên (mọi vai trò trừ PATIENT), kể cả đã khóa. */
+    public record StaffAccount(Long userId, String fullName, String role, boolean enabled) {}
+
     public record TokenResponse(String accessToken, String tokenType, long expiresIn, UserResponse user) {}
 }

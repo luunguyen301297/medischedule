@@ -11,6 +11,7 @@ export const palette = {
   primaryHover: '#155e75',
   primaryActive: '#164e63',
   primarySoft: '#ecfeff',    // nền nhạt cho vùng chọn, nhãn
+  primaryTint: '#e9f6f9',    // đậm hơn primarySoft: mục đang chọn, hover, đầu bảng trong khu quản trị
   brand: '#0e7490',          // nền panel giới thiệu
   brandInk: '#e0f7fa',       // chữ phụ trên nền brand
   // Điểm nhấn dùng chung màu chủ đạo: cả trang chỉ một màu xanh lam cho nút, nhãn, dấu tích
@@ -58,8 +59,8 @@ export const antTheme: ThemeConfig = {
   components: {
     Button: { primaryShadow: 'none', defaultShadow: 'none', dangerShadow: 'none', fontWeight: 600 },
     Input: { activeShadow: 'none', errorActiveShadow: 'none', warningActiveShadow: 'none' },
-    Select: { optionSelectedBg: palette.primarySoft },
-    Menu: { itemSelectedBg: palette.primarySoft, itemSelectedColor: palette.primary, itemBorderRadius: 8 },
+    Select: { optionSelectedBg: palette.primaryTint },
+    Menu: { itemSelectedBg: palette.primaryTint, itemSelectedColor: palette.primary, itemBorderRadius: 8 },
     Layout: { headerBg: palette.surface, siderBg: palette.surface, bodyBg: palette.surface },
     Table: { headerBg: palette.surface, headerSplitColor: 'transparent' },
     Tabs: { inkBarColor: palette.primary, itemSelectedColor: palette.primary },

@@ -28,7 +28,7 @@
 .specialty-grid h2 { font-size: 17px; margin: 0; font-weight: 600; }
 .specialty-grid .ant-alert { margin-bottom: 12px; }
 .specialty-item.ant-list-item { gap: 6px; padding: 8px 12px; justify-content: flex-start; }
-.specialty-item.is-active { background: var(--ms-primary-soft); }
+.specialty-item.is-active { background: var(--ms-primary-tint); }
 .specialty-pick { flex: 1; min-width: 0; display: grid; gap: 2px; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }
 .specialty-pick span { font-size: 13px; color: var(--ms-ink-soft); }
 .specialty-meta { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -41,3 +41,51 @@
 .settings-section .ant-form-item-label > label { font-weight: 600; }
 .list-row { display: grid; gap: 12px; align-items: start; border-top: 1px dashed var(--ms-border); padding-top: 16px; margin-top: 4px; }
 .list-row:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+
+/* Ca làm việc / Lịch làm việc (ws-*). Màu từng ca là dữ liệu, gắn inline. */
+.ws-name { display: inline-flex; align-items: center; gap: 8px; }
+.ws-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+.ws-dot-lead { margin-inline-end: 8px; vertical-align: 1px; }
+.ws-sub { color: var(--ms-ink-soft); font-size: 13px; }
+.ws-tag { margin-inline-start: 8px; }
+.ws-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 12px; }
+.ws-toolbar .ws-role { min-width: 160px; }
+.ws-title { font-weight: 600; margin-inline-start: 8px; }
+
+.ws-day { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: start; }
+.ws-past { margin-bottom: 12px; }
+.ws-shift-head > .ant-btn { flex: none; }
+.ws-shift-head > div { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-shift { border: 1px solid var(--ms-border); border-radius: 8px; padding: 12px 16px; background: var(--ms-surface); }
+.ws-shift-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--ms-border); }
+.ws-people { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.ws-people li { display: flex; align-items: center; gap: 8px; }
+.ws-people li > span:first-child { flex: 1; min-width: 0; }
+.ws-shift .ws-role-group + .ws-role-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ms-border); }
+
+.ws-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-inline-start: 1px solid var(--ms-border); }
+/* Hàng thứ cố định khi cuộn trong .admin-scroll */
+.ws-weekday { position: sticky; top: 0; z-index: 1; background: var(--ms-primary-tint); padding: 6px 8px; font-weight: 600; font-size: 13px; color: var(--ms-ink); border-top: 1px solid var(--ms-border); border-inline-end: 1px solid var(--ms-border); border-bottom: 1px solid var(--ms-border); }
+.ws-cell { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 6px 8px;
+  border-inline-end: 1px solid var(--ms-border); border-bottom: 1px solid var(--ms-border); background: var(--ms-surface); min-width: 0; }
+.ws-grid-week .ws-cell { min-height: 220px; }
+.ws-grid-month .ws-cell { min-height: 96px; }
+.ws-cell:hover, .ws-cell:focus-visible { background: var(--ms-primary-tint); }
+.ws-cell.is-outside { color: var(--ms-ink-soft); }
+.ws-cell.is-outside .ws-chip { opacity: .6; }
+.ws-cell.is-today .ws-date { color: var(--ms-primary); font-weight: 700; }
+.ws-date { font-size: 13px; }
+.ws-chip { display: flex; align-items: center; gap: 6px; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ws-block { display: flex; flex-direction: column; border-inline-start: 3px solid; padding-inline-start: 6px; font-size: 12.5px; }
+.ws-block-head, .ws-person { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Vạch mờ ngăn các ca trong một ô; kéo sang trái phủ cả vạch màu ca */
+.ws-block + .ws-block { position: relative; margin-top: 9px; }
+.ws-block + .ws-block::before { content: ""; position: absolute; top: -5px; left: -3px; right: 0; border-top: 1px solid var(--ms-border); }
+.ws-role-group { display: flex; flex-direction: column; margin-top: 2px; }
+.ws-role-label { font-size: 12px; font-weight: 600; color: var(--ms-ink-soft); }
+.ws-person::before { content: "•"; margin-inline-end: 6px; color: var(--ms-ink-soft); }
+@media (max-width: 900px) {
+  .ws-grid-week { grid-template-columns: 1fr; }
+  .ws-grid-week .ws-weekday { display: none; }
+  .ws-grid-week .ws-cell { min-height: 0; }
+}

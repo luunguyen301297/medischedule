@@ -3,6 +3,7 @@ package vn.medischedule.auth.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.medischedule.auth.domain.User;
@@ -27,6 +28,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByRole_Code(String roleCode, Pageable pageable);
 
     List<User> findByRole_CodeAndEnabledTrue(String roleCode);
+
+    @EntityGraph(attributePaths = "role")
+    List<User> findByRole_CodeNot(String roleCode);
 
     /**
      * Lọc theo vai trò (tùy chọn), loại trừ một vai trò (tùy chọn) và từ khóa trong họ tên / email / tên đăng nhập / SĐT.
