@@ -37,6 +37,18 @@ public final class ClinicDtos {
         }
     }
 
+    /** Hồ sơ nhân viên cho admin xem; cột chuyên môn chỉ có với bác sĩ. */
+    public record StaffProfile(Long userId, String fullName, String phone, String specialtyName, Long specialtyId, String degree,
+                               String licenseNo, boolean acceptsDesignation, boolean active) {}
+
+    /** Cột chuyên môn (specialtyId, degree, licenseNo, acceptsDesignation) chỉ lưu với bác sĩ. */
+    public record StaffProfileRequest(
+            Long specialtyId,
+            @Size(max = 50, message = "Học hàm/học vị tối đa 50 ký tự") String degree,
+            @Size(max = 30, message = "Số chứng chỉ tối đa 30 ký tự") String licenseNo,
+            boolean acceptsDesignation,
+            boolean active) {}
+
     /** Dữ liệu public cho form đặt lịch. */
     public record SpecialtyOption(Long id, String name) {}
 }

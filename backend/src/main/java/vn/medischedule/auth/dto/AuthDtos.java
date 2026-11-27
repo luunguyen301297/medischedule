@@ -34,6 +34,16 @@ public final class AuthDtos {
             @Size(max = 15) String phone,
             @NotBlank String role) {}
 
+    /** Admin sửa thông tin tài khoản; username bị bỏ qua với tài khoản bệnh nhân. */
+    public record UpdateUserRequest(
+            @NotBlank @Email String email,
+            @Pattern(regexp = "^[a-zA-Z0-9._-]{3,50}$", message = "Tên đăng nhập 3–50 ký tự: chữ, số, dấu chấm, gạch") String username,
+            @NotBlank @Size(max = 120) String fullName,
+            @Pattern(regexp = "^0\\d{9}$", message = "Số điện thoại gồm 10 số, bắt đầu bằng 0") String phone) {}
+
+    /** Phát khi admin sửa tài khoản, để module khác đồng bộ bản sao họ tên / SĐT (vd. clinic.staff). */
+    public record UserUpdatedEvent(Long userId, String fullName, String phone) {}
+
     public record ChangeRoleRequest(@NotBlank String role) {}
 
     public record UserResponse(Long id, String email, String username, String fullName, String phone, String role,

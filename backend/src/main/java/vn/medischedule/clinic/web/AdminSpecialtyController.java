@@ -20,6 +20,8 @@ import vn.medischedule.clinic.dto.ClinicDtos.RoomRequest;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomResponse;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyRequest;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyResponse;
+import vn.medischedule.clinic.dto.ClinicDtos.StaffProfile;
+import vn.medischedule.clinic.dto.ClinicDtos.StaffProfileRequest;
 import vn.medischedule.clinic.service.ClinicCatalogService;
 
 import java.util.List;
@@ -41,6 +43,16 @@ public class AdminSpecialtyController {
     @GetMapping("/doctors")
     public List<DoctorOption> doctors() {
         return catalog.doctorOptions();
+    }
+
+    @GetMapping("/staff-profiles/{userId}")
+    public StaffProfile staffProfile(@PathVariable Long userId) {
+        return catalog.staffProfile(userId);
+    }
+
+    @PutMapping("/staff-profiles/{userId}")
+    public StaffProfile saveStaffProfile(@PathVariable Long userId, @Valid @RequestBody StaffProfileRequest req) {
+        return catalog.saveStaffProfile(userId, req);
     }
 
     @PostMapping("/specialties")

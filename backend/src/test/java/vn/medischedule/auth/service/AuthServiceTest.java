@@ -1,5 +1,6 @@
 package vn.medischedule.auth.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -22,7 +23,8 @@ class AuthServiceTest {
 
     UserRepository users = mock(UserRepository.class);
     JwtService jwt = mock(JwtService.class);
-    AuthService service = new AuthService(users, mock(RoleRepository.class), NoOpPasswordEncoder.getInstance(), jwt);
+    AuthService service = new AuthService(users, mock(RoleRepository.class), NoOpPasswordEncoder.getInstance(), jwt,
+            mock(ApplicationEventPublisher.class));
     User user = new User();
 
     @BeforeEach

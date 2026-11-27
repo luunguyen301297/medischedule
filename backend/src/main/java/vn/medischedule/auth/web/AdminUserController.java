@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.medischedule.auth.domain.User;
 import vn.medischedule.auth.dto.AuthDtos.ChangeRoleRequest;
 import vn.medischedule.auth.dto.AuthDtos.CreateUserRequest;
+import vn.medischedule.auth.dto.AuthDtos.UpdateUserRequest;
 import vn.medischedule.auth.dto.AuthDtos.UserResponse;
 import vn.medischedule.auth.repository.UserRepository;
 import vn.medischedule.auth.service.AuthService;
@@ -57,6 +59,11 @@ public class AdminUserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse create(@Valid @RequestBody CreateUserRequest req) {
         return UserResponse.of(authService.createUser(req.email(), req.username(), req.password(), req.fullName(), req.phone(), req.role()));
+    }
+
+    @PutMapping("/{id}")
+    public UserResponse update(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest req) {
+        return UserResponse.of(authService.updateUser(id, req));
     }
 
     @PatchMapping("/{id}/role")

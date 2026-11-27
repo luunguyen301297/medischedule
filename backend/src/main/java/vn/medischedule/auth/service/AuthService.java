@@ -1,6 +1,7 @@
 package vn.medischedule.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import vn.medischedule.auth.dto.AuthDtos.DoctorAccount;
 import vn.medischedule.auth.dto.AuthDtos.LoginRequest;
 import vn.medischedule.auth.dto.AuthDtos.RegisterRequest;
 import vn.medischedule.auth.dto.AuthDtos.TokenResponse;
+import vn.medischedule.auth.dto.AuthDtos.UpdateUserRequest;
+import vn.medischedule.auth.dto.AuthDtos.UserUpdatedEvent;
 import vn.medischedule.auth.dto.AuthDtos.UserResponse;
 import vn.medischedule.auth.repository.RoleRepository;
 import vn.medischedule.auth.repository.UserRepository;
@@ -30,6 +33,7 @@ public class AuthService {
     private final RoleRepository roles;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
+    private final ApplicationEventPublisher events;
 
     /** Đăng nhập bằng email, số điện thoại hoặc tên đăng nhập. */
     @Transactional
@@ -91,6 +95,45 @@ public class AuthService {
         u.setPhone(ph);
         u.setRole(role(roleCode));
         return users.save(u);
+    }
+
+    /** Tài khoản theo id, cho module khác đọc. */
+    @Transactional(readOnly = true)
+    public UserResponse get(Long id) {
+        return UserResponse.of(find(id));
+    }
+
+    /** Admin sửa họ tên, email, tên đăng nhập (chỉ nhân viên), SĐT (bắt buộc với bệnh nhân vì dùng đăng nhập). */
+    @Transactional
+    public User updateUser(Long id, UpdateUserRequest req) {
+        User u = find(id);
+        boolean patient = RoleCode.PATIENT.equals(u.getRole().getCode());
+        String email = req.email().trim().toLowerCase();
+        if (!email.equalsIgnoreCase(u.getEmail()) && users.existsByEmailIgnoreCase(email)) {
+            throw new ApiException(HttpStatus.CONFLICT, "EMAIL_EXISTS", "Email đã được sử dụng");
+        }
+        String uname = patient ? u.getUsername()
+                : req.username() == null || req.username().isBlank() ? null : req.username().trim().toLowerCase();
+        if (uname != null && !uname.equalsIgnoreCase(u.getUsername()) && users.existsByUsernameIgnoreCase(uname)) {
+            throw new ApiException(HttpStatus.CONFLICT, "USERNAME_EXISTS", "Tên đăng nhập đã được sử dụng");
+        }
+        String ph = req.phone() == null || req.phone().isBlank() ? null : req.phone().trim();
+        if (patient && ph == null) {
+            throw ApiException.badRequest("PHONE_REQUIRED", "Bệnh nhân cần số điện thoại để đăng nhập");
+        }
+        if (ph != null && !ph.equals(u.getPhone()) && users.existsByPhone(ph)) {
+            throw new ApiException(HttpStatus.CONFLICT, "PHONE_EXISTS", "Số điện thoại đã được sử dụng");
+        }
+        u.setEmail(email);
+        u.setUsername(uname);
+        u.setFullName(req.fullName().trim());
+        u.setPhone(ph);
+        events.publishEvent(new UserUpdatedEvent(u.getId(), u.getFullName(), ph));
+        return u;
+    }
+
+    private User find(Long id) {
+        return users.findById(id).orElseThrow(() -> ApiException.notFound("USER_NOT_FOUND", "Tài khoản không tồn tại"));
     }
 
     public Role role(String code) {

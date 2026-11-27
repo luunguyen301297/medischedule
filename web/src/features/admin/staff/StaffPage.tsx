@@ -1,4 +1,4 @@
-import { CopyOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { CopyOutlined, PlusOutlined, ReloadOutlined, SolutionOutlined } from '@ant-design/icons'
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { App, Button, Form, Input, Modal, Radio, Select, Spin, Switch, Table, Tag, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from 'react'
 import { authApi, ROLE_LABEL, type Role, type UserResponse } from '@/features/auth'
 import { errorCode, errorMessage, fieldErrors } from '@/shared/api/http'
 import { STAFF_ROLES, usersApi, type CreateUserRequest, type UserGroup } from './api'
+import PatientProfileDialog from './PatientProfileDialog'
+import StaffProfileDialog from './StaffProfileDialog'
 
 const ROLE_COLOR: Record<Role, string> = {
   ADMIN: 'geekblue',
@@ -37,6 +39,7 @@ export default function StaffPage({ group }: { group: UserGroup }) {
   const [role, setRole] = useState<Role | undefined>()
   const [q, setQ] = useState('')
   const [creating, setCreating] = useState(false)
+  const [viewing, setViewing] = useState<UserResponse | null>(null)
   const [form] = Form.useForm<CreateUserRequest>()
 
   const { data: me } = useQuery({ queryKey: ['me'], queryFn: authApi.me })
@@ -166,6 +169,15 @@ export default function StaffPage({ group }: { group: UserGroup }) {
       ),
     },
     { title: 'Đăng nhập gần nhất', dataIndex: 'lastLoginAt', width: 190, render: fmtTime },
+    {
+      title: 'Hồ sơ',
+      key: 'profile',
+      width: 80,
+      align: 'center',
+      render: (_, u) => (
+        <Button type="text" icon={<SolutionOutlined />} onClick={() => setViewing(u)} aria-label={`Xem hồ sơ ${u.fullName}`} />
+      ),
+    },
   ]
 
   return (
@@ -214,6 +226,12 @@ export default function StaffPage({ group }: { group: UserGroup }) {
           {isFetchingNextPage ? <Spin size="small" /> : data && `${rows.length} / ${data.pages[0].page.totalElements} tài khoản`}
         </div>
       </div>
+
+      {isStaff ? (
+        <StaffProfileDialog user={viewing} onClose={() => setViewing(null)} />
+      ) : (
+        <PatientProfileDialog user={viewing} onClose={() => setViewing(null)} />
+      )}
 
       <Modal
         title="Tạo tài khoản nhân viên"

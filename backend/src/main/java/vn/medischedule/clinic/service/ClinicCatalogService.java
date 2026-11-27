@@ -1,12 +1,16 @@
 package vn.medischedule.clinic.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.medischedule.auth.domain.RoleCode;
 import vn.medischedule.auth.dto.AuthDtos.DoctorAccount;
+import vn.medischedule.auth.dto.AuthDtos.UserResponse;
+import vn.medischedule.auth.dto.AuthDtos.UserUpdatedEvent;
 import vn.medischedule.auth.service.AuthService;
 import vn.medischedule.clinic.domain.Room;
 import vn.medischedule.clinic.domain.Specialty;
@@ -17,6 +21,8 @@ import vn.medischedule.clinic.dto.ClinicDtos.RoomResponse;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyOption;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyRequest;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyResponse;
+import vn.medischedule.clinic.dto.ClinicDtos.StaffProfile;
+import vn.medischedule.clinic.dto.ClinicDtos.StaffProfileRequest;
 import vn.medischedule.clinic.repository.RoomRepository;
 import vn.medischedule.clinic.repository.SpecialtyRepository;
 import vn.medischedule.clinic.repository.StaffRepository;
@@ -73,6 +79,62 @@ public class ClinicCatalogService {
                 })
                 .sorted(Comparator.comparing(DoctorOption::fullName, vi))
                 .toList();
+    }
+
+    /** Hồ sơ nhân viên theo users.id; chưa có hồ sơ thì 404 STAFF_PROFILE_NOT_FOUND. */
+    @Transactional(readOnly = true)
+    public StaffProfile staffProfile(Long userId) {
+        Staff st = staff.findByUserId(userId)
+                .orElseThrow(() -> ApiException.notFound("STAFF_PROFILE_NOT_FOUND", "Nhân viên chưa có hồ sơ"));
+        return toProfile(st);
+    }
+
+    /** Tạo hoặc sửa hồ sơ nhân viên; họ tên / SĐT lấy theo tài khoản. Không phải bác sĩ thì xoá cột chuyên môn. */
+    public StaffProfile saveStaffProfile(Long userId, StaffProfileRequest req) {
+        UserResponse u = auth.get(userId);
+        if (RoleCode.PATIENT.equals(u.role())) {
+            throw ApiException.badRequest("NOT_STAFF", "Tài khoản bệnh nhân không có hồ sơ nhân viên");
+        }
+        boolean doctor = RoleCode.DOCTOR.equals(u.role());
+        Staff st = staff.findByUserId(userId).orElseGet(() -> {
+            Staff s = new Staff();
+            s.setUserId(userId);
+            return s;
+        });
+        st.setFullName(u.fullName());
+        st.setPhone(u.phone());
+        st.setSpecialty(doctor && req.specialtyId() != null ? specialty(req.specialtyId()) : null);
+        st.setDegree(doctor ? blankToNull(req.degree()) : null);
+        st.setLicenseNo(doctor ? blankToNull(req.licenseNo()) : null);
+        st.setAcceptsDesignation(doctor && req.acceptsDesignation());
+        st.setActive(req.active());
+        try {
+            return toProfile(staff.saveAndFlush(st));
+        } catch (DataIntegrityViolationException e) {
+            if (String.valueOf(e.getMostSpecificCause().getMessage()).contains("license_no")) {
+                throw new ApiException(HttpStatus.CONFLICT, "LICENSE_EXISTS", "Số chứng chỉ hành nghề đã tồn tại");
+            }
+            throw e;
+        }
+    }
+
+    /** Giữ bản sao họ tên / SĐT trong staff khớp tài khoản khi admin sửa tài khoản. */
+    @EventListener
+    public void onUserUpdated(UserUpdatedEvent e) {
+        staff.findByUserId(e.userId()).ifPresent(st -> {
+            st.setFullName(e.fullName());
+            st.setPhone(e.phone());
+        });
+    }
+
+    private static String blankToNull(String s) {
+        return s == null || s.isBlank() ? null : s.trim();
+    }
+
+    private static StaffProfile toProfile(Staff st) {
+        Specialty sp = st.getSpecialty();
+        return new StaffProfile(st.getUserId(), st.getFullName(), st.getPhone(), sp == null ? null : sp.getName(),
+                sp == null ? null : sp.getId(), st.getDegree(), st.getLicenseNo(), st.isAcceptsDesignation(), st.isActive());
     }
 
     @Transactional(readOnly = true)
