@@ -180,3 +180,44 @@
 ## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
 
 ## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### Full — Admin: menu Chuyên khoa quản lý chuyên khoa và phòng khám (`clinic-specialty-admin`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-27).
+
+Menu Cài đặt > Chuyên khoa: CRUD chuyên khoa + phòng khám (admin), GET /api/public/specialties cho form đặt lịch trang chủ, V8 index lower(name) + seed 10 chuyên khoa, seed dev phòng P101–P110. QA: 37/37 JUnit, chạy thật đạt.
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| ba | 3p | 0p | 3p |
+| design | 1p | 0p | 1p |
+| tl-review | 0p | 0p | 0p |
+| dev | 4p | 0p | 4p |
+| code-review | 1p | 0p | 1p |
+| qa-run | 14p | 0p | 14p |
+| **Cộng** | 24p | 0p | 24p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ✅ | docs/tasks/clinic-specialty-admin-ba-spec.md |
+| Tech Design | ✅ | docs/design/clinic-specialty-admin-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ✅ | docs/reviews/design-review-clinic-specialty-admin.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/clinic-specialty-admin-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/clinic-specialty-admin-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/clinic-specialty-admin-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+- code-review SỬA DONE: commit 767a415 (lỗi tải chuyên khoa hiện thông báo riêng, vẫn khóa gửi); `npm run typecheck` sạch; chưa kiểm trên trình duyệt.
+- dev DONE: commit e414aa7; ClinicCatalogServiceTest 15/15 PASS; `npm run typecheck` sạch. Chưa kiểm trên trình duyệt, V8 chưa chạy trên DB nào. `.claude/PROJECT/architecture.md` ngoài phạm vi nên không sửa.
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+- ba: spec duyệt; user chọn xóa-nếu-chưa-dùng, chặn ngừng CK còn phòng, bỏ phòng dùng chung, nối trang chủ luôn.
+- design/tl-review: APPROVED, action items ở docs/reviews/design-review-clinic-specialty-admin.md. Nhánh feat/clinic-specialty-admin.

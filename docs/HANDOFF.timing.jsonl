@@ -4,3 +4,4 @@
 {"task": "entity-docs", "flow": "B", "closed": "2026-11-26T22:57:58+07:00", "phases": {"dev": {"wall": 149, "wait": 0}}}
 {"task": "admin-menu-settings", "flow": "B", "closed": "2026-11-27T09:39:18+07:00", "phases": {"dev": {"wall": 1429, "wait": 0}}}
 {"task": "login-phone", "flow": "C-nho", "closed": "2026-11-27T09:39:18+07:00", "phases": {"dev": {"wall": 726, "wait": 0}}}
+{"task": "clinic-specialty-admin", "flow": "Full", "closed": "2026-11-27T10:10:27+07:00", "phases": {"ba": {"wall": 203, "wait": 0}, "design": {"wall": 76, "wait": 0}, "tl-review": {"wall": 21, "wait": 0}, "dev": {"wall": 245, "wait": 0}, "code-review": {"wall": 89, "wait": 0}, "qa-run": {"wall": 842, "wait": 0}}}

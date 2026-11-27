@@ -17,7 +17,7 @@ vi ghi ở `package-info.java`. Module khác chỉ gọi qua service, không dù
 | `auth` | `roles` (Role), `users` (User) | P0-A, P0-B, D0-A, D0-B, A0, A1a, A1b (tài khoản) | Có code: đăng nhập, đăng ký, JWT, quản lý tài khoản |
 | `cms` | `site_content` (SiteContent) | Trang chủ, trang đăng nhập | Có code |
 | `storage` | Không có bảng (file ở MinIO, bucket `medical-files`) | Upload, đọc file | Có code |
-| `clinic` | `specialty`, `room`, `staff` | A1b, A2 | Mới có entity |
+| `clinic` | `specialty`, `room`, `staff` | A1b, A2 | Có code: danh mục chuyên khoa, phòng khám (admin + API public) |
 | `patient` | `patient` | G1, P0-A, P1, R1, A1a | Mới có entity |
 | `schedule` | `shift`, `shift_request` | A3, D4 | Mới có entity |
 | `booking` | `appointment`, `voucher` | G1, P1, P2, P4, R1, R3, R4, D3 | Mới có entity |
@@ -44,7 +44,7 @@ Chia theo vai trò, mỗi khu một thư mục `features/<khu>` export route t�
 | Bác sĩ | `features/doctor` | schedule, booking, emr, pharmacy, aftercare, commission, ai | Chưa tạo |
 | Lễ tân | `features/reception` | booking, patient, billing, schedule | Chưa tạo |
 | Dược sĩ | `features/pharmacy` | pharmacy, billing | Chưa tạo |
-| Quản trị | `features/admin` (`/admin/*`) | auth, cms, clinic, schedule, billing, commission, aftercare, system | Có code: layout, tài khoản (`staff`), trang chủ (`homepage`) |
+| Quản trị | `features/admin` (`/admin/*`) | auth, cms, clinic, schedule, billing, commission, aftercare, system | Có code: layout, tài khoản (`staff`), trang chủ (`homepage`), chuyên khoa (`specialty`) |
 
 ## Ngoài backend và web
 
