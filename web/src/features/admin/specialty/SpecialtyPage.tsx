@@ -192,7 +192,8 @@ export default function SpecialtyPage() {
               loading={rooms.isLoading}
               pagination={false}
               locale={{ emptyText: <Empty description="Chưa có phòng khám" /> }}
-              scroll={{ x: 'max-content' }}
+              // ponytail: chỉ cuộn ngang khi có dòng; bảng rỗng mà có scroll.x thì AntD vẫn vẽ thanh cuộn
+              scroll={rooms.data?.length ? { x: 'max-content' } : undefined}
             />
           </section>
         )}
