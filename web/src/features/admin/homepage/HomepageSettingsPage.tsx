@@ -111,14 +111,21 @@ export default function HomepageSettingsPage() {
     </>
   )
 
+  const clinicTab = (
+    <section className="settings-section">
+      <h2>Tên phòng khám</h2>
+      <p>Hiện ở logo trang chủ và đầu menu khu quản trị.</p>
+      <Form.Item name={['intro', 'brandName']} label="Tên phòng khám" rules={[{ required: true, whitespace: true, message: 'Nhập tên phòng khám' }]}>
+        <Input maxLength={LIMITS.brandName} showCount />
+      </Form.Item>
+    </section>
+  )
+
   const introTab = (
     <>
       <section className="settings-section">
         <h2>Phần giới thiệu cạnh form đăng nhập</h2>
         <p>Hiện ở nửa trái màn hình đầu tiên, song song với form đăng nhập / đăng ký.</p>
-        <Form.Item name={['intro', 'brandName']} label="Tên hiển thị" rules={[{ required: true, whitespace: true, message: 'Nhập tên' }]}>
-          <Input maxLength={LIMITS.brandName} showCount />
-        </Form.Item>
         <Form.Item name={['intro', 'headline']} label="Tiêu đề" rules={[{ required: true, whitespace: true, message: 'Nhập tiêu đề' }]}>
           <Input maxLength={LIMITS.headline} showCount />
         </Form.Item>
@@ -250,6 +257,7 @@ export default function HomepageSettingsPage() {
 
       <Form
         form={form}
+        className="admin-fill"
         layout="vertical"
         requiredMark={false}
         onFinish={(v) => save.mutate(v)}
@@ -257,6 +265,7 @@ export default function HomepageSettingsPage() {
       >
         <Tabs
           items={[
+            { key: 'clinic', label: 'Tên phòng khám', children: clinicTab, forceRender: true },
             { key: 'booking', label: 'Đặt lịch đầu trang', children: bookingTab, forceRender: true },
             { key: 'intro', label: 'Giới thiệu chung', children: introTab, forceRender: true },
             { key: 'sections', label: 'Thông tin kèm ảnh nền', children: sectionsTab, forceRender: true },

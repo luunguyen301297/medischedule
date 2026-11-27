@@ -55,7 +55,7 @@ export default function StaffPage({ group }: { group: UserGroup }) {
   useEffect(() => {
     const el = sentinel.current
     if (!el || !hasNextPage) return
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting && !isFetching) fetchNextPage() }, { rootMargin: '200px' })
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting && !isFetching) fetchNextPage() }, { root: el.closest('.admin-scroll'), rootMargin: '200px' })
     io.observe(el)
     return () => io.disconnect()
   }, [hasNextPage, isFetching, fetchNextPage])
@@ -201,16 +201,18 @@ export default function StaffPage({ group }: { group: UserGroup }) {
         <Button icon={<ReloadOutlined />} onClick={() => refetch()}>Tải lại</Button>
       </div>
 
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={rows}
-        loading={isFetching && !isFetchingNextPage}
-        pagination={false}
-        scroll={{ x: 'max-content' }}
-      />
-      <div ref={sentinel} className="admin-list-end">
-        {isFetchingNextPage ? <Spin size="small" /> : data && `${rows.length} / ${data.pages[0].page.totalElements} tài khoản`}
+      <div className="admin-scroll">
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={rows}
+          loading={isFetching && !isFetchingNextPage}
+          pagination={false}
+          scroll={{ x: 'max-content' }}
+        />
+        <div ref={sentinel} className="admin-list-end">
+          {isFetchingNextPage ? <Spin size="small" /> : data && `${rows.length} / ${data.pages[0].page.totalElements} tài khoản`}
+        </div>
       </div>
 
       <Modal

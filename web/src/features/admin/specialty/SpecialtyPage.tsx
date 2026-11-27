@@ -161,6 +161,7 @@ export default function SpecialtyPage() {
         </Button>
       </div>
 
+      <div className="admin-scroll">
       {specialties.isError && <Alert type="error" showIcon message={errorMessage(specialties.error)} />}
 
       <div className="specialty-grid">
@@ -225,6 +226,7 @@ export default function SpecialtyPage() {
             />
           </section>
         )}
+      </div>
       </div>
 
       <Modal

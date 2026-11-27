@@ -10,7 +10,13 @@
 .admin-user b { font-weight: 600; }
 .admin-user-sub { color: var(--ms-ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .admin-main { overflow: auto; min-width: 0; }
-.admin-page { padding: 16px 24px; }
+.admin-page { padding: 16px 24px 0; height: 100%; display: flex; flex-direction: column; }
+/* Đầu trang + toolbar đứng yên, chỉ vùng .admin-scroll (hoặc nội dung tab của .admin-fill) cuộn */
+.admin-page > * { flex: none; }
+.admin-page > .admin-scroll { flex: 1; min-height: 0; overflow: auto; padding-bottom: 16px; }
+.admin-page > .admin-fill { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.admin-fill > .ant-tabs { flex: 1; min-height: 0; }
+.admin-fill .ant-tabs-content-holder { overflow: auto; padding-bottom: 16px; }
 .admin-page .ant-tabs .ant-tabs-tab { padding-block: 8px; }
 .admin-list-end { padding: 16px 0; text-align: center; color: var(--ms-ink-soft); }
 .admin-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 5px; }
@@ -32,5 +38,6 @@
 .settings-section { border: 1px solid var(--ms-border); border-radius: 12px; padding: 20px 24px 8px; margin-bottom: 20px; }
 .settings-section h2 { font-size: 17px; margin: 0 0 4px; font-weight: 600; }
 .settings-section > p { margin: 0 0 16px; color: var(--ms-ink-soft); font-size: 14px; }
+.settings-section .ant-form-item-label > label { font-weight: 600; }
 .list-row { display: grid; gap: 12px; align-items: start; border-top: 1px dashed var(--ms-border); padding-top: 16px; margin-top: 4px; }
 .list-row:first-child { border-top: 0; padding-top: 0; margin-top: 0; }

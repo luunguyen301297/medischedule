@@ -1,17 +1,25 @@
-import { ApartmentOutlined, LayoutOutlined, LogoutOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
+import { ApartmentOutlined, LayoutOutlined, LogoutOutlined, SafetyCertificateOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Menu, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { authApi } from '@/features/auth'
+import { contentApi } from '@/features/landing'
 import { tokenStore } from '@/shared/api/http'
 import '../admin.css'
 
 type MenuItem = { key: string; icon: JSX.Element; label: string; children?: MenuItem[] }
 
 const MENU: MenuItem[] = [
-  { key: '/admin/staff', icon: <TeamOutlined />, label: 'Tài khoản nhân viên' },
-  { key: '/admin/patients', icon: <UserOutlined />, label: 'Tài khoản bệnh nhân' },
+  {
+    key: 'accounts',
+    icon: <SafetyCertificateOutlined />,
+    label: 'Quản trị',
+    children: [
+      { key: '/admin/staff', icon: <TeamOutlined />, label: 'Nhân viên' },
+      { key: '/admin/patients', icon: <UserOutlined />, label: 'Bệnh nhân' },
+    ],
+  },
   {
     key: 'settings',
     icon: <SettingOutlined />,
@@ -41,6 +49,8 @@ export default function AdminLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: authApi.me })
+  // Cùng key với trang Thiết lập trang chủ: lưu tên mới là header đổi ngay
+  const { data: homepage } = useQuery({ queryKey: ['homepage'], queryFn: contentApi.homepage })
   const active = findActive(pathname)
   const [openKeys, setOpenKeys] = useState<string[]>([])
   // Menu cha mặc định đóng; đổi trang thì chỉ mở menu cha chứa trang đang active
@@ -62,7 +72,7 @@ export default function AdminLayout() {
           <span className="brand-mark" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z" /></svg>
           </span>
-          Quản trị
+          {homepage?.intro.brandName}
         </div>
         <Menu
           mode="inline"
