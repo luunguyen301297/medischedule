@@ -87,7 +87,7 @@ SELECT v.room, s.id
 FROM (VALUES
 {rooms}
 ) AS v(specialty, room)
-JOIN specialty s ON s.name = v.specialty
+JOIN specialty s ON s.name = v.specialty AND s.active   -- chuyên khoa đang ngừng không được có phòng hoạt động
 ON CONFLICT DO NOTHING;
 """
 

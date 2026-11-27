@@ -183,5 +183,5 @@ FROM (VALUES
     ('Mắt', 'P109'),
     ('Răng Hàm Mặt', 'P110')
 ) AS v(specialty, room)
-JOIN specialty s ON s.name = v.specialty
+JOIN specialty s ON s.name = v.specialty AND s.active   -- chuyên khoa đang ngừng không được có phòng hoạt động
 ON CONFLICT DO NOTHING;

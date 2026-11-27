@@ -36,8 +36,9 @@ export default function SpecialtyPage() {
   // Bật/tắt và xóa: không cập nhật lạc quan, lỗi 409 thì giữ nguyên trạng thái cũ
   const action = useMutation({
     mutationFn: ({ run }: { run: () => Promise<unknown>; done: string }) => run(),
-    onSuccess: (_, v) => message.success(v.done),
-    onError: (e) => message.error(errorMessage(e)),
+    // Dùng { }: message.* trả thenable, trả về thì React Query chờ toast đóng mới chạy onSettled
+    onSuccess: (_, v) => { message.success(v.done) },
+    onError: (e) => { message.error(errorMessage(e)) },
     onSettled: refresh,
   })
 
