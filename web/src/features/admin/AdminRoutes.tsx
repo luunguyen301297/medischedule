@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import HomepageSettingsPage from './homepage/HomepageSettingsPage'
 import AdminLayout from './layout/AdminLayout'
+import SpecialtyPage from './specialty/SpecialtyPage'
 import StaffPage from './staff/StaffPage'
 
 /** Toàn bộ route của khu quản trị, gắn ở /admin/* (tải lười, xem app/router.tsx). */
@@ -12,6 +13,7 @@ export default function AdminRoutes() {
         <Route path="staff" element={<StaffPage key="staff" group="staff" />} />
         <Route path="patients" element={<StaffPage key="patient" group="patient" />} />
         <Route path="homepage" element={<HomepageSettingsPage />} />
+        <Route path="specialties" element={<SpecialtyPage />} />
       </Route>
     </Routes>
   )

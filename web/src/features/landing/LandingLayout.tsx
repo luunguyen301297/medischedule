@@ -41,6 +41,7 @@ export default function LandingLayout({
   children: ReactNode
 }) {
   const { data = DEFAULT_HOMEPAGE } = useQuery({ queryKey: ['homepage'], queryFn: contentApi.homepage, staleTime: 60_000 })
+  const specialties = useQuery({ queryKey: ['public', 'specialties'], queryFn: contentApi.specialties })
   const { booking, intro, sections } = data
   const shown = sections.filter((s) => s.active && s.title)
 
@@ -92,7 +93,11 @@ export default function LandingLayout({
           )}
         </Reveal>
         <Reveal from="right" delay={120} className="booking-card">
-          <BookingWidget specialties={booking.specialties} note={booking.note} />
+          <BookingWidget
+            specialties={specialties.data?.map((s) => s.name)}
+            loadFailed={specialties.isError && !specialties.data}
+            note={booking.note}
+          />
         </Reveal>
       </section>
 

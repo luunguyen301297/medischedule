@@ -31,7 +31,6 @@ export interface BookingContent {
   title: string
   subtitle: string
   highlights: string[]                       // 3 cam kết ngắn có dấu tích
-  specialties: string[]                      // danh sách chuyên khoa trong ô chọn
   stats: { value: string; label: string }[]  // số liệu tạo niềm tin
   note: string                               // dòng nhỏ dưới nút đặt lịch
 }
@@ -48,7 +47,7 @@ export const LIMITS = {
   hotline: 20, workingHours: 50, address: 90, footer: 70,
   eyebrow: 30, sectionTitle: 70, sectionDesc: 220, buttonText: 30, sections: 8,
   bookingBadge: 50, bookingTitle: 70, bookingSubtitle: 180, highlight: 50, highlights: 3,
-  specialties: 20, specialty: 40, bookingStats: 3, statValue: 10, statLabel: 30, bookingNote: 120,
+  bookingStats: 3, statValue: 10, statLabel: 30, bookingNote: 120,
 } as const
 
 const img = (id: string) => `https://images.unsplash.com/photo-${id}?w=1920&q=70&auto=format&fit=crop`
@@ -60,7 +59,6 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
     title: 'Đặt lịch khám trong 1 phút, đến là được khám',
     subtitle: 'Chọn chuyên khoa và buổi khám phù hợp. Không cần tài khoản, phòng khám gọi xác nhận qua số điện thoại của bạn.',
     highlights: ['Không cần tạo tài khoản', 'Xác nhận qua điện thoại trong 15 phút', 'Hủy hoặc đổi lịch miễn phí trước 2 giờ'],
-    specialties: ['Nội tổng quát', 'Nhi', 'Tai Mũi Họng', 'Da liễu', 'Sản phụ khoa', 'Tim mạch', 'Tiêu hóa', 'Cơ xương khớp', 'Mắt', 'Răng Hàm Mặt'],
     stats: [
       { value: '15+', label: 'Chuyên khoa' },
       { value: '40+', label: 'Bác sĩ' },
@@ -144,6 +142,8 @@ export function withDefaults(data: Partial<HomepageContent> | undefined): Homepa
 }
 
 export const contentApi = {
+  /** Chuyên khoa đang hoạt động (A→Z), quản lý ở /admin/specialties. */
+  specialties: () => http.get<{ id: number; name: string }[]>('/public/specialties').then((r) => r.data),
   homepage: () =>
     http.get<Partial<HomepageContent>>('/public/site-content/homepage')
       .then((r) => withDefaults(r.data))

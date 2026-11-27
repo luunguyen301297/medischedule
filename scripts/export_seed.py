@@ -27,6 +27,13 @@ DEMO_USERS = [
     ("benhnhan.demo@medischedule.local", "benhnhan", "Phạm Ngọc Anh", "PATIENT"),
 ]
 
+# (chuyên khoa, phòng khám mẫu)
+DEMO_ROOMS = [
+    ("Nội tổng quát", "P101"), ("Nhi", "P102"), ("Tai Mũi Họng", "P103"), ("Da liễu", "P104"),
+    ("Sản phụ khoa", "P105"), ("Tim mạch", "P106"), ("Tiêu hóa", "P107"), ("Cơ xương khớp", "P108"),
+    ("Mắt", "P109"), ("Răng Hàm Mặt", "P110"),
+]
+
 
 def psql(sql: str) -> str:
     cmd = ["docker", "compose", "exec", "-T", "postgres", "sh", "-c",
@@ -44,6 +51,7 @@ def build(homepage: dict) -> str:
     users = ",\n".join(
         f"    ({q(e)}, {q(u)}, {q(n)}, {q(r)})" for e, u, n, r in DEMO_USERS
     )
+    rooms = ",\n".join(f"    ({q(s)}, {q(r)})" for s, r in DEMO_ROOMS)
     return f"""-- ============================================================================
 -- Dữ liệu dev dùng chung (Flyway repeatable migration). SINH TỰ ĐỘNG bởi scripts/export_seed.py
 -- Sửa nội dung trang chủ ở /admin/homepage rồi chạy lại script để cập nhật file này.
@@ -72,6 +80,15 @@ FROM (VALUES
 ) AS v(email, username, full_name, role_code)
 JOIN roles r ON r.code = v.role_code
 ON CONFLICT DO NOTHING;   -- trùng email hoặc username thì bỏ qua
+
+-- 3. Mỗi chuyên khoa (seed ở V8) một phòng khám mẫu; chuyên khoa đã đổi tên/xóa thì bỏ qua, phòng đã có thì giữ nguyên
+INSERT INTO room (name, specialty_id)
+SELECT v.room, s.id
+FROM (VALUES
+{rooms}
+) AS v(specialty, room)
+JOIN specialty s ON s.name = v.specialty AND s.active   -- chuyên khoa đang ngừng không được có phòng hoạt động
+ON CONFLICT DO NOTHING;
 """
 
 

@@ -53,7 +53,7 @@ function DateStrip({ id, value, onChange }: { id?: string; value?: string; onCha
 }
 
 /** Một nút chọn chuyên khoa; bấm mở hộp thoại danh sách, chọn xong tự đóng. */
-function SpecialtyPicker({ id, options, value, onChange }: { id?: string; options: string[]; value?: string; onChange?: (v: string) => void }) {
+function SpecialtyPicker({ id, options, blocked, value, onChange }: { id?: string; options: string[]; blocked?: string; value?: string; onChange?: (v: string) => void }) {
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -62,10 +62,11 @@ function SpecialtyPicker({ id, options, value, onChange }: { id?: string; option
         type="button"
         className={`spec-trigger ${value ? 'has-value' : ''}`}
         aria-haspopup="dialog"
+        disabled={!!blocked}
         onClick={() => setOpen(true)}
       >
         <MedicineBoxOutlined aria-hidden="true" />
-        <span>{value ?? 'Chọn chuyên khoa'}</span>
+        <span>{blocked ?? value ?? 'Chọn chuyên khoa'}</span>
         <RightOutlined aria-hidden="true" className="spec-trigger-arrow" />
       </button>
       <Modal
@@ -122,7 +123,11 @@ function SessionTiles({ id, value, onChange }: { id?: string; value?: Session; o
  * Thẻ đặt lịch nhanh ở đầu trang (khách không cần tài khoản).
  * Hiện chỉ là giao diện: backend đặt lịch (module booking) chưa có, bấm gửi sẽ hiện màn hình xác nhận mẫu.
  */
-export default function BookingWidget({ specialties, note }: { specialties: string[]; note: string }) {
+export default function BookingWidget({ specialties, loadFailed, note }: { specialties?: string[]; loadFailed: boolean; note: string }) {
+  // specialties undefined = đang tải hoặc tải lỗi; có thông báo chặn => khóa ô chọn và nút gửi
+  const blocked = loadFailed
+    ? 'Không tải được danh sách chuyên khoa, thử lại sau'
+    : specialties?.length === 0 ? 'Chưa có chuyên khoa' : undefined
   const [form] = Form.useForm<BookingForm>()
   const [sending, setSending] = useState(false)
   const [done, setDone] = useState<BookingForm | null>(null)
@@ -162,7 +167,7 @@ export default function BookingWidget({ specialties, note }: { specialties: stri
           initialValues={{ session: 'Sáng', date: dayjs().add(1, 'day').format('YYYY-MM-DD') }}
         >
           <Form.Item name="specialty" rules={[{ required: true, message: 'Chọn chuyên khoa' }]}>
-            <SpecialtyPicker options={specialties} />
+            <SpecialtyPicker options={specialties ?? []} blocked={blocked} />
           </Form.Item>
 
           <Form.Item name="date" label="Ngày khám" rules={[{ required: true, message: 'Chọn ngày khám' }]}>
@@ -186,7 +191,7 @@ export default function BookingWidget({ specialties, note }: { specialties: stri
             </Form.Item>
           </div>
 
-          <Button htmlType="submit" block size="large" className="btn-accent booking-submit" loading={sending}>
+          <Button htmlType="submit" block size="large" className="btn-accent booking-submit" loading={sending} disabled={!!blocked}>
             Đặt lịch khám
           </Button>
           <div className="booking-trust">
