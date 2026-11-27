@@ -58,6 +58,8 @@ jobs:
       POSTGRES_USER: ci
       POSTGRES_PASSWORD: ci-only
       JWT_SECRET: ci-only-ci-only-ci-only-ci-only-ci-only-ci-only
+      # MinioClient không cho khóa rỗng; test không gọi MinIO nên khóa giả là đủ
+      MINIO_ROOT_PASSWORD: ci-only
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
