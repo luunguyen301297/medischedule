@@ -94,7 +94,8 @@ export default function LandingLayout({
         </Reveal>
         <Reveal from="right" delay={120} className="booking-card">
           <BookingWidget
-            specialties={specialties.isPending ? undefined : (specialties.data ?? []).map((s) => s.name)}
+            specialties={specialties.data?.map((s) => s.name)}
+            loadFailed={specialties.isError && !specialties.data}
             note={booking.note}
           />
         </Reveal>
