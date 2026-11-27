@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import vn.medischedule.auth.dto.AuthDtos.StaffAccount;
 import vn.medischedule.auth.service.AuthService;
+import vn.medischedule.clinic.dto.ClinicDtos.DoctorOption;
+import vn.medischedule.clinic.service.ClinicCatalogService;
 import vn.medischedule.common.exception.ApiException;
 import vn.medischedule.schedule.domain.WorkAssignment;
 import vn.medischedule.schedule.domain.WorkShift;
@@ -28,7 +30,8 @@ class WorkScheduleServiceTest {
     WorkShiftRepository shifts = mock(WorkShiftRepository.class);
     WorkAssignmentRepository assignments = mock(WorkAssignmentRepository.class);
     AuthService auth = mock(AuthService.class);
-    WorkScheduleService service = new WorkScheduleService(shifts, assignments, auth);
+    ClinicCatalogService catalog = mock(ClinicCatalogService.class);
+    WorkScheduleService service = new WorkScheduleService(shifts, assignments, auth, catalog);
 
     LocalDate tomorrow = LocalDate.now(WorkScheduleService.CLINIC_ZONE).plusDays(1);
     WorkShift morning = shift(1L, "Sáng", "07:00", "11:30", true);
@@ -48,6 +51,20 @@ class WorkScheduleServiceTest {
                 new StaffAccount(11L, "Bình", "RECEPTIONIST", true),
                 new StaffAccount(12L, "Cường", "PHARMACIST", false),
                 new StaffAccount(13L, "Admin", "ADMIN", true)));
+    }
+
+    @Test
+    void doctorsOnShiftKeepsAssignedDoctorsAndFiltersSpecialty() {
+        when(assignments.findByWorkDateAndWorkShiftId(tomorrow, 1L)).thenReturn(List.of(
+                assignment(1L, tomorrow, morning, 10L), assignment(2L, tomorrow, morning, 11L),
+                assignment(3L, tomorrow, morning, 14L)));
+        when(catalog.doctorOptions()).thenReturn(List.of(
+                new DoctorOption(10L, "An", 5L, "Nội"),
+                new DoctorOption(14L, "Dũng", 6L, "Nhi"),
+                new DoctorOption(15L, "Em", 5L, "Nội")));   // không có ca
+        assertThat(service.doctorsOnShift(tomorrow, 1L, null)).extracting(DoctorOption::userId).containsExactly(10L, 14L);
+        assertThat(service.doctorsOnShift(tomorrow, 1L, 6L)).extracting(DoctorOption::userId).containsExactly(14L);
+        assertThat(service.doctorsOnShift(tomorrow, 3L, null)).isEmpty();
     }
 
     @Test

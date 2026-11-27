@@ -332,3 +332,32 @@ Menu Cài đặt > Chuyên khoa: CRUD chuyên khoa + phòng khám (admin), GET /
 ## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
 
 ## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### C-nho — Đặt lịch: ca theo cấu hình, chọn bác sĩ trong ca, khoa không bắt buộc (`booking-doctor-shift`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-27).
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| dev | 38p | 0p | 38p |
+| **Cộng** | 38p | 0p | 38p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/booking-doctor-shift-ba-spec.md |
+| Tech Design | ⬜ | docs/design/booking-doctor-shift-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-booking-doctor-shift.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/booking-doctor-shift-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/booking-doctor-shift-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/booking-doctor-shift-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)

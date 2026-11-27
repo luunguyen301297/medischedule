@@ -141,6 +141,18 @@ export function withDefaults(data: Partial<HomepageContent> | undefined): Homepa
   }
 }
 
+/** Ca làm việc đang bật (giờ dạng HH:mm:ss), cấu hình ở trang Ca làm việc của admin. */
+export interface BookingShift { id: number; name: string; startTime: string; endTime: string }
+
+/** Bác sĩ được phân vào ca; specialtyId null = chưa gán khoa. */
+export interface BookingDoctor { userId: number; fullName: string; specialtyId: number | null; specialtyName: string | null }
+
+export const bookingApi = {
+  shifts: () => http.get<BookingShift[]>('/public/booking/shifts').then((r) => r.data),
+  doctors: (date: string, shiftId: number, specialtyId?: number) =>
+    http.get<BookingDoctor[]>('/public/booking/doctors', { params: { date, shiftId, specialtyId } }).then((r) => r.data),
+}
+
 export const contentApi = {
   /** Chuyên khoa đang hoạt động (A→Z), quản lý ở /admin/specialties. */
   specialties: () => http.get<{ id: number; name: string }[]>('/public/specialties').then((r) => r.data),

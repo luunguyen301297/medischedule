@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.medischedule.auth.domain.RoleCode;
 import vn.medischedule.auth.dto.AuthDtos.StaffAccount;
 import vn.medischedule.auth.service.AuthService;
+import vn.medischedule.clinic.dto.ClinicDtos.DoctorOption;
+import vn.medischedule.clinic.service.ClinicCatalogService;
 import vn.medischedule.common.exception.ApiException;
 import vn.medischedule.schedule.domain.WorkAssignment;
 import vn.medischedule.schedule.domain.WorkShift;
@@ -48,12 +50,34 @@ public class WorkScheduleService {
     private final WorkShiftRepository shifts;
     private final WorkAssignmentRepository assignments;
     private final AuthService auth;
+    private final ClinicCatalogService catalog;
 
     // ---------- Ca làm việc ----------
 
     @Transactional(readOnly = true)
     public List<WorkShiftResponse> listShifts() {
         return shifts.findAllByOrderByStartTimeAscNameAsc().stream().map(WorkShiftResponse::of).toList();
+    }
+
+    /** Ca đang bật cho form đặt lịch public. */
+    @Transactional(readOnly = true)
+    public List<WorkShiftResponse> activeShifts() {
+        return shifts.findAllByOrderByStartTimeAscNameAsc().stream()
+                .filter(WorkShift::isActive).map(WorkShiftResponse::of).toList();
+    }
+
+    /** Bác sĩ đang hoạt động được phân vào ca của ngày; specialtyId null = mọi khoa. A→Z. */
+    @Transactional(readOnly = true)
+    public List<DoctorOption> doctorsOnShift(LocalDate date, Long shiftId, Long specialtyId) {
+        Set<Long> onShift = assignments.findByWorkDateAndWorkShiftId(date, shiftId).stream()
+                .map(WorkAssignment::getUserId).collect(Collectors.toSet());
+        if (onShift.isEmpty()) {
+            return List.of();
+        }
+        return catalog.doctorOptions().stream()
+                .filter(d -> onShift.contains(d.userId()))
+                .filter(d -> specialtyId == null || specialtyId.equals(d.specialtyId()))
+                .toList();
     }
 
     public WorkShiftResponse createShift(WorkShiftRequest req) {

@@ -15,4 +15,6 @@ public interface WorkAssignmentRepository extends JpaRepository<WorkAssignment, 
 
     @EntityGraph(attributePaths = "workShift")
     List<WorkAssignment> findByWorkDateAndUserIdIn(LocalDate date, Collection<Long> userIds);
+
+    List<WorkAssignment> findByWorkDateAndWorkShiftId(LocalDate date, Long workShiftId);
 }
