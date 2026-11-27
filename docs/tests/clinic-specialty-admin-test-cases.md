@@ -197,6 +197,11 @@ Chưa kiểm trên trình duyệt (cả hai lượt): đổi tên phòng, và Se
 - **Lỗi #1:** đã sửa. Với chuyên khoa "QA Fix", Switch chỉ khóa khoảng 50–90 ms; giá trị mới (hoặc dòng bị xóa) hiện
   ngay khi toast vừa xuất hiện.
 - **Thanh cuộn (`05a9a36`):** chuyên khoa 0 phòng không có thanh cuộn ngang.
+- **TC-33–35, đo lại phần liên quan lỗi #1** (HEAD `813ab3e` + commit tài liệu, dữ liệu "QA Fix2"): bật tắt bị chặn
+  (409), ngừng phòng, ngừng chuyên khoa, xóa chuyên khoa bị chặn, xóa phòng, xóa chuyên khoa. Lần nào Switch cũng chỉ
+  khóa 30–60 ms, mở ngay khi toast hiện. Chuyên khoa đang ngừng: Switch mở lại phòng và nút Thêm phòng bị tắt (đã xác
+  nhận trên UI). Chuyên khoa 0 phòng (mới tạo và sau khi xóa phòng cuối) không có thanh cuộn ngang. Bước thêm và
+  chuyển phòng (TC-33) đi đường lưu, `813ab3e` không đổi; lần này chỉ đi lại bước thêm.
 - **TC-29, TC-31:** kết quả ở bảng trên chạy tại `9d88e78`, đã gồm `767a415`; từ đó `features/landing` không đổi nên
   không chạy lại. TC-31 chạy trước khi biết dev DB có phòng mẫu: chỉ ngừng cột `specialty.active` bằng SQL rồi bật
   lại, không đi bước ngừng phòng. Bước chặn ngừng chuyên khoa còn phòng đã kiểm ở TC-34 và TC-09.
@@ -238,5 +243,7 @@ Ghi nhận thêm, không tính vào verdict:
 
 - Hộp thoại "Sửa phòng khám" khi đang đóng đổi tiêu đề thành "Thêm chuyên khoa" trong chốc lát (`editing` về `null`
   trước khi hết hiệu ứng, `SpecialtyPage.tsx:77-79, 202`).
+- Sau khi xóa một chuyên khoa, trang gọi thêm một lần `GET …/specialties/{id}/rooms` của chuyên khoa vừa xóa và nhận
+  404 (thấy trong console), rồi chuyển sang mục đầu. Không còn dữ liệu sai trên màn hình.
 - Seed dev: lỗi chèn phòng vào chuyên khoa đang ngừng đã sửa ở `813ab3e`. Còn lại: phòng mẫu đã xóa hoặc đổi tên được
   tạo lại mỗi khi `R__` chạy lại. Chỉ ảnh hưởng môi trường dev.
