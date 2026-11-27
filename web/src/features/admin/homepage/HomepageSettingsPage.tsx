@@ -2,6 +2,7 @@ import { ArrowDownOutlined, ArrowUpOutlined, DeleteOutlined, ExportOutlined, Plu
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { App, Button, Form, Input, Radio, Select, Space, Spin, Switch, Tabs } from 'antd'
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { contentApi, FEATURE_ICONS, LIMITS, type HomepageContent, type ImageSection } from '@/features/landing'
 import { errorMessage } from '@/shared/api/http'
 import ImageField from '@/shared/ui/ImageField'
@@ -103,13 +104,9 @@ export default function HomepageSettingsPage() {
 
       <section className="settings-section">
         <h2>Chuyên khoa trong form đặt lịch</h2>
-        <p>Gõ tên rồi Enter để thêm, tối đa {LIMITS.specialties} chuyên khoa. Sau này sẽ lấy từ danh mục chuyên khoa.</p>
-        <Form.Item
-          name={['booking', 'specialties']}
-          rules={[{ type: 'array', max: LIMITS.specialties, message: `Tối đa ${LIMITS.specialties} chuyên khoa` }]}
-        >
-          <Select mode="tags" tokenSeparators={[',']} placeholder="Nội tổng quát, Nhi, Da liễu..." maxTagTextLength={LIMITS.specialty} open={false} />
-        </Form.Item>
+        <p>
+          Danh sách lấy từ các chuyên khoa đang hoạt động ở menu <Link to="/admin/specialties">Chuyên khoa</Link>.
+        </p>
       </section>
     </>
   )

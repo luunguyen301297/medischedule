@@ -18,6 +18,14 @@
 .admin-head p { margin: 0; color: var(--ms-ink-soft); font-size: 14.5px; }
 .admin-toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 5px; }
 
+.specialty-grid { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 12px; }
+.specialty-grid h2 { font-size: 17px; margin: 0; font-weight: 600; }
+.specialty-grid .ant-alert { margin-bottom: 12px; }
+.specialty-item.ant-list-item { gap: 6px; padding: 8px 12px; justify-content: flex-start; }
+.specialty-item.is-active { background: var(--ms-primary-soft); }
+.specialty-pick { flex: 1; min-width: 0; display: grid; gap: 2px; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }
+.specialty-pick span { font-size: 13px; color: var(--ms-ink-soft); }
+
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
 .settings-section { border: 1px solid var(--ms-border); border-radius: 12px; padding: 20px 24px 8px; margin-bottom: 20px; }
 .settings-section h2 { font-size: 17px; margin: 0 0 4px; font-weight: 600; }

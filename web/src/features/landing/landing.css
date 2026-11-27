@@ -84,6 +84,7 @@
 .spec-trigger.has-value { color: var(--ms-ink); font-weight: 600; }
 .spec-trigger .anticon { color: var(--ms-primary); }
 .spec-trigger .spec-trigger-arrow { color: var(--ms-ink-soft); font-size: 12px; }
+.spec-trigger:disabled { cursor: not-allowed; border-color: var(--ms-border); }
 .ant-form-item-has-error .spec-trigger { border-color: var(--ms-error); }
 .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-top: 8px; }
 .spec-option {

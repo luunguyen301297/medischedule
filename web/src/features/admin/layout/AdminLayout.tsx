@@ -1,4 +1,4 @@
-import { LayoutOutlined, LogoutOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
+import { ApartmentOutlined, LayoutOutlined, LogoutOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Menu, Spin } from 'antd'
 import { useEffect, useState } from 'react'
@@ -16,7 +16,10 @@ const MENU: MenuItem[] = [
     key: 'settings',
     icon: <SettingOutlined />,
     label: 'Cài đặt',
-    children: [{ key: '/admin/homepage', icon: <LayoutOutlined />, label: 'Trang chủ' }],
+    children: [
+      { key: '/admin/homepage', icon: <LayoutOutlined />, label: 'Trang chủ' },
+      { key: '/admin/specialties', icon: <ApartmentOutlined />, label: 'Chuyên khoa' },
+    ],
   },
 ]
 
