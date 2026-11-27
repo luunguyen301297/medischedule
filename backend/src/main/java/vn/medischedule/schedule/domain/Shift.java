@@ -10,6 +10,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.descriptor.jdbc.LocalTimeJdbcType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -38,10 +40,12 @@ public class Shift {
     /** Ngày trực. */
     private LocalDate workDate;
 
-    /** Giờ bắt đầu ca. */
+    /** Giờ bắt đầu ca. LocalTimeJdbcType: tránh lệch giờ, xem WorkShift.startTime. */
+    @JdbcType(LocalTimeJdbcType.class)
     private LocalTime startTime;
 
     /** Giờ kết thúc ca (sau startTime). */
+    @JdbcType(LocalTimeJdbcType.class)
     private LocalTime endTime;
 
     /** Độ dài mỗi slot (phút); slot = startTime + k * slotMinutes. */
