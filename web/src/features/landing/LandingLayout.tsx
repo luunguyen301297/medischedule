@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from 'react'
 import { contentApi, DEFAULT_HOMEPAGE } from './api'
 import BookingWidget from './components/BookingWidget'
 import FeatureIcon from './components/FeatureIcon'
+import TopDoctors from './components/TopDoctors'
 import Reveal from '@/shared/ui/Reveal'
 import './landing.css'
 
@@ -42,7 +43,11 @@ export default function LandingLayout({
 }) {
   const { data = DEFAULT_HOMEPAGE } = useQuery({ queryKey: ['homepage'], queryFn: contentApi.homepage, staleTime: 60_000 })
   const specialties = useQuery({ queryKey: ['public', 'specialties'], queryFn: contentApi.specialties })
+  const doctors = useQuery({ queryKey: ['public', 'doctors'], queryFn: contentApi.doctors, staleTime: 60_000 })
   const { booking, intro, sections } = data
+  const counts = { specialties: specialties.data?.length, doctors: doctors.data?.length }
+  const byId = new Map((doctors.data ?? []).map((d) => [d.userId, d]))
+  const topDoctors = (booking.topDoctorIds ?? []).flatMap((id) => byId.get(id) ?? [])
   const shown = sections.filter((s) => s.active && s.title)
 
   // Tải lại trang (F5) luôn mở ở đầu trang, không để trình duyệt khôi phục vị trí cuộn cũ
@@ -85,12 +90,13 @@ export default function LandingLayout({
             <dl className="booking-stats">
               {booking.stats.map((s, i) => (
                 <div key={i}>
-                  <dt>{s.value}</dt>
+                  <dt>{s.source && counts[s.source] != null ? `${counts[s.source]}+` : s.value}</dt>
                   <dd>{s.label}</dd>
                 </div>
               ))}
             </dl>
           )}
+          <TopDoctors doctors={topDoctors} />
         </Reveal>
         <Reveal from="right" delay={120} className="booking-card">
           <BookingWidget

@@ -16,6 +16,7 @@ import vn.medischedule.clinic.domain.Room;
 import vn.medischedule.clinic.domain.Specialty;
 import vn.medischedule.clinic.domain.Staff;
 import vn.medischedule.clinic.dto.ClinicDtos.DoctorOption;
+import vn.medischedule.clinic.dto.ClinicDtos.PublicDoctor;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomRequest;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomResponse;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyOption;
@@ -78,6 +79,24 @@ public class ClinicCatalogService {
                             sp == null ? null : sp.getId(), sp == null ? null : sp.getName());
                 })
                 .sorted(Comparator.comparing(DoctorOption::fullName, vi))
+                .toList();
+    }
+
+    /** Bác sĩ đang hoạt động (tài khoản bật, hồ sơ chưa nghỉ) kèm khoa và ảnh, sắp A→Z; dùng cho trang chủ. */
+    @Transactional(readOnly = true)
+    public List<PublicDoctor> publicDoctors() {
+        Map<Long, Staff> byUser = staff.findAll().stream()
+                .collect(Collectors.toMap(Staff::getUserId, Function.identity()));
+        Collator vi = Collator.getInstance(Locale.forLanguageTag("vi"));
+        return auth.activeDoctors().stream()
+                .filter(d -> byUser.get(d.userId()) == null || byUser.get(d.userId()).isActive())
+                .map(d -> {
+                    Staff st = byUser.get(d.userId());
+                    Specialty sp = st == null ? null : st.getSpecialty();
+                    return new PublicDoctor(d.userId(), d.fullName(), st == null ? null : st.getDegree(),
+                            sp == null ? null : sp.getName(), st == null ? null : st.getAvatarUrl());
+                })
+                .sorted(Comparator.comparing(PublicDoctor::fullName, vi))
                 .toList();
     }
 

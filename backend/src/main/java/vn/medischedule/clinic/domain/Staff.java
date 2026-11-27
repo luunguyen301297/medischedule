@@ -46,6 +46,9 @@ public class Staff {
     /** Bác sĩ nhận được bệnh nhân chỉ định đích danh (có phụ phí). */
     private boolean acceptsDesignation = false;
 
+    /** Ảnh đại diện (đường dẫn công khai), hiện ở trang chủ. */
+    private String avatarUrl;
+
     /** false = nghỉ việc, không xếp ca mới. */
     private boolean active = true;
 }

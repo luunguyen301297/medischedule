@@ -12,6 +12,11 @@ const iconOptions = Object.entries(FEATURE_ICONS).map(([value, { label, node }])
   label: <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>{node} {label}</span>,
 }))
 
+const STAT_SOURCES = [
+  { value: 'specialties', label: 'Số chuyên khoa' },
+  { value: 'doctors', label: 'Số bác sĩ' },
+]
+
 const NEW_SECTION: ImageSection = { active: true, align: 'left', eyebrow: '', title: '', description: '', imageUrl: '', buttonText: '' }
 
 /** Thiết lập trang giới thiệu, 3 loại: đặt lịch đầu trang, giới thiệu chung cạnh form đăng nhập, các cụm kèm ảnh nền. */
@@ -20,6 +25,11 @@ export default function HomepageSettingsPage() {
   const qc = useQueryClient()
   const [form] = Form.useForm<HomepageContent>()
   const { data, isLoading } = useQuery({ queryKey: ['homepage'], queryFn: contentApi.homepage })
+  const doctors = useQuery({ queryKey: ['public', 'doctors'], queryFn: contentApi.doctors })
+  const doctorOptions = (doctors.data ?? []).map((d) => ({
+    value: d.userId,
+    label: d.specialtyName ? `${d.fullName} · ${d.specialtyName}` : d.fullName,
+  }))
 
   useEffect(() => {
     if (data) form.setFieldsValue(data)
@@ -84,9 +94,21 @@ export default function HomepageSettingsPage() {
           {(fields, { add, remove }) => (
             <>
               {fields.map((f) => (
-                <div key={f.key} className="list-row" style={{ gridTemplateColumns: '180px 1fr 40px', marginBottom: 12 }}>
-                  <Form.Item name={[f.name, 'value']} label="Con số" rules={[{ required: true, whitespace: true, message: 'Nhập con số' }]}>
-                    <Input maxLength={LIMITS.statValue} placeholder="40+" />
+                <div key={f.key} className="list-row" style={{ gridTemplateColumns: '200px 140px 1fr 40px', marginBottom: 12 }}>
+                  <Form.Item name={[f.name, 'source']} label="Lấy số từ">
+                    <Select allowClear placeholder="Nhập tay" options={STAT_SOURCES} />
+                  </Form.Item>
+                  <Form.Item noStyle dependencies={[['booking', 'stats', f.name, 'source']]}>
+                    {({ getFieldValue }) => (
+                      <Form.Item
+                        name={[f.name, 'value']}
+                        label="Con số"
+                        tooltip={getFieldValue(['booking', 'stats', f.name, 'source']) ? 'Đếm từ hệ thống, hiện kèm dấu +. Ô này chỉ dùng khi chưa tải được số.' : undefined}
+                        rules={[{ required: true, whitespace: true, message: 'Nhập con số' }]}
+                      >
+                        <Input maxLength={LIMITS.statValue} placeholder="40+" />
+                      </Form.Item>
+                    )}
                   </Form.Item>
                   <Form.Item name={[f.name, 'label']} label="Nhãn" rules={[{ required: true, whitespace: true, message: 'Nhập nhãn' }]}>
                     <Input maxLength={LIMITS.statLabel} showCount placeholder="Bác sĩ" />
@@ -100,6 +122,24 @@ export default function HomepageSettingsPage() {
             </>
           )}
         </Form.List>
+      </section>
+
+      <section className="settings-section">
+        <h2>Các bác sĩ chuyên khoa hàng đầu</h2>
+        <p>
+          Hiện dạng ảnh tròn dưới dải số liệu, hiện 4 bác sĩ, cuộn ngang để xem tiếp, theo thứ tự chọn (tối đa {LIMITS.topDoctors}).
+          Chỉ liệt kê bác sĩ đang hoạt động; không chọn ai thì ẩn khối này.
+        </p>
+        <Form.Item name={['booking', 'topDoctorIds']} label="Bác sĩ">
+          <Select
+            mode="multiple"
+            loading={doctors.isLoading}
+            options={doctorOptions}
+            optionFilterProp="label"
+            maxCount={LIMITS.topDoctors}
+            placeholder="Chọn bác sĩ"
+          />
+        </Form.Item>
       </section>
 
       <section className="settings-section">

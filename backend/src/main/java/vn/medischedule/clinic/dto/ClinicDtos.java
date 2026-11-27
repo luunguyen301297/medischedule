@@ -49,6 +49,9 @@ public final class ClinicDtos {
             boolean acceptsDesignation,
             boolean active) {}
 
+    /** Bác sĩ đang hoạt động cho trang chủ (public); specialtyName null = chưa có khoa. */
+    public record PublicDoctor(Long userId, String fullName, String degree, String specialtyName, String avatarUrl) {}
+
     /** Dữ liệu public cho form đặt lịch. */
     public record SpecialtyOption(Long id, String name) {}
 }

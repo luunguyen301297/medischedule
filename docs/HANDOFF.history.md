@@ -361,3 +361,43 @@ Menu Cài đặt > Chuyên khoa: CRUD chuyên khoa + phòng khám (admin), GET /
 ## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
 
 ## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### C-nho — Trang chủ: số liệu thật + carousel bác sĩ hàng đầu (`homepage-doctors`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-27).
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| dev | 21p | 0p | 21p |
+| **Cộng** | 21p | 0p | 21p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/homepage-doctors-ba-spec.md |
+| Tech Design | ⬜ | docs/design/homepage-doctors-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-homepage-doctors.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/homepage-doctors-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/homepage-doctors-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/homepage-doctors-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+### Delta (C-nhỏ)
+- V12: `staff.avatar_url`, ảnh mẫu Unsplash cho mọi bác sĩ, homepage.booking: bỏ subtitle mẫu + cam kết "Hủy/đổi lịch", đổi "Không cần tạo tài khoản" → "Đặt lịch chỉ bằng số điện thoại", stats `source` (specialties/doctors), `topDoctorIds` = 10 bác sĩ đầu. Idempotent, chỉ đổi chữ mẫu cũ.
+- API mới `GET /api/public/doctors` (PublicDoctor: userId, fullName, degree, specialtyName, avatarUrl).
+- Web: TopDoctors (dải cuộn ngang scroll-snap, hiện 4, lăn chuột cuộn ngang, không mũi tên) trong cột trái khối đặt lịch; thu nhỏ chữ/khoảng trống khối đầu; admin chọn nguồn số liệu + chọn bác sĩ hàng đầu.
+- V13: cam kết "Đặt lịch chỉ bằng số điện thoại" → "Đặt lịch đơn giản", thêm "Có thể lựa chọn các bác sĩ hàng đầu".
+- Chưa có: UI admin sửa ảnh bác sĩ.
+
+## Báo cáo dev
+- typecheck web OK, `mvnw compile` OK, V12 chạy thử BEGIN/ROLLBACK 2 lần (idempotent) rồi đã áp lên DB dev (v12).
+- JUnit ClinicCatalogServiceTest + ClinicCatalogIntegrationTest đạt trên qa_homepage_doctors (DB mới, V1→V13 áp qua Flyway). Kiểm giao diện ở 1536/1900px.

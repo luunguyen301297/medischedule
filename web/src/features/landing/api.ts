@@ -31,9 +31,16 @@ export interface BookingContent {
   title: string
   subtitle: string
   highlights: string[]                       // 3 cam kết ngắn có dấu tích
-  stats: { value: string; label: string }[]  // số liệu tạo niềm tin
+  stats: BookingStat[]                       // số liệu tạo niềm tin
   note: string                               // dòng nhỏ dưới nút đặt lịch
+  topDoctorIds: number[]                     // users.id bác sĩ hiện ở "Các bác sĩ chuyên khoa hàng đầu", theo thứ tự
 }
+
+/** source có giá trị thì con số đếm từ hệ thống (vd. "12+"), value chỉ là dự phòng khi chưa tải được. */
+export interface BookingStat { value: string; label: string; source?: 'specialties' | 'doctors' }
+
+/** Bác sĩ đang hoạt động (public); specialtyName null = chưa có khoa. */
+export interface PublicDoctor { userId: number; fullName: string; degree: string | null; specialtyName: string | null; avatarUrl: string | null }
 
 export interface HomepageContent {
   booking: BookingContent
@@ -47,7 +54,7 @@ export const LIMITS = {
   hotline: 20, workingHours: 50, address: 90, footer: 70,
   eyebrow: 30, sectionTitle: 70, sectionDesc: 220, buttonText: 30, sections: 8,
   bookingBadge: 50, bookingTitle: 70, bookingSubtitle: 180, highlight: 50, highlights: 3,
-  bookingStats: 3, statValue: 10, statLabel: 30, bookingNote: 120,
+  bookingStats: 3, statValue: 10, statLabel: 30, bookingNote: 120, topDoctors: 12,
 } as const
 
 const img = (id: string) => `https://images.unsplash.com/photo-${id}?w=1920&q=70&auto=format&fit=crop`
@@ -57,14 +64,15 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
   booking: {
     badge: 'Đặt lịch online · Xác nhận trong 15 phút',
     title: 'Đặt lịch khám trong 1 phút, đến là được khám',
-    subtitle: 'Chọn chuyên khoa và buổi khám phù hợp. Không cần tài khoản, phòng khám gọi xác nhận qua số điện thoại của bạn.',
-    highlights: ['Không cần tạo tài khoản', 'Xác nhận qua điện thoại trong 15 phút', 'Hủy hoặc đổi lịch miễn phí trước 2 giờ'],
+    subtitle: '',
+    highlights: ['Đặt lịch đơn giản', 'Xác nhận qua điện thoại trong 15 phút', 'Có thể lựa chọn các bác sĩ hàng đầu'],
     stats: [
-      { value: '15+', label: 'Chuyên khoa' },
-      { value: '40+', label: 'Bác sĩ' },
+      { value: '10+', label: 'Chuyên khoa', source: 'specialties' },
+      { value: '10+', label: 'Bác sĩ', source: 'doctors' },
       { value: '4.8/5', label: 'Bệnh nhân đánh giá' },
     ],
     note: 'Trường hợp cấp cứu, vui lòng gọi 115 hoặc đến trực tiếp phòng khám.',
+    topDoctorIds: [],
   },
   intro: {
     brandName: 'MediSchedule',
@@ -156,6 +164,8 @@ export const bookingApi = {
 export const contentApi = {
   /** Chuyên khoa đang hoạt động (A→Z), quản lý ở /admin/specialties. */
   specialties: () => http.get<{ id: number; name: string }[]>('/public/specialties').then((r) => r.data),
+  /** Bác sĩ đang hoạt động (A→Z) kèm khoa và ảnh. */
+  doctors: () => http.get<PublicDoctor[]>('/public/doctors').then((r) => r.data),
   homepage: () =>
     http.get<Partial<HomepageContent>>('/public/site-content/homepage')
       .then((r) => withDefaults(r.data))

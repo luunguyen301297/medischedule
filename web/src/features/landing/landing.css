@@ -34,26 +34,56 @@
 
 /* ---------- 1. Đặt lịch khám + giới thiệu cơ bản ---------- */
 .booking-hero {
-  display: grid; grid-template-columns: 1fr 540px; gap: 64px; align-items: center;
-  padding: 32px 8vw;
+  display: grid; grid-template-columns: 1fr 540px; gap: 48px; align-items: center;
+  padding: 20px 8vw;
   background: var(--ms-primary-soft);
 }
-.booking-copy { max-width: 640px; }
+.booking-copy { min-width: 0; }
 .booking-badge {
-  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;
-  font-size: 14px; font-weight: 600; color: var(--ms-accent);
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  font-size: 13px; font-weight: 600; color: var(--ms-accent);
   background: var(--ms-accent-soft); border: 1px solid color-mix(in srgb, var(--ms-accent) 30%, transparent);
-  border-radius: 999px; padding: 6px 14px;
+  border-radius: 999px; padding: 4px 12px;
 }
-.booking-copy h1 { font-size: clamp(36px, 3.4vw, 52px); line-height: 1.15; font-weight: 700; margin: 0 0 18px; letter-spacing: -0.5px; text-wrap: balance; }
+.booking-copy h1 { font-size: clamp(40px, 3.2vw, 50px); line-height: 1.15; font-weight: 700; margin: 0 0 14px; letter-spacing: -0.5px; text-wrap: balance; }
 .booking-sub { font-size: 18px; line-height: 1.6; color: var(--ms-ink-soft); margin: 0 0 24px; }
-.booking-highlights { list-style: none; padding: 0; margin: 0 0 28px; display: grid; gap: 12px; }
-.booking-highlights li { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; }
+.booking-highlights { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 8px; }
+.booking-highlights li { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; }
 .booking-highlights .anticon { color: var(--ms-accent); font-size: 18px; }
-.booking-stats { display: flex; gap: 40px; margin: 0; padding-top: 20px; border-top: 1px solid var(--ms-border); }
+.booking-stats { display: flex; gap: 40px; margin: 0; padding-top: 14px; border-top: 1px solid var(--ms-border); }
 .booking-stats div { display: grid; gap: 2px; }
-.booking-stats dt { font-size: 30px; font-weight: 700; color: var(--ms-primary); font-variant-numeric: tabular-nums; }
-.booking-stats dd { margin: 0; font-size: 14.5px; color: var(--ms-ink-soft); }
+.booking-stats dt { font-size: 36px; font-weight: 700; color: var(--ms-primary); font-variant-numeric: tabular-nums; }
+.booking-stats dd { margin: 0; font-size: 14px; color: var(--ms-ink-soft); }
+
+/* Các bác sĩ chuyên khoa hàng đầu: hiện 4 bác sĩ, cuộn ngang (scroll-snap) */
+.top-doctors { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--ms-border); }
+.top-doctors h2 { font-size: 17px; font-weight: 700; margin: 0 0 10px; }
+.doctor-track {
+  --per-view: 4; --gap: 12px;
+  display: grid; grid-auto-flow: column; gap: var(--gap);
+  grid-auto-columns: calc((100% - (var(--per-view) - 1) * var(--gap)) / var(--per-view));
+  overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.doctor-track::-webkit-scrollbar { display: none; }
+.doctor-dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+.doctor-dots button {
+  width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; cursor: pointer;
+  background: color-mix(in srgb, var(--ms-primary) 35%, transparent); transition: width .2s, background .2s;
+}
+.doctor-dots button.active { width: 24px; background: var(--ms-primary); }
+.doctor-dots button:focus-visible { outline: 2px solid var(--ms-primary); outline-offset: 2px; }
+.doctor-track:focus-visible { outline: 2px solid var(--ms-primary); outline-offset: 2px; }
+.doctor-track .doctor-card { scroll-snap-align: start; }
+.doctor-card { margin: 0; display: grid; justify-items: center; gap: 8px; text-align: center; padding: 0 6px; }
+.doctor-card img, .doctor-avatar-empty {
+  width: 84px; height: 84px; border-radius: 50%; object-fit: cover;
+  border: 3px solid var(--ms-surface); background: var(--ms-surface);
+}
+.doctor-avatar-empty { display: grid; place-items: center; font-size: 34px; color: var(--ms-ink-soft); }
+.doctor-card figcaption { display: grid; gap: 2px; }
+.doctor-card b { font-size: 14px; line-height: 1.3; }
+.doctor-card span { font-size: 13px; color: var(--ms-ink-soft); }
 
 /* Thẻ đặt lịch */
 .booking-card {
@@ -145,7 +175,7 @@
 .hero-brand .brand-logo { color: var(--ms-ink); }
 .hero-brand .brand-mark { background: var(--ms-primary); color: #fff; }
 .hero-copy { max-width: 600px; }
-.hero-copy h2 { font-size: clamp(30px, 2.6vw, 40px); line-height: 1.2; font-weight: 700; margin: 0 0 14px; text-wrap: balance; }
+.hero-copy h2 { font-size: clamp(40px, 3.2vw, 50px); line-height: 1.2; font-weight: 700; margin: 0 0 14px; text-wrap: balance; }
 .hero-copy p { font-size: 17px; line-height: 1.6; margin: 0 0 28px; color: var(--ms-ink-soft); }
 .hero-features { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .hero-features li {
