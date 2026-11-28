@@ -72,8 +72,8 @@ class DoctorRequestIntegrationTest {
         assertThat(res.getStatus()).isEqualTo(201);
         JsonNode body = json.readTree(res.getContentAsString(StandardCharsets.UTF_8));
         assertThat(body.get("status").asText()).isEqualTo("PENDING");
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM doctor_request WHERE phone = ? AND booker_user_id IS NULL",
-                Integer.class, PHONE)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT symptoms FROM doctor_request WHERE phone = ? AND booker_user_id IS NULL",
+                String.class, PHONE)).isEqualTo("Đau họng 3 ngày");
 
         var dup = send("/api/public/doctor-requests", null, guestBody(tomorrow));
         assertThat(dup.getStatus()).isEqualTo(409);
@@ -97,6 +97,15 @@ class DoctorRequestIntegrationTest {
         var res = send("/api/public/doctor-requests", null, body);
         assertThat(res.getStatus()).isEqualTo(400);
         assertThat(res.getContentAsString(StandardCharsets.UTF_8)).contains("phone");
+    }
+
+    @Test
+    void tooLongSymptomsIsFieldError() throws Exception {
+        Map<String, Object> body = guestBody(tomorrow);
+        body.put("symptoms", "a".repeat(501));
+        var res = send("/api/public/doctor-requests", null, body);
+        assertThat(res.getStatus()).isEqualTo(400);
+        assertThat(res.getContentAsString(StandardCharsets.UTF_8)).contains("symptoms");
     }
 
     @Test
@@ -129,6 +138,7 @@ class DoctorRequestIntegrationTest {
         m.put("workShiftId", shiftId);
         m.put("fullName", "Khách QA");
         m.put("phone", PHONE);
+        m.put("symptoms", "Đau họng 3 ngày");
         return m;
     }
 

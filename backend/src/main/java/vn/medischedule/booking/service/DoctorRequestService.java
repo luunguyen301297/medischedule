@@ -46,7 +46,8 @@ public class DoctorRequestService {
     Clock clock = Clock.system(CLINIC_ZONE);
 
     public DoctorRequestResponse createForGuest(GuestDoctorRequest req) {
-        return create(req.doctorUserId(), req.date(), req.workShiftId(), req.fullName().trim(), req.phone().trim(), null);
+        return create(req.doctorUserId(), req.date(), req.workShiftId(), req.fullName().trim(), req.phone().trim(),
+                req.symptoms(), null);
     }
 
     /** Họ tên / SĐT lấy từ tài khoản, không nhận từ client. */
@@ -55,11 +56,11 @@ public class DoctorRequestService {
         if (me.phone() == null || me.phone().isBlank()) {
             throw ApiException.badRequest("PHONE_REQUIRED", "Tài khoản chưa có số điện thoại, vui lòng cập nhật trước khi đặt");
         }
-        return create(req.doctorUserId(), req.date(), req.workShiftId(), me.fullName(), me.phone(), userId);
+        return create(req.doctorUserId(), req.date(), req.workShiftId(), me.fullName(), me.phone(), req.symptoms(), userId);
     }
 
     private DoctorRequestResponse create(Long doctorUserId, LocalDate date, Long shiftId, String fullName, String phone,
-                                         Long bookerUserId) {
+                                         String symptoms, Long bookerUserId) {
         PublicDoctor doctor = catalog.publicDoctors().stream()
                 .filter(d -> d.userId().equals(doctorUserId)).findFirst()
                 .orElseThrow(() -> ApiException.badRequest("DOCTOR_UNAVAILABLE", "Bác sĩ hiện không nhận đặt lịch"));
@@ -90,6 +91,7 @@ public class DoctorRequestService {
         r.setWorkShiftId(shiftId);
         r.setFullName(fullName);
         r.setPhone(phone);
+        r.setSymptoms(symptoms == null || symptoms.isBlank() ? null : symptoms.trim());
         r.setBookerUserId(bookerUserId);
         try {
             r = requests.saveAndFlush(r);
@@ -100,7 +102,7 @@ public class DoctorRequestService {
             throw e;
         }
         return new DoctorRequestResponse(r.getId(), doctorUserId, doctor.fullName(), date, shift.name(), shift.startTime(),
-                shift.endTime(), fullName, phone, r.getStatus().name(), r.getCreatedAt());
+                shift.endTime(), fullName, phone, r.getSymptoms(), r.getStatus().name(), r.getCreatedAt());
     }
 
     private static ApiException duplicate() {

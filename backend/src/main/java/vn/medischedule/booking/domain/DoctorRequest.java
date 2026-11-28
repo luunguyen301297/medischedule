@@ -45,6 +45,9 @@ public class DoctorRequest {
     /** SĐT liên hệ; giới hạn số yêu cầu chờ theo SĐT này. */
     private String phone;
 
+    /** Mô tả triệu chứng (không bắt buộc). */
+    private String symptoms;
+
     /** users.id người đặt khi đã đăng nhập; NULL = khách. */
     private Long bookerUserId;
 

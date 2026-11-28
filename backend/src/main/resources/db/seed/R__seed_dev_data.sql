@@ -70,9 +70,9 @@ VALUES ('homepage', '{
         "description": "Tra cứu lại lịch sử khám bất cứ lúc nào."
       }
     ],
-    "headline": "Đặt lịch khám nhanh, không phải xếp hàng chờ",
+    "headline": "Một tài khoản để đặt lịch, theo dõi lượt khám và xem lại hồ sơ sức khỏe của cả gia đình.",
     "brandName": "MediSchedule",
-    "subheadline": "Một tài khoản để đặt lịch, theo dõi lượt khám và xem lại hồ sơ sức khỏe của cả gia đình.",
+    "subheadline": "",
     "workingHours": "T2 – T7: 7:00 – 20:00 · CN: 7:00 – 12:00"
   },
   "sections": [

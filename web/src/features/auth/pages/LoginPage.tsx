@@ -39,19 +39,18 @@ export default function LoginPage() {
   return (
     <LandingLayout
       title="Đăng nhập"
-      subtitle="Chào mừng trở lại. Đăng nhập để đặt lịch và theo dõi lượt khám."
       onRegister={() => setRegisterOpen(true)}
     >
-      <Form layout="vertical" size="large" onFinish={onFinish} requiredMark={false}>
+      {/* Không để trình duyệt tự điền: ô trống hiện placeholder như form đặt lịch */}
+      <Form layout="vertical" size="large" onFinish={onFinish} requiredMark={false} autoComplete="off">
         <Form.Item
           name="login"
-          label="Email, số điện thoại hoặc tên đăng nhập"
           rules={[{ required: true, whitespace: true, message: 'Nhập email, số điện thoại hoặc tên đăng nhập' }]}
         >
-          <Input prefix={<UserOutlined />} placeholder="ten@email.com hoặc 09xx xxx xxx" autoComplete="username" />
+          <Input prefix={<UserOutlined />} placeholder="Email, số điện thoại hoặc tên đăng nhập" aria-label="Email, số điện thoại hoặc tên đăng nhập" autoComplete="off" />
         </Form.Item>
-        <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, message: 'Nhập mật khẩu' }]}>
-          <Input.Password prefix={<LockOutlined />} autoComplete="current-password" />
+        <Form.Item name="password" rules={[{ required: true, message: 'Nhập mật khẩu' }]}>
+          <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" aria-label="Mật khẩu" autoComplete="new-password" />
         </Form.Item>
         <Button type="primary" htmlType="submit" block loading={loading} style={{ marginTop: 8 }}>
           Đăng nhập

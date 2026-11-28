@@ -13,3 +13,4 @@
 {"task": "patient-home", "flow": "C-nho", "closed": "2026-11-28T09:47:54+07:00", "phases": {"dev": {"wall": 182, "wait": 0}, "code-review": {"wall": 2794, "wait": 0}}}
 {"task": "profile-photo", "flow": "C", "closed": "2026-11-28T09:47:55+07:00", "phases": {"ba": {"wall": 144, "wait": 0}, "tl-review": {"wall": 28, "wait": 0}, "dev": {"wall": 278, "wait": 0}, "code-review": {"wall": 42, "wait": 0}, "qa-run": {"wall": 1552, "wait": 0}}}
 {"task": "doctor-request", "flow": "Full", "closed": "2026-11-28T09:47:55+07:00", "phases": {"ba": {"wall": 48, "wait": 0}, "design": {"wall": 44, "wait": 0}, "tl-review": {"wall": 6, "wait": 0}, "dev": {"wall": 410, "wait": 0}, "code-review": {"wall": 34, "wait": 0}, "qa-run": {"wall": 447, "wait": 0}}}
+{"task": "symptom-note", "flow": "C", "closed": "2026-11-28T11:04:25+07:00", "phases": {"ba": {"wall": 0, "wait": 0}, "dev": {"wall": 164, "wait": 0}, "code-review": {"wall": 23, "wait": 0}, "qa-run": {"wall": 4067, "wait": 0}}}

@@ -56,6 +56,7 @@ class DoctorRequestServiceTest {
         assertThat(res.workShiftName()).isEqualTo("Sáng");
         assertThat(res.status()).isEqualTo("PENDING");
         verify(requests).lockPhone("0912000111");
+        assertThat(res.symptoms()).isEqualTo("Ho, sốt nhẹ");
         verify(requests).saveAndFlush(argThat(r -> r.getBookerUserId() == null && r.getFullName().equals("Nguyễn A")
                 && r.getStatus() == DoctorRequest.Status.PENDING));
     }
@@ -64,17 +65,17 @@ class DoctorRequestServiceTest {
     void patientNameAndPhoneComeFromAccount() {
         when(auth.get(7L)).thenReturn(user(7L, "0988000222"));
 
-        var res = service.createForPatient(7L, new PatientDoctorRequest(100L, TODAY.plusDays(2), 3L));
+        var res = service.createForPatient(7L, new PatientDoctorRequest(100L, TODAY.plusDays(2), 3L, "  "));
 
         assertThat(res.fullName()).isEqualTo("BN Bảy");
         assertThat(res.phone()).isEqualTo("0988000222");
-        verify(requests).saveAndFlush(argThat(r -> r.getBookerUserId() == 7L));
+        verify(requests).saveAndFlush(argThat(r -> r.getBookerUserId() == 7L && r.getSymptoms() == null));
     }
 
     @Test
     void patientWithoutPhoneIsRejected() {
         when(auth.get(7L)).thenReturn(user(7L, null));
-        assertCode(() -> service.createForPatient(7L, new PatientDoctorRequest(100L, TODAY, 3L)), "PHONE_REQUIRED");
+        assertCode(() -> service.createForPatient(7L, new PatientDoctorRequest(100L, TODAY, 3L, null)), "PHONE_REQUIRED");
     }
 
     @Test
@@ -117,7 +118,7 @@ class DoctorRequestServiceTest {
     }
 
     private static GuestDoctorRequest guest(Long doctor, LocalDate date, Long shift) {
-        return new GuestDoctorRequest(doctor, date, shift, " Nguyễn A ", "0912000111");
+        return new GuestDoctorRequest(doctor, date, shift, " Nguyễn A ", "0912000111", " Ho, sốt nhẹ ");
     }
 
     private static UserResponse user(Long id, String phone) {

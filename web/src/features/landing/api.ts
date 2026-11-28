@@ -53,7 +53,7 @@ export interface HomepageContent {
 
 /** Giới hạn độ dài để bố cục không vỡ. Dùng chung cho form thiết lập. */
 export const LIMITS = {
-  brandName: 30, headline: 70, subheadline: 160, featureTitle: 45, featureDesc: 70, features: 4,
+  brandName: 30, headline: 160, subheadline: 160, featureTitle: 45, featureDesc: 70, features: 4,
   hotline: 20, workingHours: 50, address: 90, footer: 70,
   eyebrow: 30, sectionTitle: 70, sectionDesc: 220, buttonText: 30, sections: 8,
   bookingBadge: 50, bookingTitle: 70, bookingSubtitle: 180, highlight: 50, highlights: 3,
@@ -79,8 +79,8 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
   },
   intro: {
     brandName: 'MediSchedule',
-    headline: 'Đặt lịch khám nhanh, không phải xếp hàng chờ',
-    subheadline: 'Một tài khoản để đặt lịch, theo dõi lượt khám và xem lại hồ sơ sức khỏe của cả gia đình.',
+    headline: 'Một tài khoản để đặt lịch, theo dõi lượt khám và xem lại hồ sơ sức khỏe của cả gia đình.',
+    subheadline: '',
     features: [
       { icon: 'calendar', title: 'Chọn chuyên khoa, bác sĩ và giờ khám', description: 'Xem khung giờ còn trống và giữ chỗ ngay.' },
       { icon: 'bell', title: 'Biết trước thời gian chờ', description: 'Nhận thông báo khi sắp đến lượt khám.' },
@@ -165,10 +165,12 @@ export const bookingApi = {
 }
 
 /** Yêu cầu đặt đích danh bác sĩ (ngày + buổi), chờ nhân sự xếp ca. */
-export interface DoctorRequestBody { doctorUserId: number; date: string; workShiftId: number; fullName?: string; phone?: string }
+export interface DoctorRequestBody {
+  doctorUserId: number; date: string; workShiftId: number; fullName?: string; phone?: string; symptoms?: string
+}
 export interface DoctorRequestResult {
   id: number; doctorUserId: number; doctorName: string; date: string; workShiftName: string
-  startTime: string; endTime: string; fullName: string; phone: string; status: string; createdAt: string
+  startTime: string; endTime: string; fullName: string; phone: string; symptoms: string | null; status: string; createdAt: string
 }
 
 export const doctorRequestApi = {

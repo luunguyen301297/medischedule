@@ -17,6 +17,7 @@ interface BookingForm {
   shiftId: number
   fullName?: string
   phone?: string
+  symptoms?: string
 }
 
 /** Người đặt đã đăng nhập: đặt cho mình thì lấy luôn họ tên / số điện thoại của tài khoản. */
@@ -174,6 +175,7 @@ export default function BookingWidget({ specialties, loadFailed, note, booker, t
           <Descriptions.Item label="Buổi">
             {shift ? `${shift.name} (${hhmm(shift.startTime)} – ${hhmm(shift.endTime)})` : ''}
           </Descriptions.Item>
+          <Descriptions.Item label="Triệu chứng">{v.symptoms?.trim() || 'Không có'}</Descriptions.Item>
         </Descriptions>
       ),
       // Trả promise: nút xác nhận quay chờ, không bấm lặp được
@@ -243,18 +245,27 @@ export default function BookingWidget({ specialties, loadFailed, note, booker, t
             <SessionTiles shifts={shifts} date={date} />
           </Form.Item>
 
+          <div className="booking-divider" aria-hidden="true" />
           {!booker && <div className="booking-row">
-            <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, whitespace: true, message: 'Nhập họ và tên' }]}>
-              <Input size="large" prefix={<UserOutlined />} placeholder="Nguyễn Văn A" autoComplete="name" />
+            <Form.Item name="fullName" rules={[{ required: true, whitespace: true, message: 'Nhập họ và tên' }]}>
+              <Input size="large" prefix={<UserOutlined />} placeholder="Họ và tên" aria-label="Họ và tên" autoComplete="name" />
             </Form.Item>
             <Form.Item
               name="phone"
-              label="Số điện thoại"
               rules={[{ required: true, message: 'Nhập số điện thoại' }, { pattern: /^0\d{9}$/, message: '10 số, bắt đầu bằng 0' }]}
             >
-              <Input size="large" prefix={<PhoneOutlined />} placeholder="09xx xxx xxx" inputMode="tel" maxLength={10} autoComplete="tel" />
+              <Input size="large" prefix={<PhoneOutlined />} placeholder="Số điện thoại" aria-label="Số điện thoại" inputMode="tel" maxLength={10} autoComplete="tel" />
             </Form.Item>
           </div>}
+
+          <Form.Item name="symptoms" rules={[{ max: 500, message: 'Tối đa 500 ký tự' }]}>
+            <Input.TextArea
+              placeholder="Mô tả triệu chứng của bạn"
+              aria-label="Mô tả triệu chứng"
+              autoSize={{ minRows: 2, maxRows: 4 }}
+              maxLength={500}
+            />
+          </Form.Item>
 
           <Button
             htmlType="submit"

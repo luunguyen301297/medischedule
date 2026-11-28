@@ -1,10 +1,9 @@
-import { CheckCircleFilled, ClockCircleOutlined, EnvironmentOutlined, PhoneOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, ClockCircleOutlined, EnvironmentOutlined, LoginOutlined, PhoneOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from 'antd'
 import { useEffect, type ReactNode } from 'react'
 import { contentApi, DEFAULT_HOMEPAGE } from './api'
 import BookingWidget, { type Booker } from './components/BookingWidget'
-import FeatureIcon from './components/FeatureIcon'
 import TopDoctors from './components/TopDoctors'
 import Reveal from '@/shared/ui/Reveal'
 import './landing.css'
@@ -124,15 +123,10 @@ export default function LandingLayout({
           <div className="hero-copy">
             <h2>{intro.headline}</h2>
             {intro.subheadline && <p>{intro.subheadline}</p>}
-            <ul className="hero-features">
-              {intro.features.map((f, i) => (
-                <li key={i}>
-                  <span className="feature-icon" aria-hidden="true"><FeatureIcon name={f.icon} /></span>
-                  <div>
-                    <b>{f.title}</b>
-                    {f.description && <span>{f.description}</span>}
-                  </div>
-                </li>
+            {/* Cùng kiểu danh sách check của cụm đặt lịch */}
+            <ul className="booking-highlights">
+              {intro.features.filter((f) => f.title).map((f, i) => (
+                <li key={i}><CheckCircleFilled aria-hidden="true" /> {f.title}</li>
               ))}
             </ul>
           </div>
@@ -141,8 +135,12 @@ export default function LandingLayout({
 
         <Reveal from="right" delay={120} className="hero-form">
           <div className="auth-panel">
-            <h2>{title}</h2>
-            <p className="auth-sub">{subtitle}</p>
+            {/* Cùng kiểu đầu thẻ đặt lịch: icon + tiêu đề, gạch đứt bên dưới */}
+            <div className="booking-card-head">
+              <span className="booking-card-icon" aria-hidden="true"><LoginOutlined /></span>
+              <h2>{title}</h2>
+            </div>
+            {subtitle && <p className="auth-sub">{subtitle}</p>}
             {children}
           </div>
         </Reveal>

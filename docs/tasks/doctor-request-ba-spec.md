@@ -84,3 +84,12 @@ Domain chưa có KB; blast radius code-level:
 - **GĐ-04:** Bác sĩ có "Nhận chỉ định đích danh = Không" vẫn nhận yêu cầu (yêu cầu chỉ là mong muốn, nhân sự quyết khi
   xếp ca); chưa tính phụ phí chỉ định — AC-01, AC-09.
 - **GĐ-05:** Người đã đăng nhập luôn đặt cho chính mình ở luồng này (đặt cho người khác dùng form trang chủ) — AC-03.
+
+## 6. Bổ sung: mô tả triệu chứng (task symptom-note, đã duyệt qua chat)
+
+- **AC-15 (Luồng chính):** Với điều kiện đang ở form đặt lịch trang chủ (khách, bệnh nhân, đặt cho người khác) hoặc
+  dialog "Đặt bác sĩ này", khi nhập "Mô tả triệu chứng" (không bắt buộc, tối đa 500 ký tự, có bộ đếm), thì nội dung hiện
+  trong hộp xác nhận (trống thì ghi "Không có").
+- **AC-16 (Luồng chính):** Với điều kiện gửi yêu cầu đặt bác sĩ có mô tả, khi lưu, thì mô tả được lưu cùng yêu cầu
+  (khoảng trắng đầu cuối bị bỏ, rỗng lưu NULL); quá 500 ký tự bị từ chối tại ô.
+- **GĐ-06:** Form đặt lịch trang chủ chưa có API gửi thật nên mô tả chỉ hiện ở xác nhận, sẽ gửi khi module đặt lịch có API.

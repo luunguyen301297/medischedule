@@ -504,3 +504,37 @@ Bệnh nhân đăng nhập thấy trang chủ với avatar + menu tài khoản; 
 ## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
 
 ## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### C — Ô mô tả triệu chứng ở form đặt lịch và đặt bác sĩ (`symptom-note`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-28).
+
+Ô mô tả triệu chứng (placeholder, không label) ở form đặt lịch và dialog Đặt bác sĩ này, lưu vào doctor_request.symptoms (V17); form gọn: bỏ label họ tên/SĐT, gạch ngang ngăn cách; trang đăng nhập: icon tiêu đề, bỏ label, tắt tự điền, mô tả làm tiêu đề (V18), tính năng dạng check.
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| ba | 0p | 0p | 0p |
+| dev | 2p | 0p | 2p |
+| code-review | 0p | 0p | 0p |
+| qa-run | 1g07 | 0p | 1g07 |
+| **Cộng** | 1g10 | 0p | 1g10 |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/symptom-note-ba-spec.md |
+| Tech Design | ⬜ | docs/design/symptom-note-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-symptom-note.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/symptom-note-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/symptom-note-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/symptom-note-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
