@@ -1,54 +1,28 @@
 import {
   CalendarOutlined, CheckCircleFilled, LockOutlined, MedicineBoxOutlined, PhoneOutlined, RightOutlined,
-  SafetyCertificateOutlined, UserOutlined,
+  SafetyCertificateOutlined, TeamOutlined, UserOutlined,
 } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
-import { Button, Form, Input, Modal } from 'antd'
+import { App, Button, Descriptions, Form, Input, Modal } from 'antd'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
 import { type ReactNode, useEffect, useState } from 'react'
-import { bookingApi, type BookingShift } from '../api'
+import { bookingApi } from '../api'
+import { DateStrip, hhmm, SessionTiles } from './BookingPickers'
 
 interface BookingForm {
   specialtyId?: number
   doctorUserId?: number
   date: string     // YYYY-MM-DD
   shiftId: number
-  fullName: string
-  phone: string
+  fullName?: string
+  phone?: string
 }
+
+/** Người đặt đã đăng nhập: đặt cho mình thì lấy luôn họ tên / số điện thoại của tài khoản. */
+export interface Booker { fullName: string; phone: string | null }
 
 interface PickOption { value: number; label: string; hint?: string }
-
-const WEEKDAY = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
-const hhmm = (t: string) => t.slice(0, 5)
-
-/** Dải 7 ngày tới để chọn nhanh. */
-function DateStrip({ id, value, onChange }: { id?: string; value?: string; onChange?: (v: string) => void }) {
-  const days = Array.from({ length: 7 }, (_, i) => dayjs().add(i, 'day'))
-  return (
-    <div className="date-strip" role="radiogroup" aria-label="Ngày khám">
-      {days.map((d, i) => {
-        const v = d.format('YYYY-MM-DD')
-        return (
-          <button
-            key={v}
-            id={i === 0 ? id : undefined}
-            type="button"
-            role="radio"
-            aria-checked={value === v}
-            className={`date-chip ${value === v ? 'is-active' : ''}`}
-            onClick={() => onChange?.(v)}
-          >
-            <span className="date-dow">{i === 0 ? 'Hôm nay' : i === 1 ? 'Mai' : WEEKDAY[d.day()]}</span>
-            <span className="date-num">{d.format('DD')}</span>
-            <span className="date-mon">Th{d.format('M')}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
-}
 
 /** Nút chọn (chuyên khoa, bác sĩ); bấm mở hộp thoại danh sách, chọn xong tự đóng. Mục "Không chọn" để bỏ chọn. */
 function OptionPicker({ id, icon, title, placeholder, emptyText, options, blocked, value, onChange }: {
@@ -107,46 +81,25 @@ function OptionPicker({ id, icon, title, placeholder, emptyText, options, blocke
   )
 }
 
-/** Ô buổi khám theo ca làm việc đang bật; ca đã kết thúc của hôm nay bị khóa. */
-function SessionTiles({ id, shifts, date, value, onChange }: {
-  id?: string; shifts: BookingShift[]; date?: string; value?: number; onChange?: (v: number) => void
-}) {
-  const isToday = date === dayjs().format('YYYY-MM-DD')
-  const now = dayjs().format('HH:mm')
-  return (
-    <div className="session-tiles" role="radiogroup" aria-label="Buổi khám">
-      {shifts.map((s, i) => (
-        <button
-          key={s.id}
-          id={i === 0 ? id : undefined}
-          type="button"
-          role="radio"
-          aria-checked={value === s.id}
-          disabled={isToday && hhmm(s.endTime) <= now}
-          className={`session-tile ${value === s.id ? 'is-active' : ''}`}
-          onClick={() => onChange?.(s.id)}
-        >
-          <b>{s.name}</b>
-          <span>{hhmm(s.startTime)} – {hhmm(s.endTime)}</span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
 /**
- * Thẻ đặt lịch nhanh ở đầu trang (khách không cần tài khoản).
+ * Thẻ đặt lịch nhanh ở đầu trang. Khách nhập họ tên + số điện thoại; bệnh nhân đã đăng nhập (`booker`) đặt cho mình
+ * không cần nhập, đặt cho người khác thì mở hộp thoại chứa form khách.
  * Buổi khám lấy từ ca làm việc đang bật; bác sĩ lọc theo phân ca của ngày + buổi (và khoa nếu đã chọn).
  * Gửi lịch vẫn là mẫu: backend đặt lịch (module booking) chưa có.
  */
-export default function BookingWidget({ specialties, loadFailed, note }: {
+export default function BookingWidget({ specialties, loadFailed, note, booker, title = 'Đặt lịch khám', formName = 'booking', confirmFirst = !!booker }: {
   specialties?: { id: number; name: string }[]; loadFailed: boolean; note: string
+  booker?: Booker; title?: string; formName?: string
+  /** Hiện hộp xác nhận thông tin trước khi gửi (người đã đăng nhập), tránh bấm nhầm / gửi lặp */
+  confirmFirst?: boolean
 }) {
+  const { modal } = App.useApp()
   // Chuyên khoa không bắt buộc: tải lỗi chỉ khóa ô chuyên khoa
   const specBlocked = loadFailed ? 'Không tải được chuyên khoa' : specialties?.length === 0 ? 'Chưa có chuyên khoa' : undefined
   const [form] = Form.useForm<BookingForm>()
   const [sending, setSending] = useState(false)
-  const [done, setDone] = useState<{ summary: string; phone: string } | null>(null)
+  const [done, setDone] = useState<{ summary: string; phone?: string | null } | null>(null)
+  const [forOther, setForOther] = useState(false)
 
   const shiftsQ = useQuery({ queryKey: ['public', 'booking-shifts'], queryFn: bookingApi.shifts, staleTime: 60_000 })
   const shifts = shiftsQ.data ?? []
@@ -186,26 +139,53 @@ export default function BookingWidget({ specialties, loadFailed, note }: {
     if (sp != null) form.setFieldValue('specialtyId', sp)
   }
 
-  const submit = async (v: BookingForm) => {
+  const send = async (v: BookingForm, summary: string) => {
     setSending(true)
     // TODO: gọi POST /api/public/bookings khi module booking có API
     await new Promise((r) => setTimeout(r, 700))
     setSending(false)
-    const doctor = doctors.find((d) => d.userId === v.doctorUserId)
+    setDone({ summary, phone: booker ? booker.phone : v.phone })
+  }
+
+  const submit = (v: BookingForm) => {
+    const specialty = specialties?.find((s) => s.id === v.specialtyId)?.name
+    const doctor = doctors.find((d) => d.userId === v.doctorUserId)?.fullName
     const shift = shifts.find((s) => s.id === v.shiftId)
-    const summary = [
-      specialties?.find((s) => s.id === v.specialtyId)?.name,
-      doctor?.fullName,
-      `buổi ${shift?.name.toLowerCase() ?? ''}, ${dayjs(v.date).locale('vi').format('dddd DD/MM/YYYY')}`,
-    ].filter(Boolean).join(' · ')
-    setDone({ summary, phone: v.phone })
+    const day = dayjs(v.date).locale('vi').format('dddd DD/MM/YYYY')
+    const summary = [specialty, doctor, `buổi ${shift?.name.toLowerCase() ?? ''}, ${day}`].filter(Boolean).join(' · ')
+    if (!confirmFirst) return send(v, summary)
+
+    const name = booker?.fullName ?? v.fullName
+    const phone = booker ? booker.phone : v.phone
+    modal.confirm({
+      title: 'Xác nhận đặt lịch khám',
+      icon: <CalendarOutlined style={{ color: 'var(--ms-primary)' }} />,
+      width: 480,
+      centered: true,
+      okText: 'Xác nhận đặt lịch',
+      cancelText: 'Sửa lại',
+      content: (
+        <Descriptions column={1} size="small" className="booking-confirm">
+          <Descriptions.Item label="Người khám">{name}</Descriptions.Item>
+          {phone && <Descriptions.Item label="Số điện thoại">{phone}</Descriptions.Item>}
+          <Descriptions.Item label="Chuyên khoa">{specialty ?? 'Chưa chọn'}</Descriptions.Item>
+          <Descriptions.Item label="Bác sĩ">{doctor ?? 'Phòng khám sắp xếp'}</Descriptions.Item>
+          <Descriptions.Item label="Ngày khám">{day}</Descriptions.Item>
+          <Descriptions.Item label="Buổi">
+            {shift ? `${shift.name} (${hhmm(shift.startTime)} – ${hhmm(shift.endTime)})` : ''}
+          </Descriptions.Item>
+        </Descriptions>
+      ),
+      // Trả promise: nút xác nhận quay chờ, không bấm lặp được
+      onOk: () => send(v, summary),
+    })
   }
 
   return (
     <div className="booking-card-inner">
       <div className="booking-card-head">
         <span className="booking-card-icon" aria-hidden="true"><CalendarOutlined /></span>
-        <h2>Đặt lịch khám</h2>
+        <h2>{title}</h2>
       </div>
 
       {done ? (
@@ -213,13 +193,15 @@ export default function BookingWidget({ specialties, loadFailed, note }: {
           <CheckCircleFilled className="booking-done-icon" />
           <h3>Đã gửi yêu cầu đặt lịch</h3>
           <p>{done.summary}</p>
-          <p>Phòng khám sẽ gọi số <b>{done.phone}</b> để xác nhận trong 15 phút.</p>
+          {done.phone
+            ? <p>Phòng khám sẽ gọi số <b>{done.phone}</b> để xác nhận trong 15 phút.</p>
+            : <p>Phòng khám sẽ liên hệ với bạn để xác nhận trong 15 phút.</p>}
           <Button onClick={() => { setDone(null); form.resetFields() }}>Đặt thêm lịch khác</Button>
         </div>
       ) : (
         <Form
           form={form}
-          name="booking"
+          name={formName}
           layout="vertical"
           requiredMark={false}
           onFinish={submit}
@@ -261,7 +243,7 @@ export default function BookingWidget({ specialties, loadFailed, note }: {
             <SessionTiles shifts={shifts} date={date} />
           </Form.Item>
 
-          <div className="booking-row">
+          {!booker && <div className="booking-row">
             <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, whitespace: true, message: 'Nhập họ và tên' }]}>
               <Input size="large" prefix={<UserOutlined />} placeholder="Nguyễn Văn A" autoComplete="name" />
             </Form.Item>
@@ -272,7 +254,7 @@ export default function BookingWidget({ specialties, loadFailed, note }: {
             >
               <Input size="large" prefix={<PhoneOutlined />} placeholder="09xx xxx xxx" inputMode="tel" maxLength={10} autoComplete="tel" />
             </Form.Item>
-          </div>
+          </div>}
 
           <Button
             htmlType="submit"
@@ -282,14 +264,24 @@ export default function BookingWidget({ specialties, loadFailed, note }: {
             loading={sending}
             disabled={!!shiftBlocked || shiftsQ.isLoading}
           >
-            Đặt lịch khám
+            {booker ? 'Đặt lịch khám cho bạn' : 'Đặt lịch khám'}
           </Button>
+          {booker && (
+            <Button block size="large" className="booking-other" icon={<TeamOutlined />} onClick={() => setForOther(true)}>
+              Đặt lịch cho người khác
+            </Button>
+          )}
           <div className="booking-trust">
             <span><LockOutlined /> Bảo mật thông tin</span>
             <span><SafetyCertificateOutlined /> Không thu phí đặt lịch</span>
           </div>
           {note && <p className="booking-note">{note}</p>}
         </Form>
+      )}
+      {booker && (
+        <Modal open={forOther} onCancel={() => setForOther(false)} footer={null} width={600} centered destroyOnClose className="booking-modal">
+          <BookingWidget specialties={specialties} loadFailed={loadFailed} note={note} title="Đặt lịch cho người khác" formName="booking-other" confirmFirst />
+        </Modal>
       )}
     </div>
   )

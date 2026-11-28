@@ -74,6 +74,9 @@ public class Patient {
     /** Dị ứng (dạng chữ); hiện cảnh báo khi bác sĩ kê đơn. */
     private String allergyNote;
 
+    /** Ảnh đại diện của hồ sơ (đường dẫn công khai); admin tải lên. */
+    private String avatarUrl;
+
     /** Nơi tạo hồ sơ: GUEST (khách đặt bằng SĐT), APP, RECEPTION (lễ tân). */
     @Enumerated(EnumType.STRING)
     private Source source;

@@ -1,15 +1,18 @@
 import { UserOutlined } from '@ant-design/icons'
 import { useEffect, useRef, useState } from 'react'
 import type { PublicDoctor } from '../api'
+import type { Booker } from './BookingWidget'
+import DoctorProfileDialog from './DoctorProfileDialog'
 
 /**
  * "Các bác sĩ chuyên khoa hàng đầu": ảnh tròn + tên + chuyên khoa, hiện 4 bác sĩ, cuộn ngang để xem tiếp
  * (kéo, trackpad, lăn chuột khi trỏ vào dải, hoặc bấm chấm trang). Số bác sĩ mỗi trang đặt ở landing.css (--per-view).
  */
-export default function TopDoctors({ doctors }: { doctors: PublicDoctor[] }) {
+export default function TopDoctors({ doctors, booker }: { doctors: PublicDoctor[]; booker?: Booker }) {
   const track = useRef<HTMLDivElement>(null)
   const [pages, setPages] = useState(1)
   const [page, setPage] = useState(0)
+  const [open, setOpen] = useState<PublicDoctor | null>(null)
 
   useEffect(() => {
     const el = track.current
@@ -50,15 +53,15 @@ export default function TopDoctors({ doctors }: { doctors: PublicDoctor[] }) {
       <h2>Các bác sĩ chuyên khoa hàng đầu</h2>
       <div ref={track} className="doctor-track" tabIndex={0} aria-label="Danh sách bác sĩ, cuộn ngang để xem thêm">
         {doctors.map((d) => (
-          <figure key={d.userId} className="doctor-card">
+          <button key={d.userId} type="button" className="doctor-card" onClick={() => setOpen(d)} aria-label={`Xem hồ sơ ${d.fullName}`}>
             {d.avatarUrl
               ? <img src={d.avatarUrl} alt={d.fullName} loading="lazy" />
               : <span className="doctor-avatar-empty" aria-hidden="true"><UserOutlined /></span>}
-            <figcaption>
+            <span className="doctor-caption">
               <b>{d.fullName}</b>
               {d.specialtyName && <span>{d.specialtyName}</span>}
-            </figcaption>
-          </figure>
+            </span>
+          </button>
         ))}
       </div>
       {pages > 1 && (
@@ -75,6 +78,7 @@ export default function TopDoctors({ doctors }: { doctors: PublicDoctor[] }) {
           ))}
         </div>
       )}
+      <DoctorProfileDialog doctor={open} booker={booker} onClose={() => setOpen(null)} />
     </div>
   )
 }

@@ -8,7 +8,10 @@ import vn.medischedule.auth.service.AuthService;
 import vn.medischedule.clinic.domain.Room;
 import vn.medischedule.clinic.domain.Specialty;
 import vn.medischedule.clinic.domain.Staff;
+import vn.medischedule.auth.dto.AuthDtos.UserResponse;
+import vn.medischedule.clinic.dto.ClinicDtos.PublicDoctor;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomRequest;
+import vn.medischedule.clinic.dto.ClinicDtos.StaffProfileRequest;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyOption;
 import vn.medischedule.clinic.dto.ClinicDtos.SpecialtyRequest;
 import vn.medischedule.clinic.repository.RoomRepository;
@@ -21,6 +24,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.*;
 
 /** Unit test (không Spring, không DB): rule danh mục chuyên khoa và phòng khám. */
@@ -185,6 +189,39 @@ class ClinicCatalogServiceTest {
         r.setName(name);
         r.setSpecialty(specialty);
         return r;
+    }
+
+    // ---------- Ảnh hồ sơ, hồ sơ bác sĩ công khai ----------
+
+    @Test
+    void staffAvatarIsSavedForNonDoctorAndBlankClearsIt() {
+        when(auth.get(300L)).thenReturn(user(300L, "RECEPTIONIST"));
+        Staff st = staffOf(300L, null);
+        when(staff.findByUserId(300L)).thenReturn(Optional.of(st));
+        when(staff.saveAndFlush(any())).thenAnswer(i -> i.getArgument(0));
+
+        var saved = service.saveStaffProfile(300L, new StaffProfileRequest(null, null, null, false, true, " /api/public/files/site/a.png "));
+        assertThat(saved.avatarUrl()).isEqualTo("/api/public/files/site/a.png");
+
+        service.saveStaffProfile(300L, new StaffProfileRequest(null, null, null, false, true, "  "));
+        assertThat(st.getAvatarUrl()).isNull();
+    }
+
+    @Test
+    void publicDoctorCarriesLicenseAndDesignation() {
+        when(auth.activeDoctors()).thenReturn(List.of(new DoctorAccount(100L, "BS A"), new DoctorAccount(101L, "BS B")));
+        Staff a = staffOf(100L, open);
+        a.setLicenseNo("CCHN-01");
+        a.setAcceptsDesignation(true);
+        when(staff.findAll()).thenReturn(List.of(a));
+
+        assertThat(service.publicDoctors())
+                .extracting(PublicDoctor::fullName, PublicDoctor::licenseNo, PublicDoctor::acceptsDesignation)
+                .containsExactly(tuple("BS A", "CCHN-01", true), tuple("BS B", null, false));
+    }
+
+    private static UserResponse user(Long id, String role) {
+        return new UserResponse(id, "u" + id + "@x.test", null, "User " + id, "0900000000", role, true, null, null);
     }
 
     // ---------- Gán bác sĩ ----------

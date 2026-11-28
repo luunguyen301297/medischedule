@@ -30,6 +30,7 @@ export interface StaffProfile {
   licenseNo: string | null
   acceptsDesignation: boolean
   active: boolean
+  avatarUrl: string | null
 }
 
 export type PatientRelation = 'SELF' | 'CHILD' | 'PARENT' | 'OTHER'
@@ -50,6 +51,7 @@ export interface PatientProfile {
   allergyNote: string | null
   source: 'GUEST' | 'APP' | 'RECEPTION' | null
   createdAt: string
+  avatarUrl: string | null
 }
 
 export interface UpdateUserRequest {
@@ -65,6 +67,7 @@ export interface StaffProfileRequest {
   licenseNo: string | null
   acceptsDesignation: boolean
   active: boolean
+  avatarUrl: string | null
 }
 
 export type PatientRequest = Omit<PatientProfile, 'id' | 'patientCode' | 'source' | 'createdAt'> & { ownerUserId?: number }

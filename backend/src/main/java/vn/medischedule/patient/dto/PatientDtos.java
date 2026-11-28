@@ -14,15 +14,18 @@ public final class PatientDtos {
 
     private PatientDtos() {}
 
+    /** Ảnh hồ sơ: rỗng, https://… hoặc ảnh đã tải lên (/api/public/files/…); chặn javascript:, data:. */
+    public static final String AVATAR_URL = "^((https?://|/api/public/files/)\\S+)?$";
+
     public record PatientProfile(Long id, String patientCode, String relation, String fullName, LocalDate dateOfBirth,
                                  String gender, String nationalId, String phone, String address, String bhytNumber,
                                  LocalDate bhytValidTo, Short bhytRate, String allergyNote, String source,
-                                 OffsetDateTime createdAt) {
+                                 OffsetDateTime createdAt, String avatarUrl) {
         public static PatientProfile of(Patient p) {
             return new PatientProfile(p.getId(), p.getPatientCode(), p.getRelation().name(), p.getFullName(),
                     p.getDateOfBirth(), p.getGender(), p.getNationalId(), p.getPhone(), p.getAddress(),
                     p.getBhytNumber(), p.getBhytValidTo(), p.getBhytRate(), p.getAllergyNote(),
-                    p.getSource() == null ? null : p.getSource().name(), p.getCreatedAt());
+                    p.getSource() == null ? null : p.getSource().name(), p.getCreatedAt(), p.getAvatarUrl());
         }
     }
 
@@ -40,5 +43,7 @@ public final class PatientDtos {
             @Size(max = 15, message = "Số thẻ BHYT tối đa 15 ký tự") String bhytNumber,
             LocalDate bhytValidTo,
             Short bhytRate,
-            String allergyNote) {}
+            String allergyNote,
+            @Size(max = 500, message = "Đường dẫn ảnh tối đa 500 ký tự")
+            @Pattern(regexp = AVATAR_URL, message = "Ảnh phải là đường dẫn http(s):// hoặc ảnh đã tải lên") String avatarUrl) {}
 }

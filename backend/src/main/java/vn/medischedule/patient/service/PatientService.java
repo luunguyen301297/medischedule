@@ -73,6 +73,7 @@ public class PatientService {
         p.setBhytValidTo(r.bhytValidTo());
         p.setBhytRate(r.bhytRate());
         p.setAllergyNote(blankToNull(r.allergyNote()));
+        p.setAvatarUrl(blankToNull(r.avatarUrl()));
     }
 
     /** Index unique (CCCD, một hồ sơ SELF / tài khoản) chặn ở DB, đổi thành lỗi nghiệp vụ. */

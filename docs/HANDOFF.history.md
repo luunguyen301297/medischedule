@@ -401,3 +401,106 @@ Menu Cài đặt > Chuyên khoa: CRUD chuyên khoa + phòng khám (admin), GET /
 ## Báo cáo dev
 - typecheck web OK, `mvnw compile` OK, V12 chạy thử BEGIN/ROLLBACK 2 lần (idempotent) rồi đã áp lên DB dev (v12).
 - JUnit ClinicCatalogServiceTest + ClinicCatalogIntegrationTest đạt trên qa_homepage_doctors (DB mới, V1→V13 áp qua Flyway). Kiểm giao diện ở 1536/1900px.
+
+---
+
+### C-nho — Trang chủ bệnh nhân sau đăng nhập: avatar, đặt lịch cho mình/người khác (`patient-home`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-28).
+
+Bệnh nhân đăng nhập thấy trang chủ với avatar + menu tài khoản; đặt lịch cho mình (lấy thông tin tài khoản, có hộp xác nhận) hoặc cho người khác; ẩn cụm giới thiệu/chân trang; tag đầu cụm đặt lịch đổi thành câu lưu ý (V14).
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| dev | 3p | 0p | 3p |
+| code-review | 46p | 0p | 46p |
+| **Cộng** | 49p | 0p | 49p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/patient-home-ba-spec.md |
+| Tech Design | ⬜ | docs/design/patient-home-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-patient-home.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/patient-home-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/patient-home-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/patient-home-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### C — Ảnh hồ sơ nhân viên/bệnh nhân, dialog hồ sơ bác sĩ cho bệnh nhân (`profile-photo`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-28).
+
+Ảnh hồ sơ cho nhân viên và từng hồ sơ bệnh nhân (V15, URL ảnh được kiểm); dialog hồ sơ bác sĩ công khai khi bấm ảnh ở trang chủ, không có tình trạng/email/SĐT.
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| ba | 2p | 0p | 2p |
+| tl-review | 0p | 0p | 0p |
+| dev | 4p | 0p | 4p |
+| code-review | 0p | 0p | 0p |
+| qa-run | 25p | 0p | 25p |
+| **Cộng** | 34p | 0p | 34p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/profile-photo-ba-spec.md |
+| Tech Design | ⬜ | docs/design/profile-photo-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-profile-photo.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/profile-photo-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/profile-photo-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/profile-photo-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### Full — Đặt bác sĩ từ dialog hồ sơ: lưu yêu cầu chờ xếp ca (`doctor-request`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-28).
+
+Đặt bác sĩ từ dialog hồ sơ: chọn ngày + buổi, xác nhận, lưu yêu cầu Chờ xếp ca (bảng doctor_request, V16); khách và bệnh nhân hai endpoint, chống trùng và tối đa 3 yêu cầu chờ mỗi SĐT.
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| ba | 0p | 0p | 0p |
+| design | 0p | 0p | 0p |
+| tl-review | 0p | 0p | 0p |
+| dev | 6p | 0p | 6p |
+| code-review | 0p | 0p | 0p |
+| qa-run | 7p | 0p | 7p |
+| **Cộng** | 16p | 0p | 16p |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ⬜ | docs/tasks/doctor-request-ba-spec.md |
+| Tech Design | ⬜ | docs/design/doctor-request-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ⬜ | docs/reviews/design-review-doctor-request.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/doctor-request-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/doctor-request-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/doctor-request-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)

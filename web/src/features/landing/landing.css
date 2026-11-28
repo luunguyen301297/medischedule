@@ -75,15 +75,24 @@
 .doctor-dots button:focus-visible { outline: 2px solid var(--ms-primary); outline-offset: 2px; }
 .doctor-track:focus-visible { outline: 2px solid var(--ms-primary); outline-offset: 2px; }
 .doctor-track .doctor-card { scroll-snap-align: start; }
-.doctor-card { margin: 0; display: grid; justify-items: center; gap: 8px; text-align: center; padding: 0 6px; }
+.doctor-card { margin: 0; background: none; border: 0; font: inherit; color: inherit; cursor: pointer; display: grid; justify-items: center; gap: 8px; text-align: center; padding: 0 6px; }
 .doctor-card img, .doctor-avatar-empty {
   width: 84px; height: 84px; border-radius: 50%; object-fit: cover;
   border: 3px solid var(--ms-surface); background: var(--ms-surface);
 }
 .doctor-avatar-empty { display: grid; place-items: center; font-size: 34px; color: var(--ms-ink-soft); }
-.doctor-card figcaption { display: grid; gap: 2px; }
+.doctor-card .doctor-caption { display: grid; gap: 2px; }
+.doctor-card:hover b { color: var(--ms-primary); }
+.doctor-card:focus-visible { outline: 2px solid var(--ms-primary); outline-offset: 4px; border-radius: 12px; }
 .doctor-card b { font-size: 14px; line-height: 1.3; }
-.doctor-card span { font-size: 13px; color: var(--ms-ink-soft); }
+.doctor-card .doctor-caption span { font-size: 13px; color: var(--ms-ink-soft); }
+
+/* Dialog hồ sơ bác sĩ */
+.doctor-profile { display: grid; gap: 16px; margin-top: 12px; }
+.doctor-profile-head { display: flex; align-items: center; gap: 16px; }
+.doctor-profile-head h3 { margin: 0; font-size: 20px; }
+.doctor-profile-head span { color: var(--ms-ink-soft); }
+.doctor-request-error { margin: 0 0 10px; color: var(--ms-error); }
 
 /* Thẻ đặt lịch */
 .booking-card {
@@ -96,9 +105,9 @@
 .booking-card-icon { flex: none; width: 50px; height: 50px; border-radius: 12px; background: var(--ms-accent-soft); color: var(--ms-accent); display: grid; place-items: center; font-size: 24px; }
 .booking-card-head h2 { font-size: 26px; line-height: 1.2; margin: 0; font-weight: 700; }
 .booking-card-head p { margin: 2px 0 0; font-size: 14px; color: var(--ms-ink-soft); }
-.booking-card .ant-form-item { margin-bottom: 14px; }
-.booking-card .ant-form-item-label { padding-bottom: 6px; }
-.booking-card .ant-form-item-label > label { font-weight: 600; font-size: 14px; }
+.booking-card .ant-form-item, .booking-modal .ant-form-item { margin-bottom: 14px; }
+.booking-card .ant-form-item-label, .booking-modal .ant-form-item-label { padding-bottom: 6px; }
+.booking-card .ant-form-item-label > label, .booking-modal .ant-form-item-label > label { font-weight: 600; font-size: 14px; }
 .booking-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
 
 /* Nút chọn chuyên khoa (mở hộp thoại) */
@@ -156,6 +165,18 @@
 .session-tile:disabled, .session-tile:disabled:hover { cursor: not-allowed; opacity: 0.45; border-color: var(--ms-border); color: var(--ms-ink); }
 
 .booking-submit.ant-btn { height: 50px; font-size: 16px; margin-top: 4px; border-radius: 12px; }
+.booking-other.ant-btn { height: 46px; margin-top: 10px; border-radius: 12px; font-weight: 600; color: var(--ms-primary); border-color: var(--ms-primary); }
+
+/* Avatar + menu tài khoản trên thanh điều hướng */
+.nav-user { display: inline-flex; align-items: center; gap: 10px; background: none; border: 1px solid var(--ms-border); border-radius: 999px; padding: 3px 12px 3px 3px; cursor: pointer; font: inherit; color: var(--ms-ink); }
+.nav-user:hover { border-color: var(--ms-primary); }
+.nav-user .ant-avatar { background: var(--ms-primary); }
+.nav-user-name { font-weight: 600; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-card { min-width: 260px; padding: 12px 14px; display: grid; gap: 4px; }
+.user-card b { font-size: 15px; }
+.booking-confirm { margin-top: 12px; }
+.booking-confirm .ant-descriptions-item-label { min-width: 110px; }
+.user-card span { font-size: 13px; color: var(--ms-ink-soft); }
 .booking-trust { display: flex; justify-content: center; gap: 20px; margin-top: 12px; font-size: 13px; color: var(--ms-ink-soft); }
 .booking-trust .anticon { color: var(--ms-accent); margin-right: 4px; }
 .booking-note { margin: 8px 0 0; font-size: 12.5px; color: var(--ms-ink-soft); text-align: center; }

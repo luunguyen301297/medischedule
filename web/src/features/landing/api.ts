@@ -40,7 +40,10 @@ export interface BookingContent {
 export interface BookingStat { value: string; label: string; source?: 'specialties' | 'doctors' }
 
 /** Bác sĩ đang hoạt động (public); specialtyName null = chưa có khoa. */
-export interface PublicDoctor { userId: number; fullName: string; degree: string | null; specialtyName: string | null; avatarUrl: string | null }
+export interface PublicDoctor {
+  userId: number; fullName: string; degree: string | null; specialtyName: string | null; avatarUrl: string | null
+  licenseNo: string | null; acceptsDesignation: boolean
+}
 
 export interface HomepageContent {
   booking: BookingContent
@@ -62,7 +65,7 @@ const img = (id: string) => `https://images.unsplash.com/photo-${id}?w=1920&q=70
 /** Nội dung mẫu: dùng khi backend chưa có dữ liệu hoặc không gọi được (khớp migration V3 + V4). */
 export const DEFAULT_HOMEPAGE: HomepageContent = {
   booking: {
-    badge: 'Đặt lịch online · Xác nhận trong 15 phút',
+    badge: 'Đặt lịch sớm để được phục vụ tốt hơn',
     title: 'Đặt lịch khám trong 1 phút, đến là được khám',
     subtitle: '',
     highlights: ['Đặt lịch đơn giản', 'Xác nhận qua điện thoại trong 15 phút', 'Có thể lựa chọn các bác sĩ hàng đầu'],
@@ -71,7 +74,7 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
       { value: '10+', label: 'Bác sĩ', source: 'doctors' },
       { value: '4.8/5', label: 'Bệnh nhân đánh giá' },
     ],
-    note: 'Trường hợp cấp cứu, vui lòng gọi 115 hoặc đến trực tiếp phòng khám.',
+    note: '',
     topDoctorIds: [],
   },
   intro: {
@@ -159,6 +162,20 @@ export const bookingApi = {
   shifts: () => http.get<BookingShift[]>('/public/booking/shifts').then((r) => r.data),
   doctors: (date: string, shiftId: number, specialtyId?: number) =>
     http.get<BookingDoctor[]>('/public/booking/doctors', { params: { date, shiftId, specialtyId } }).then((r) => r.data),
+}
+
+/** Yêu cầu đặt đích danh bác sĩ (ngày + buổi), chờ nhân sự xếp ca. */
+export interface DoctorRequestBody { doctorUserId: number; date: string; workShiftId: number; fullName?: string; phone?: string }
+export interface DoctorRequestResult {
+  id: number; doctorUserId: number; doctorName: string; date: string; workShiftName: string
+  startTime: string; endTime: string; fullName: string; phone: string; status: string; createdAt: string
+}
+
+export const doctorRequestApi = {
+  /** Khách: kèm họ tên + SĐT */
+  guest: (body: DoctorRequestBody) => http.post<DoctorRequestResult>('/public/doctor-requests', body).then((r) => r.data),
+  /** Bệnh nhân đã đăng nhập: họ tên + SĐT lấy từ tài khoản */
+  patient: (body: DoctorRequestBody) => http.post<DoctorRequestResult>('/doctor-requests', body).then((r) => r.data),
 }
 
 export const contentApi = {

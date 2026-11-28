@@ -2,6 +2,7 @@ package vn.medischedule.clinic.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import vn.medischedule.clinic.domain.Room;
 
@@ -39,7 +40,7 @@ public final class ClinicDtos {
 
     /** Hồ sơ nhân viên cho admin xem; cột chuyên môn chỉ có với bác sĩ. */
     public record StaffProfile(Long userId, String fullName, String phone, String specialtyName, Long specialtyId, String degree,
-                               String licenseNo, boolean acceptsDesignation, boolean active) {}
+                               String licenseNo, boolean acceptsDesignation, boolean active, String avatarUrl) {}
 
     /** Cột chuyên môn (specialtyId, degree, licenseNo, acceptsDesignation) chỉ lưu với bác sĩ. */
     public record StaffProfileRequest(
@@ -47,10 +48,16 @@ public final class ClinicDtos {
             @Size(max = 50, message = "Học hàm/học vị tối đa 50 ký tự") String degree,
             @Size(max = 30, message = "Số chứng chỉ tối đa 30 ký tự") String licenseNo,
             boolean acceptsDesignation,
-            boolean active) {}
+            boolean active,
+            @Size(max = 500, message = "Đường dẫn ảnh tối đa 500 ký tự")
+            @Pattern(regexp = AVATAR_URL, message = "Ảnh phải là đường dẫn http(s):// hoặc ảnh đã tải lên") String avatarUrl) {}
+
+    /** Ảnh hồ sơ: rỗng, https://… hoặc ảnh đã tải lên (/api/public/files/…); chặn javascript:, data:. */
+    public static final String AVATAR_URL = "^((https?://|/api/public/files/)\\S+)?$";
 
     /** Bác sĩ đang hoạt động cho trang chủ (public); specialtyName null = chưa có khoa. */
-    public record PublicDoctor(Long userId, String fullName, String degree, String specialtyName, String avatarUrl) {}
+    public record PublicDoctor(Long userId, String fullName, String degree, String specialtyName, String avatarUrl,
+                               String licenseNo, boolean acceptsDesignation) {}
 
     /** Dữ liệu public cho form đặt lịch. */
     public record SpecialtyOption(Long id, String name) {}

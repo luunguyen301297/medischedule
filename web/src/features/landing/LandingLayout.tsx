@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from 'antd'
 import { useEffect, type ReactNode } from 'react'
 import { contentApi, DEFAULT_HOMEPAGE } from './api'
-import BookingWidget from './components/BookingWidget'
+import BookingWidget, { type Booker } from './components/BookingWidget'
 import FeatureIcon from './components/FeatureIcon'
 import TopDoctors from './components/TopDoctors'
 import Reveal from '@/shared/ui/Reveal'
@@ -34,12 +34,17 @@ export default function LandingLayout({
   subtitle,
   onRegister,
   children,
+  account,
 }: {
-  title: string
-  subtitle: string
+  title?: string
+  subtitle?: string
   /** Nút Đăng ký trên thanh điều hướng (trang đăng nhập mở dialog đăng ký) */
-  onRegister: () => void
-  children: ReactNode
+  onRegister?: () => void
+  /** Form đăng nhập; không truyền thì ẩn cụm giới thiệu + đăng nhập */
+  children?: ReactNode
+  /** Người đã đăng nhập: thay nút Đăng ký / Đăng nhập bằng `menu`, đặt lịch cho mình không cần nhập họ tên / SĐT,
+   *  ẩn các cụm giới thiệu ảnh nền và chân trang liên hệ (hotline vẫn ở thanh điều hướng) */
+  account?: { menu: ReactNode; booker: Booker }
 }) {
   const { data = DEFAULT_HOMEPAGE } = useQuery({ queryKey: ['homepage'], queryFn: contentApi.homepage, staleTime: 60_000 })
   const specialties = useQuery({ queryKey: ['public', 'specialties'], queryFn: contentApi.specialties })
@@ -48,7 +53,7 @@ export default function LandingLayout({
   const counts = { specialties: specialties.data?.length, doctors: doctors.data?.length }
   const byId = new Map((doctors.data ?? []).map((d) => [d.userId, d]))
   const topDoctors = (booking.topDoctorIds ?? []).flatMap((id) => byId.get(id) ?? [])
-  const shown = sections.filter((s) => s.active && s.title)
+  const shown = account ? [] : sections.filter((s) => s.active && s.title)
 
   // Tải lại trang (F5) luôn mở ở đầu trang, không để trình duyệt khôi phục vị trí cuộn cũ
   useEffect(() => {
@@ -66,12 +71,16 @@ export default function LandingLayout({
         <nav aria-label="Điều hướng trang">
           <button type="button" onClick={() => scrollToId('dat-lich')}>Đặt lịch khám</button>
           {shown.length > 0 && <button type="button" onClick={() => scrollToId('kham-pha')}>Dịch vụ</button>}
-          <button type="button" onClick={() => scrollToId('lien-he')}>Liên hệ</button>
+          {!account && <button type="button" onClick={() => scrollToId('lien-he')}>Liên hệ</button>}
         </nav>
         <div className="nav-right">
           {intro.hotline && <span className="nav-hotline"><PhoneOutlined /> {intro.hotline}</span>}
-          <Button onClick={onRegister}>Đăng ký</Button>
-          <Button type="primary" onClick={() => scrollToId('tai-khoan')}>Đăng nhập</Button>
+          {account ? account.menu : (
+            <>
+              <Button onClick={onRegister}>Đăng ký</Button>
+              <Button type="primary" onClick={() => scrollToId('tai-khoan')}>Đăng nhập</Button>
+            </>
+          )}
         </div>
       </header>
 
@@ -96,19 +105,20 @@ export default function LandingLayout({
               ))}
             </dl>
           )}
-          <TopDoctors doctors={topDoctors} />
+          <TopDoctors doctors={topDoctors} booker={account?.booker} />
         </Reveal>
         <Reveal from="right" delay={120} className="booking-card">
           <BookingWidget
             specialties={specialties.data}
             loadFailed={specialties.isError && !specialties.data}
             note={booking.note}
+            booker={account?.booker}
           />
         </Reveal>
       </section>
 
       {/* ---------- 2. Giới thiệu chung + đăng nhập / đăng ký ---------- */}
-      <section id="tai-khoan" className="hero">
+      {children && <section id="tai-khoan" className="hero">
         <Reveal from="left" className="hero-brand">
           <Logo name={intro.brandName} />
           <div className="hero-copy">
@@ -136,7 +146,7 @@ export default function LandingLayout({
             {children}
           </div>
         </Reveal>
-      </section>
+      </section>}
 
       {/* ---------- 3. Các cụm thông tin kèm ảnh nền ---------- */}
       <div id="kham-pha">
@@ -161,14 +171,14 @@ export default function LandingLayout({
       </div>
 
       {/* ---------- Liên hệ ---------- */}
-      <footer id="lien-he" className="site-foot">
+      {!account && <footer id="lien-he" className="site-foot">
         <Reveal from="up" className="foot-grid">
           <Logo name={intro.brandName} />
           {intro.address && <div><EnvironmentOutlined /> {intro.address}</div>}
           {intro.hotline && <div><PhoneOutlined /> {intro.hotline}</div>}
           {intro.workingHours && <div><ClockCircleOutlined /> {intro.workingHours}</div>}
         </Reveal>
-      </footer>
+      </footer>}
     </div>
   )
 }

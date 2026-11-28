@@ -94,7 +94,8 @@ public class ClinicCatalogService {
                     Staff st = byUser.get(d.userId());
                     Specialty sp = st == null ? null : st.getSpecialty();
                     return new PublicDoctor(d.userId(), d.fullName(), st == null ? null : st.getDegree(),
-                            sp == null ? null : sp.getName(), st == null ? null : st.getAvatarUrl());
+                            sp == null ? null : sp.getName(), st == null ? null : st.getAvatarUrl(),
+                            st == null ? null : st.getLicenseNo(), st != null && st.isAcceptsDesignation());
                 })
                 .sorted(Comparator.comparing(PublicDoctor::fullName, vi))
                 .toList();
@@ -127,6 +128,7 @@ public class ClinicCatalogService {
         st.setLicenseNo(doctor ? blankToNull(req.licenseNo()) : null);
         st.setAcceptsDesignation(doctor && req.acceptsDesignation());
         st.setActive(req.active());
+        st.setAvatarUrl(blankToNull(req.avatarUrl()));
         try {
             return toProfile(staff.saveAndFlush(st));
         } catch (DataIntegrityViolationException e) {
@@ -153,7 +155,8 @@ public class ClinicCatalogService {
     private static StaffProfile toProfile(Staff st) {
         Specialty sp = st.getSpecialty();
         return new StaffProfile(st.getUserId(), st.getFullName(), st.getPhone(), sp == null ? null : sp.getName(),
-                sp == null ? null : sp.getId(), st.getDegree(), st.getLicenseNo(), st.isAcceptsDesignation(), st.isActive());
+                sp == null ? null : sp.getId(), st.getDegree(), st.getLicenseNo(), st.isAcceptsDesignation(), st.isActive(),
+                st.getAvatarUrl());
     }
 
     @Transactional(readOnly = true)

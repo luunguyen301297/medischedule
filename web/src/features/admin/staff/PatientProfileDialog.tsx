@@ -4,6 +4,7 @@ import { App, Button, Empty, Form, Input, Select, Space, Spin, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import type { UserResponse } from '@/features/auth'
 import { errorMessage } from '@/shared/api/http'
+import AvatarField, { AvatarView } from '@/shared/ui/AvatarField'
 import { profilesApi, usersApi, type PatientProfile, type PatientRelation, type PatientRequest, type UpdateUserRequest } from './api'
 import {
   ACCOUNT_ERRORS,
@@ -44,6 +45,7 @@ const toRequest = (p: ProfileValues): PatientRequest => ({
   bhytValidTo: blank(p.bhytValidTo),
   bhytRate: p.bhytRate ?? null,
   allergyNote: blank(p.allergyNote),
+  avatarUrl: blank(p.avatarUrl),
 })
 
 const PROFILE_ERRORS = { NATIONAL_ID_EXISTS: 'nationalId', SELF_EXISTS: 'relation', BHYT_RATE_INVALID: 'bhytRate' }
@@ -52,6 +54,7 @@ const PROFILE_ERRORS = { NATIONAL_ID_EXISTS: 'nationalId', SELF_EXISTS: 'relatio
 function profileRows(p: ProfileValues, i: number, relations: PatientRelation[]): Row[] {
   const f = (name: string) => ['profiles', i, name]
   return [
+    { key: 'avatar', label: 'Ảnh', view: <AvatarView src={p.avatarUrl} />, edit: cell(f('avatarUrl'), <AvatarField />) },
     { key: 'fullName', label: 'Họ tên', view: p.fullName, edit: cell(f('fullName'), <Input />, [{ required: true, whitespace: true, message: 'Nhập họ tên' }, { max: 120 }]) },
     {
       key: 'relation',

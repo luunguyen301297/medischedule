@@ -13,8 +13,8 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 INSERT INTO site_content (content_key, content, updated_at)
 VALUES ('homepage', '{
   "booking": {
-    "note": "Đặt lịch sớm và chọn chuyên khoa để được phục vụ tốt hơn",
-    "badge": "Đặt lịch online · Xác nhận trong 15 phút",
+    "note": "",
+    "badge": "Đặt lịch sớm để được phục vụ tốt hơn",
     "stats": [
       {
         "label": "Chuyên khoa",

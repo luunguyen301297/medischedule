@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { Button, Descriptions, Space, Spin } from 'antd'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { authApi, ROLE_LABEL } from '@/features/auth'
+import { LandingLayout } from '@/features/landing'
 import { tokenStore } from '@/shared/api/http'
+import UserMenu from './UserMenu'
 
-/** Trang tạm sau đăng nhập: hiện người dùng hiện tại. Các khu vực theo vai trò thêm sau. */
+/** Trang sau đăng nhập. Bệnh nhân: trang chủ kèm đặt lịch cho mình; vai trò khác: trang tạm hiện người dùng. */
 export default function HomePage() {
   const navigate = useNavigate()
   const { data: me, isLoading } = useQuery({ queryKey: ['me'], queryFn: authApi.me })
@@ -15,6 +17,17 @@ export default function HomePage() {
   const logout = () => {
     tokenStore.clear()
     navigate('/login', { replace: true })
+  }
+
+  if (me?.role === 'PATIENT') {
+    return (
+      <LandingLayout
+        account={{
+          menu: <UserMenu me={me} onLogout={logout} />,
+          booker: { fullName: me.fullName, phone: me.phone },
+        }}
+      />
+    )
   }
 
   return (

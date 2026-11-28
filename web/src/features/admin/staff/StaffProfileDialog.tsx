@@ -3,6 +3,7 @@ import { App, Form, Input, Select, Spin, Switch, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 import type { UserResponse } from '@/features/auth'
 import { errorCode, errorMessage } from '@/shared/api/http'
+import AvatarField, { AvatarView } from '@/shared/ui/AvatarField'
 import { specialtyApi } from '../specialty/api'
 import { profilesApi, usersApi, type StaffProfile, type StaffProfileRequest, type UpdateUserRequest } from './api'
 import {
@@ -30,6 +31,7 @@ const profileValues = (p: StaffProfile | undefined): StaffProfileRequest => ({
   licenseNo: p?.licenseNo ?? '',
   acceptsDesignation: p?.acceptsDesignation ?? false,
   active: p?.active ?? true,
+  avatarUrl: p?.avatarUrl ?? null,
 })
 
 const toRequest = (v: StaffProfileRequest): StaffProfileRequest => ({
@@ -38,6 +40,7 @@ const toRequest = (v: StaffProfileRequest): StaffProfileRequest => ({
   licenseNo: blank(v.licenseNo),
   acceptsDesignation: !!v.acceptsDesignation,
   active: !!v.active,
+  avatarUrl: blank(v.avatarUrl),
 })
 
 /** Hồ sơ nhân viên: tài khoản + hồ sơ chuyên môn (bảng staff); một nút Sửa, sửa tại chỗ. */
@@ -95,6 +98,7 @@ export default function StaffProfileDialog({ user, onClose }: { user: UserRespon
   }
 
   const profileRows: Row[] = [
+    { key: 'avatar', label: 'Ảnh', view: <AvatarView src={data?.avatarUrl} />, edit: cell(['profile', 'avatarUrl'], <AvatarField />) },
     ...(isDoctor
       ? [
           {
