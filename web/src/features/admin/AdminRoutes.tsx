@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import BookingPage from './booking/BookingPage'
 import HomepageSettingsPage from './homepage/HomepageSettingsPage'
 import AdminLayout from './layout/AdminLayout'
 import SpecialtyPage from './specialty/SpecialtyPage'
@@ -11,7 +12,8 @@ export default function AdminRoutes() {
   return (
     <Routes>
       <Route element={<AdminLayout />}>
-        <Route index element={<Navigate to="staff" replace />} />
+        <Route index element={<Navigate to="bookings" replace />} />
+        <Route path="bookings" element={<BookingPage />} />
         <Route path="staff" element={<StaffPage key="staff" group="staff" />} />
         <Route path="patients" element={<StaffPage key="patient" group="patient" />} />
         <Route path="homepage" element={<HomepageSettingsPage />} />

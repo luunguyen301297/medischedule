@@ -27,4 +27,7 @@ public class Specialty {
 
     /** false = ẩn khỏi danh sách đặt lịch, giữ lại cho dữ liệu cũ. */
     private boolean active = true;
+
+    /** Thời gian khám một lượt (phút), bội của 5 trong 5–120; là độ dài slot khi sinh ca khám. */
+    private short slotMinutes = 15;
 }

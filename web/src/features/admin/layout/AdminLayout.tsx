@@ -1,16 +1,19 @@
-import { ApartmentOutlined, CalendarOutlined, ClockCircleOutlined, LayoutOutlined, LogoutOutlined, SafetyCertificateOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
+import { ApartmentOutlined, CalendarOutlined, ClockCircleOutlined, LayoutOutlined, LogoutOutlined, SafetyCertificateOutlined, ScheduleOutlined, SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Menu, Spin } from 'antd'
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { authApi } from '@/features/auth'
+import { authApi, ROLE_LABEL } from '@/features/auth'
 import { contentApi } from '@/features/landing'
 import { tokenStore } from '@/shared/api/http'
 import '../admin.css'
 
 type MenuItem = { key: string; icon: JSX.Element; label: string; children?: MenuItem[] }
 
+const BOOKINGS = '/admin/bookings'
+
 const MENU: MenuItem[] = [
+  { key: BOOKINGS, icon: <ScheduleOutlined />, label: 'Lịch hẹn' },
   { key: '/admin/work-schedule', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
   {
     key: 'accounts',
@@ -33,6 +36,9 @@ const MENU: MenuItem[] = [
   },
 ]
 
+/** Lễ tân chỉ dùng menu Lịch hẹn; quản trị viên thấy đủ. */
+const menuFor = (role: string) => (role === 'RECEPTIONIST' ? MENU.filter((m) => m.key === BOOKINGS) : MENU)
+
 /** Mục lá đang khớp đường dẫn, kèm key menu cha (nếu có) để mở sẵn. */
 function findActive(pathname: string) {
   for (const m of MENU) {
@@ -46,7 +52,7 @@ function findActive(pathname: string) {
   return { key: '', parent: undefined }
 }
 
-/** Khung khu quản trị: chỉ ADMIN vào được. */
+/** Khung khu quản trị: ADMIN vào đủ; RECEPTIONIST chỉ vào trang Lịch hẹn. */
 export default function AdminLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -60,7 +66,8 @@ export default function AdminLayout() {
 
   if (isLoading) return <Spin fullscreen />
   if (!me) return <Navigate to="/login" replace />
-  if (me.role !== 'ADMIN') return <Navigate to="/" replace />
+  if (me.role !== 'ADMIN' && me.role !== 'RECEPTIONIST') return <Navigate to="/" replace />
+  if (me.role === 'RECEPTIONIST' && !pathname.startsWith(BOOKINGS)) return <Navigate to={BOOKINGS} replace />
 
   const logout = () => {
     tokenStore.clear()
@@ -81,14 +88,15 @@ export default function AdminLayout() {
           selectedKeys={[active.key]}
           openKeys={openKeys}
           onOpenChange={setOpenKeys}
-          items={MENU}
+          items={menuFor(me.role)}
           onClick={(e) => navigate(e.key)}
         />
         <div className="admin-user">
           <div>
             <b>{me.fullName}</b>
-            {/* Khu này chỉ ADMIN vào được nên không cần hiện vai trò */}
-            <div className="admin-user-sub">{me.username ?? me.email}</div>
+            <div className="admin-user-sub">
+              {me.role === 'ADMIN' ? (me.username ?? me.email) : `${ROLE_LABEL[me.role]} · ${me.username ?? me.email}`}
+            </div>
           </div>
           <Button icon={<LogoutOutlined />} onClick={logout} block>
             Đăng xuất

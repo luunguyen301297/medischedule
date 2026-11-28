@@ -46,4 +46,13 @@ public final class PatientDtos {
             String allergyNote,
             @Size(max = 500, message = "Đường dẫn ảnh tối đa 500 ký tự")
             @Pattern(regexp = AVATAR_URL, message = "Ảnh phải là đường dẫn http(s):// hoặc ảnh đã tải lên") String avatarUrl) {}
+
+    /** Hồ sơ rút gọn cho ô chọn bệnh nhân khi đặt lịch hộ. */
+    public record PatientLite(Long id, String patientCode, String fullName, LocalDate dateOfBirth, String gender,
+                              String phone) {
+        public static PatientLite of(Patient p) {
+            return new PatientLite(p.getId(), p.getPatientCode(), p.getFullName(), p.getDateOfBirth(), p.getGender(),
+                    p.getPhone());
+        }
+    }
 }

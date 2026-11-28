@@ -1,19 +1,20 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Alert, App, Button, Empty, Form, Input, List, Modal, Popconfirm, Select, Switch, Table, Tag } from 'antd'
+import { Alert, App, Button, Empty, Form, Input, InputNumber, List, Modal, Popconfirm, Select, Switch, Table, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useState } from 'react'
 import { errorCode, errorMessage, fieldErrors } from '@/shared/api/http'
 import { specialtyApi, type DoctorOption, type Room, type RoomRequest, type Specialty } from './api'
 
 /** Một form cho cả chuyên khoa và phòng; trường nào không dùng thì bỏ qua */
-type CatalogForm = RoomRequest & { doctorUserIds?: number[] }
+type CatalogForm = RoomRequest & { doctorUserIds?: number[]; slotMinutes?: number }
 
 /** Dòng phụ: tên phòng khi đúng 1 phòng, tên bác sĩ khi đúng 1 bác sĩ, còn lại là số lượng */
 const summary = (s: Specialty) =>
   [
     s.roomCount === 1 && s.singleRoomName ? `Phòng ${s.singleRoomName}` : `${s.roomCount} phòng`,
     s.singleDoctorName ?? (s.doctorUserIds.length > 1 ? `${s.doctorUserIds.length} bác sĩ` : null),
+    `${s.slotMinutes} phút/lượt`,
   ]
     .filter(Boolean)
     .join(' · ')
@@ -76,7 +77,7 @@ export default function SpecialtyPage() {
         await (target.item ? specialtyApi.updateRoom(target.item.id, body) : specialtyApi.createRoom(body))
         return
       }
-      const body = { name: values.name, doctorUserIds: values.doctorUserIds ?? [] }
+      const body = { name: values.name, doctorUserIds: values.doctorUserIds ?? [], slotMinutes: values.slotMinutes }
       if (target.item) {
         await specialtyApi.update(target.item.id, body)
       } else {
@@ -104,6 +105,7 @@ export default function SpecialtyPage() {
       name: target.item?.name,
       specialtyId: target.kind === 'room' ? (target.item?.specialtyId ?? selected?.id) : undefined,
       doctorUserIds: target.kind === 'specialty' ? (target.item?.doctorUserIds ?? []) : undefined,
+      slotMinutes: target.kind === 'specialty' ? (target.item?.slotMinutes ?? 15) : undefined,
     })
     setEditing(target)
   }
@@ -309,6 +311,24 @@ export default function SpecialtyPage() {
                 .map((s) => ({ value: s.id, label: s.name }))}
             />
           </Form.Item>
+          {!isRoom && (
+            <Form.Item
+              name="slotMinutes"
+              label="Thời gian khám mỗi lượt (phút)"
+              extra="Độ dài mỗi giờ hẹn khi đặt lịch; ca khám đã có lịch giữ nguyên giá trị cũ."
+              rules={[
+                { required: true, message: 'Nhập thời gian khám' },
+                {
+                  validator: (_, v?: number) =>
+                    v == null || (v >= 5 && v <= 120 && v % 5 === 0)
+                      ? Promise.resolve()
+                      : Promise.reject(new Error('Từ 5 đến 120 phút, bội của 5')),
+                },
+              ]}
+            >
+              <InputNumber id="catalog_slotMinutes" min={5} max={120} step={5} precision={0} style={{ width: 160 }} />
+            </Form.Item>
+          )}
           {!isRoom && (
             <Form.Item name="doctorUserIds" label="Bác sĩ">
               <Select

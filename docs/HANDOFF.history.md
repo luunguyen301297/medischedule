@@ -538,3 +538,39 @@ Bệnh nhân đăng nhập thấy trang chủ với avatar + menu tài khoản; 
 ## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
 
 ## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)
+
+---
+
+### Full — Menu Booking admin: danh sách lịch hẹn + đặt hộ khách (appointment) (`admin-booking`)
+
+**Phase**: `idle` ✅ ĐÓNG (2026-11-28).
+
+Menu Lịch hẹn (/admin/bookings) cho ADMIN + RECEPTIONIST: danh sách lọc/tìm/hủy, đặt hộ khách (bác sĩ + giờ tùy chọn; ca khám sinh lười từ phân ca, slot theo thời gian khám của khoa), tự chọn/dùng lại hồ sơ theo SĐT + họ tên. Migration V19, V20. 110 test backend pass trên qa_admin_booking, đã kiểm trên trình duyệt.
+
+**Thời gian**:
+
+| Phase | Tổng | Chờ user | Làm việc |
+|---|---|---|---|
+| ba | 8p | 0p | 8p |
+| design | 1p | 0p | 1p |
+| tl-review | 0p | 0p | 0p |
+| dev | 9p | 0p | 9p |
+| code-review | 6p | 0p | 6p |
+| qa-run | 2g24 | 0p | 2g24 |
+| **Cộng** | 2g51 | 0p | 2g51 |
+
+## Artifacts Registry (⬜ chưa có · ✅ đã có — tác giả artifact đổi khi ghi xong, điền đường dẫn)
+
+| Artifact | Trạng thái | Đường dẫn |
+|---|---|---|
+| BA Spec | ✅ | docs/tasks/admin-booking-ba-spec.md |
+| Tech Design | ✅ | docs/design/admin-booking-tech-design.md (Full / G nhiều hướng fix) |
+| TL Review | ✅ | docs/reviews/design-review-admin-booking.md (chỉ khi có action item; không thì ghi "inline") |
+| API Spec | ⬜ | docs/api/admin-booking-api-spec.md (khi needs_api_detail) |
+| DB Migration | ⬜ | backend/src/main/resources/db/migration/… (khi needs_db_detail) |
+| UX Spec | ⬜ | docs/design/admin-booking-ux-spec.md (không bắt buộc) |
+| Test cases | ⬜ | docs/tests/admin-booking-test-cases.md |
+
+## Báo cáo (phiên con append cuối mỗi mốc: phase, việc xong, commit, test)
+
+## Câu hỏi mở / Lệch spec (phiên con ghi vào đây VÀ báo điều phối — chưa giải quyết thì không đi tiếp)

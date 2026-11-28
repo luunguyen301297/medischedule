@@ -41,4 +41,8 @@ public final class ScheduleDtos {
 
     /** Nhân viên đang hoạt động cho ô chọn khi phân ca. */
     public record StaffOption(Long userId, String fullName, String role) {}
+
+    /** Ca khám của bác sĩ (bảng shift) cho đặt lịch; id null = ca dự kiến, chưa lưu. */
+    public record ClinicShift(Long id, Long roomId, LocalTime startTime, LocalTime endTime, int slotMinutes,
+                              int maxPatients) {}
 }

@@ -12,6 +12,7 @@ import vn.medischedule.schedule.domain.WorkAssignment;
 import vn.medischedule.schedule.domain.WorkShift;
 import vn.medischedule.schedule.dto.ScheduleDtos.AssignRequest;
 import vn.medischedule.schedule.dto.ScheduleDtos.WorkShiftRequest;
+import vn.medischedule.schedule.repository.ShiftRepository;
 import vn.medischedule.schedule.repository.WorkAssignmentRepository;
 import vn.medischedule.schedule.repository.WorkShiftRepository;
 
@@ -31,7 +32,8 @@ class WorkScheduleServiceTest {
     WorkAssignmentRepository assignments = mock(WorkAssignmentRepository.class);
     AuthService auth = mock(AuthService.class);
     ClinicCatalogService catalog = mock(ClinicCatalogService.class);
-    WorkScheduleService service = new WorkScheduleService(shifts, assignments, auth, catalog);
+    ShiftRepository clinicShifts = mock(ShiftRepository.class);
+    WorkScheduleService service = new WorkScheduleService(shifts, clinicShifts, assignments, auth, catalog);
 
     LocalDate tomorrow = LocalDate.now(WorkScheduleService.CLINIC_ZONE).plusDays(1);
     WorkShift morning = shift(1L, "Sáng", "07:00", "11:30", true);

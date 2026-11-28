@@ -15,6 +15,7 @@ import vn.medischedule.auth.service.AuthService;
 import vn.medischedule.clinic.domain.Room;
 import vn.medischedule.clinic.domain.Specialty;
 import vn.medischedule.clinic.domain.Staff;
+import vn.medischedule.clinic.dto.ClinicDtos.BookingDoctorInfo;
 import vn.medischedule.clinic.dto.ClinicDtos.DoctorOption;
 import vn.medischedule.clinic.dto.ClinicDtos.PublicDoctor;
 import vn.medischedule.clinic.dto.ClinicDtos.RoomRequest;
@@ -174,6 +175,7 @@ public class ClinicCatalogService {
         }
         Specialty s = new Specialty();
         s.setName(name);
+        s.setSlotMinutes(slotMinutes(req.slotMinutes(), (short) 15));
         s = saveUniqueName(specialties, s, specialtyExists());
         assignDoctors(s, req.doctorUserIds());
         return toResponse(s);
@@ -187,9 +189,35 @@ public class ClinicCatalogService {
             throw specialtyExists();
         }
         s.setName(name);
+        s.setSlotMinutes(slotMinutes(req.slotMinutes(), s.getSlotMinutes()));
         s = saveUniqueName(specialties, s, specialtyExists());
         assignDoctors(s, req.doctorUserIds());
         return toResponse(s);
+    }
+
+    /**
+     * Bác sĩ đang hoạt động kèm hồ sơ staff, khoa và phòng khám để đặt lịch. Lỗi rõ ràng thay vì để FK nổ:
+     * DOCTOR_UNAVAILABLE (khóa / nghỉ / chưa có hồ sơ), DOCTOR_NO_SPECIALTY, NO_ROOM.
+     */
+    @Transactional(readOnly = true)
+    public BookingDoctorInfo bookingDoctor(Long doctorUserId) {
+        String name = activeDoctorNames().get(doctorUserId);
+        Staff st = name == null ? null : staff.findByUserId(doctorUserId).filter(Staff::isActive).orElse(null);
+        if (st == null) {
+            throw ApiException.badRequest("DOCTOR_UNAVAILABLE", "Bác sĩ hiện không nhận đặt lịch");
+        }
+        Specialty sp = st.getSpecialty();
+        if (sp == null || !sp.isActive()) {
+            throw ApiException.badRequest("DOCTOR_NO_SPECIALTY", "Bác sĩ chưa thuộc chuyên khoa đang hoạt động");
+        }
+        // Khoa nhiều phòng: lấy phòng tạo sớm nhất (GĐ-05)
+        Room room = rooms.findBySpecialtyIdOrderByName(sp.getId()).stream()
+                .filter(Room::isActive)
+                .min(Comparator.comparing(Room::getId))
+                .orElseThrow(() -> ApiException.badRequest("NO_ROOM",
+                        "Khoa %s chưa có phòng khám đang hoạt động".formatted(sp.getName())));
+        return new BookingDoctorInfo(st.getId(), doctorUserId, name, sp.getId(), sp.getName(), sp.getSlotMinutes(),
+                room.getId(), room.getName());
     }
 
     public SpecialtyResponse setSpecialtyActive(Long id, boolean active) {
@@ -269,6 +297,17 @@ public class ClinicCatalogService {
         return rooms.findById(id)
                 .filter(r -> r.getSpecialty() != null)
                 .orElseThrow(() -> ApiException.notFound("ROOM_NOT_FOUND", "Phòng khám không tồn tại"));
+    }
+
+    /** null = giữ giá trị hiện tại; khoảng 5–120 do Bean Validation chặn, ở đây kiểm bội của 5. */
+    private static short slotMinutes(Integer requested, short current) {
+        if (requested == null) {
+            return current;
+        }
+        if (requested < 5 || requested > 120 || requested % 5 != 0) {
+            throw ApiException.badRequest("SLOT_MINUTES_INVALID", "Thời gian khám từ 5 đến 120 phút, bội của 5");
+        }
+        return requested.shortValue();
     }
 
     private static void requireActive(Specialty s) {
@@ -368,7 +407,7 @@ public class ClinicCatalogService {
             return new SpecialtyResponse(s.getId(), s.getName(), s.isActive(), rs.size(),
                     rs.size() == 1 ? rs.get(0).getName() : null,
                     ds.stream().map(Staff::getUserId).toList(),
-                    ds.size() == 1 ? names.get(ds.get(0).getUserId()) : null);
+                    ds.size() == 1 ? names.get(ds.get(0).getUserId()) : null, s.getSlotMinutes());
         }
     }
 

@@ -34,6 +34,9 @@ public class Shift {
     /** staff.id của bác sĩ trực. */
     private Long doctorId;
 
+    /** work_shift.id: ca làm việc sinh ra ca khám này; unique cùng (doctorId, workDate). NULL ở dữ liệu cũ. */
+    private Long workShiftId;
+
     /** room.id nơi khám. */
     private Long roomId;
 

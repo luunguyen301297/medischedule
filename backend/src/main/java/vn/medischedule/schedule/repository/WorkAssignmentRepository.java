@@ -17,4 +17,6 @@ public interface WorkAssignmentRepository extends JpaRepository<WorkAssignment, 
     List<WorkAssignment> findByWorkDateAndUserIdIn(LocalDate date, Collection<Long> userIds);
 
     List<WorkAssignment> findByWorkDateAndWorkShiftId(LocalDate date, Long workShiftId);
+
+    boolean existsByWorkDateAndWorkShiftIdAndUserId(LocalDate date, Long workShiftId, Long userId);
 }

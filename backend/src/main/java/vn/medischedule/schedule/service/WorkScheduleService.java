@@ -11,13 +11,16 @@ import vn.medischedule.auth.service.AuthService;
 import vn.medischedule.clinic.dto.ClinicDtos.DoctorOption;
 import vn.medischedule.clinic.service.ClinicCatalogService;
 import vn.medischedule.common.exception.ApiException;
+import vn.medischedule.schedule.domain.Shift;
 import vn.medischedule.schedule.domain.WorkAssignment;
 import vn.medischedule.schedule.domain.WorkShift;
 import vn.medischedule.schedule.dto.ScheduleDtos.AssignRequest;
 import vn.medischedule.schedule.dto.ScheduleDtos.AssignmentResponse;
+import vn.medischedule.schedule.dto.ScheduleDtos.ClinicShift;
 import vn.medischedule.schedule.dto.ScheduleDtos.StaffOption;
 import vn.medischedule.schedule.dto.ScheduleDtos.WorkShiftRequest;
 import vn.medischedule.schedule.dto.ScheduleDtos.WorkShiftResponse;
+import vn.medischedule.schedule.repository.ShiftRepository;
 import vn.medischedule.schedule.repository.WorkAssignmentRepository;
 import vn.medischedule.schedule.repository.WorkShiftRepository;
 
@@ -30,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,9 +52,61 @@ public class WorkScheduleService {
     static final int MAX_RANGE_DAYS = 42;
 
     private final WorkShiftRepository shifts;
+    private final ShiftRepository clinicShifts;
     private final WorkAssignmentRepository assignments;
     private final AuthService auth;
     private final ClinicCatalogService catalog;
+
+    // ---------- Ca khám (bảng shift) cho đặt lịch ----------
+
+    /** Ca làm việc đang bật; không có hoặc đã tắt → SHIFT_INVALID. */
+    @Transactional(readOnly = true)
+    public WorkShiftResponse activeShift(Long workShiftId) {
+        return shifts.findById(workShiftId).filter(WorkShift::isActive).map(WorkShiftResponse::of)
+                .orElseThrow(() -> ApiException.badRequest("SHIFT_INVALID", "Buổi khám không còn mở"));
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isAssigned(LocalDate date, Long workShiftId, Long userId) {
+        return assignments.existsByWorkDateAndWorkShiftIdAndUserId(date, workShiftId, userId);
+    }
+
+    /** Ca khám đã lưu của bác sĩ (staff.id) trong ngày + ca làm việc, nếu có. */
+    @Transactional(readOnly = true)
+    public Optional<ClinicShift> findClinicShift(Long doctorStaffId, LocalDate date, Long workShiftId) {
+        return clinicShifts.findByDoctorIdAndWorkDateAndWorkShiftId(doctorStaffId, date, workShiftId)
+                .map(WorkScheduleService::toClinicShift);
+    }
+
+    /** Ca dự kiến (chưa lưu) từ ca làm việc + thời gian khám của khoa; số khách tối đa = phút ca / slot. */
+    public static ClinicShift plannedClinicShift(WorkShiftResponse ws, Long roomId, int slotMinutes) {
+        long minutes = ChronoUnit.MINUTES.between(ws.startTime(), ws.endTime());
+        return new ClinicShift(null, roomId, ws.startTime(), ws.endTime(), slotMinutes, (int) (minutes / slotMinutes));
+    }
+
+    /**
+     * Lấy hoặc tạo ca khám rồi khóa dòng tới hết transaction (sinh lười lúc đặt lịch, GĐ-05). Ca đã có giữ nguyên phòng
+     * và độ dài slot cũ (AC-18).
+     */
+    public ClinicShift lockOrCreateClinicShift(Long doctorStaffId, LocalDate date, WorkShiftResponse ws, Long roomId,
+                                               int slotMinutes) {
+        ClinicShift planned = plannedClinicShift(ws, roomId, slotMinutes);
+        if (planned.maxPatients() < 1) {
+            throw ApiException.badRequest("SHIFT_TOO_SHORT", "Ca làm việc ngắn hơn thời gian khám một lượt");
+        }
+        clinicShifts.insertIfAbsent(doctorStaffId, roomId, date, ws.startTime().toString(), ws.endTime().toString(),
+                (short) slotMinutes, (short) planned.maxPatients(), ws.id());
+        return clinicShifts.lockByDoctorAndDateAndWorkShift(doctorStaffId, date, ws.id())
+                .map(WorkScheduleService::toClinicShift)
+                // Không chèn được vì trùng (bác sĩ, ngày, giờ bắt đầu) với một ca khám khác
+                .orElseThrow(() -> new ApiException(HttpStatus.CONFLICT, "SHIFT_CONFLICT",
+                        "Bác sĩ đã có ca khám khác trùng giờ bắt đầu trong ngày"));
+    }
+
+    private static ClinicShift toClinicShift(Shift s) {
+        return new ClinicShift(s.getId(), s.getRoomId(), s.getStartTime(), s.getEndTime(), s.getSlotMinutes(),
+                s.getMaxPatients());
+    }
 
     // ---------- Ca làm việc ----------
 

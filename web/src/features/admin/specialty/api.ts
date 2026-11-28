@@ -11,11 +11,15 @@ export interface Specialty {
   doctorUserIds: number[]
   /** Chỉ có khi đúng 1 bác sĩ */
   singleDoctorName: string | null
+  /** Thời gian khám mỗi lượt (phút) = độ dài slot khi đặt lịch */
+  slotMinutes: number
 }
 
 export interface SpecialtyRequest {
   name: string
   doctorUserIds: number[]
+  /** Bỏ trống khi sửa = giữ nguyên; khi tạo = 15 */
+  slotMinutes?: number
 }
 
 /** Bác sĩ đang hoạt động; specialtyId null = chưa có khoa */

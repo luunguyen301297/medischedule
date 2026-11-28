@@ -13,6 +13,8 @@ export default function HomePage() {
 
   // Quản trị viên không dùng trang này: vào thẳng khu quản trị
   if (me?.role === 'ADMIN') return <Navigate to="/admin" replace />
+  // Lễ tân làm việc ở menu Lịch hẹn của khu quản trị
+  if (me?.role === 'RECEPTIONIST') return <Navigate to="/admin/bookings" replace />
 
   const logout = () => {
     tokenStore.clear()

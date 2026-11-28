@@ -1,5 +1,7 @@
 package vn.medischedule.clinic.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -17,11 +19,23 @@ public final class ClinicDtos {
             @NotBlank(message = "Nhập tên chuyên khoa")
             @Size(max = 100, message = "Tên chuyên khoa tối đa 100 ký tự") String name,
             /** users.id của các bác sĩ thuộc khoa; null coi như rỗng. */
-            List<Long> doctorUserIds) {}
+            List<Long> doctorUserIds,
+            /** Thời gian khám mỗi lượt (phút), bội của 5; null: tạo = 15, sửa = giữ nguyên. */
+            @Min(value = 5, message = "Thời gian khám từ 5 đến 120 phút")
+            @Max(value = 120, message = "Thời gian khám từ 5 đến 120 phút") Integer slotMinutes) {
+
+        public SpecialtyRequest(String name, List<Long> doctorUserIds) {
+            this(name, doctorUserIds, null);
+        }
+    }
 
     /** singleRoomName / singleDoctorName chỉ có khi đúng 1 phòng / 1 bác sĩ; chỉ tính bác sĩ đang hoạt động. */
     public record SpecialtyResponse(Long id, String name, boolean active, long roomCount, String singleRoomName,
-                                    List<Long> doctorUserIds, String singleDoctorName) {}
+                                    List<Long> doctorUserIds, String singleDoctorName, int slotMinutes) {}
+
+    /** Thông tin bác sĩ để đặt lịch: hồ sơ staff, khoa, thời gian khám và phòng đang hoạt động đầu tiên của khoa. */
+    public record BookingDoctorInfo(Long staffId, Long userId, String fullName, Long specialtyId, String specialtyName,
+                                    int slotMinutes, Long roomId, String roomName) {}
 
     /** Bác sĩ đang hoạt động cho ô chọn; specialtyId null = chưa có khoa. */
     public record DoctorOption(Long userId, String fullName, Long specialtyId, String specialtyName) {}

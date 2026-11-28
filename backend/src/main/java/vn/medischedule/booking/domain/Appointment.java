@@ -16,6 +16,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 /** Lịch hẹn và cũng là lượt khám; walk-in là channel WALK_IN. doctorId phải bằng doctor của ca (FK ghép trong DB). */
@@ -26,7 +27,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class Appointment {
 
-    public enum Channel { APP, GUEST, AI, WALK_IN }
+    public enum Channel { APP, GUEST, AI, WALK_IN, STAFF }
 
     public enum Status { BOOKED, CHECKED_IN, IN_PROGRESS, DONE, CANCELLED, NO_SHOW }
 
@@ -44,13 +45,22 @@ public class Appointment {
     /** SĐT người đặt; giới hạn tối đa 2 lịch chờ và đếm no-show theo SĐT này. */
     private String bookerPhone;
 
-    /** shift.id của ca khám. */
+    /** Ngày khám; có cả khi chưa xếp bác sĩ. */
+    private LocalDate visitDate;
+
+    /** work_shift.id: buổi khách chọn (Sáng / Chiều / Tối). */
+    private Long workShiftId;
+
+    /** specialty.id khách chọn khi không chỉ định bác sĩ; NULL = chưa chọn. */
+    private Long specialtyId;
+
+    /** shift.id của ca khám; NULL = chưa xếp bác sĩ (xếp khi check-in). */
     private Long shiftId;
 
-    /** Giờ hẹn (đầu slot). Unique theo bác sĩ, trừ lịch đã hủy và walk-in. */
+    /** Giờ hẹn (đầu slot); NULL khi chưa xếp. Unique theo bác sĩ, trừ lịch đã hủy và walk-in. */
     private OffsetDateTime startAt;
 
-    /** staff.id của bác sĩ; DB ép bằng bác sĩ của ca (FK ghép shift_id, doctor_id). */
+    /** staff.id của bác sĩ; NULL khi chưa xếp. DB ép bằng bác sĩ của ca (FK ghép shift_id, doctor_id). */
     private Long doctorId;
 
     /** true = bệnh nhân chỉ định đích danh bác sĩ. */
@@ -64,7 +74,7 @@ public class Appointment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Voucher voucher;
 
-    /** Kênh đặt: APP, GUEST (web không đăng nhập), AI (đặt từ kết quả AI), WALK_IN (vãng lai tại quầy). */
+    /** Kênh đặt: APP, GUEST (web không đăng nhập), AI (đặt từ kết quả AI), WALK_IN (vãng lai tại quầy), STAFF (nhân viên đặt hộ). */
     @Enumerated(EnumType.STRING)
     private Channel channel;
 
@@ -89,6 +99,9 @@ public class Appointment {
 
     /** Lý do hủy. */
     private String cancelReason;
+
+    /** users.id nhân viên đặt hộ; NULL = khách tự đặt. */
+    private Long createdByUserId;
 
     /** Thời điểm đặt lịch. */
     @CreationTimestamp

@@ -90,3 +90,50 @@
   .ws-grid-week .ws-weekday { display: none; }
   .ws-grid-week .ws-cell { min-height: 0; }
 }
+
+/* ================= Lịch hẹn (/admin/bookings) ================= */
+.booking-sub { color: var(--ms-ink-soft); font-size: 13px; }
+.booking-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0.5px; }
+
+/* Dialog đặt hộ: chiều cao cố định, căn giữa; đầu + chân đứng yên, chỉ thân cuộn */
+.booking-modal .ant-modal-content { height: min(760px, calc(100vh - 48px)); display: flex; flex-direction: column; padding: 0; }
+.booking-modal .ant-modal-header { flex: none; margin: 0; padding: 18px 24px 14px; border-bottom: 1px solid var(--ms-border); }
+.booking-modal .ant-modal-body { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 24px 8px; }
+.booking-modal .ant-modal-footer { flex: none; margin: 0; padding: 12px 24px; border-top: 1px solid var(--ms-border); }
+.booking-footer { display: flex; align-items: center; gap: 8px; }
+.booking-footer-summary { margin-right: auto; color: var(--ms-ink-soft); font-size: 14px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.booking-section { padding: 16px 0 4px; }
+.booking-section + .booking-section { border-top: 1px solid var(--ms-border); }
+.booking-section h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--ms-ink-soft); }
+.booking-section .ant-form-item { margin-bottom: 16px; }
+.booking-form-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0 12px; }
+.booking-loading { padding: 8px 0; }
+
+/* Nhóm nút chọn dạng chip (ngày, buổi, giờ): tách rời, bo góc, xuống dòng đều */
+.booking-chips { display: grid; gap: 8px; width: 100%; }
+.booking-chips .ant-radio-button-wrapper { height: auto; padding: 6px 8px; line-height: 1.35; text-align: center; border-radius: 8px !important; border-inline-start-width: 1px; }
+.booking-chips .ant-radio-button-wrapper::before { display: none; }
+.booking-chips .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) { background: var(--ms-primary-tint); }
+.booking-chips .ant-radio-button-wrapper-disabled { text-decoration: line-through; }
+.booking-days { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.booking-shifts { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.booking-slots { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+.booking-chip-2l { display: flex; flex-direction: column; font-weight: 600; }
+.booking-chip-2l small { font-size: 12px; font-weight: 400; color: var(--ms-ink-soft); }
+
+/* Chọn hồ sơ: mỗi hồ sơ một thẻ */
+.booking-patients { display: grid; gap: 8px; width: 100%; }
+.booking-patients .ant-radio-wrapper { margin: 0; padding: 10px 12px; border: 1px solid var(--ms-border); border-radius: 8px; align-items: center; }
+.booking-patients .ant-radio-wrapper-checked { border-color: var(--ms-primary); background: var(--ms-primary-tint); }
+.booking-patient { display: flex; flex-direction: column; }
+.booking-patient span { font-size: 13px; color: var(--ms-ink-soft); }
+
+@media (max-width: 640px) {
+  .booking-days { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .booking-form-row { grid-template-columns: 1fr; }
+}
+.booking-form-row-2 { grid-template-columns: 1fr 1fr; }
+.booking-hint { margin: -4px 0 12px; color: var(--ms-ink-soft); font-size: 13.5px; }
+.booking-existing { margin-bottom: 16px; }
+.booking-existing .booking-hint { margin: 0 0 8px; }
