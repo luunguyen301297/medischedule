@@ -1,7 +1,16 @@
 /* Khu quản trị (/admin). Dùng biến --ms-* từ shared/theme. */
 
 /* ================= Khu quản trị ================= */
-.admin-shell { height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+.admin-shell { height: 100vh; display: grid; grid-template-columns: 248px 1fr; transition: grid-template-columns 0.2s; }
+/* Sidebar thu gọn: cột icon, nút 3 gạch ở đầu */
+.admin-shell.is-collapsed { grid-template-columns: 72px 1fr; }
+.admin-side { overflow: hidden; }
+.admin-side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 36px; }
+.admin-shell.is-collapsed .admin-side { padding-inline: 8px; }
+.admin-shell.is-collapsed .admin-side-head { justify-content: center; }
+.admin-shell.is-collapsed .admin-side .ant-menu-inline-collapsed { width: 100%; }
+.admin-shell.is-collapsed .admin-user { padding-inline: 0; }
+.admin-toggle { flex: none; }
 .admin-side { border-right: 1px solid var(--ms-border); display: flex; flex-direction: column; padding: 20px 12px; gap: 16px; }
 .admin-side .brand-logo { padding: 0 8px; font-size: 18px; }
 .admin-side .brand-mark { background: var(--ms-primary); color: #fff; width: 34px; height: 34px; }

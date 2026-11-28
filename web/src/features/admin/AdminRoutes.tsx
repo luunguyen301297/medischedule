@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import BookingPage from './booking/BookingPage'
 import HomepageSettingsPage from './homepage/HomepageSettingsPage'
+import ComingSoonPage from './placeholder/ComingSoonPage'
 import AdminLayout from './layout/AdminLayout'
 import SpecialtyPage from './specialty/SpecialtyPage'
 import StaffPage from './staff/StaffPage'
@@ -14,6 +15,9 @@ export default function AdminRoutes() {
       <Route element={<AdminLayout />}>
         <Route index element={<Navigate to="bookings" replace />} />
         <Route path="bookings" element={<BookingPage />} />
+        <Route path="reception" element={<ComingSoonPage key="reception" title="Lễ tân" />} />
+        <Route path="doctor" element={<ComingSoonPage key="doctor" title="Bác sĩ" />} />
+        <Route path="pharmacy" element={<ComingSoonPage key="pharmacy" title="Dược sĩ" />} />
         <Route path="staff" element={<StaffPage key="staff" group="staff" />} />
         <Route path="patients" element={<StaffPage key="patient" group="patient" />} />
         <Route path="homepage" element={<HomepageSettingsPage />} />
